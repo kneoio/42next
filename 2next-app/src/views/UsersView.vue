@@ -16,7 +16,7 @@ import {
   type DataTableRowKey
 } from 'naive-ui'
 import type { User } from '@/services/api'
-import apiService from '@/services/api'
+import { useUserStore } from '@/stores/user'
 
 interface UserForm {
   login: string
@@ -28,9 +28,7 @@ interface UserForm {
   defaultLang: string
 }
 
-const users = ref<User[]>([])
-const loading = ref(false)
-const selectedRowKeys = ref<DataTableRowKey[]>([])
+const userStore = useUserStore()
 const showModal = ref(false)
 const editingUser = ref<User | null>(null)
 const isEditing = ref(false)
@@ -118,14 +116,11 @@ const formData = ref<UserForm>({
 })
 
 const loadUsers = async () => {
-  loading.value = true
   try {
-    users.value = await apiService.getUsers()
+    await userStore.loadUsers()
   } catch (error) {
     console.error('Failed to load users:', error)
     message.error('Failed to load users')
-  } finally {
-    loading.value = false
   }
 }
 
@@ -172,14 +167,13 @@ const handleSave = async () => {
     }
     
     if (isEditing.value && editingUser.value) {
-      await apiService.updateUser(editingUser.value.id, userData)
+      await userStore.updateUser(editingUser.value.id, userData)
       message.success('User updated successfully')
     } else {
-      await apiService.createUser(userData)
+      await userStore.createUser(userData)
       message.success('User created successfully')
     }
     showModal.value = false
-    await loadUsers()
   } catch (error) {
     console.error('Failed to save user:', error)
     message.error('Failed to save user')
@@ -188,9 +182,8 @@ const handleSave = async () => {
 
 const handleDelete = async (id: number) => {
   try {
-    await apiService.deleteUser(id)
+    await userStore.deleteUser(id)
     message.success('User deleted successfully')
-    await loadUsers()
   } catch (error) {
     console.error('Failed to delete user:', error)
     message.error('Failed to delete user')
@@ -198,16 +191,14 @@ const handleDelete = async (id: number) => {
 }
 
 const handleBulkArchive = async () => {
-  if (selectedRowKeys.value.length === 0) {
+  if (userStore.selectedUserIds.length === 0) {
     message.warning('Please select users to archive')
     return
   }
   
   try {
-    await apiService.archiveUsers(selectedRowKeys.value as number[])
+    await userStore.archiveUsers(userStore.selectedUserIds)
     message.success('Users archived successfully')
-    selectedRowKeys.value = []
-    await loadUsers()
   } catch (error) {
     console.error('Failed to archive users:', error)
     message.error('Failed to archive users')
@@ -243,9 +234,9 @@ onMounted(() => {
           <template #trigger>
             <NButton 
               type="warning" 
-              :disabled="selectedRowKeys.length === 0"
+              :disabled="userStore.selectedUserIds.length === 0"
             >
-              Archive Selected ({{ selectedRowKeys.length }})
+              Archive Selected ({{ userStore.selectedUserIds.length }})
             </NButton>
           </template>
           Are you sure you want to archive the selected users?
@@ -255,10 +246,10 @@ onMounted(() => {
 
     <NDataTable
       :columns="columns"
-      :data="users"
-      :loading="loading"
+      :data="userStore.users"
+      :loading="userStore.loading"
       :row-key="(row: User) => row.id"
-      v-model:checked-row-keys="selectedRowKeys"
+      v-model:checked-row-keys="userStore.selectedUserIds"
       :pagination="{
         pageSize: 20,
         showSizePicker: true,

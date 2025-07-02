@@ -1,44 +1,306 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { NCard, NH3, NP, NButton, NSpace } from 'naive-ui'
+import { onMounted, onBeforeUnmount, ref, computed, h } from 'vue'
+import { NButton, NDataTable, NModal, NForm, NFormItem, NInput, NSwitch, NSelect, NSpace, NPopconfirm, useMessage, type DataTableColumns } from 'naive-ui'
+import { useModulesStore, type Module } from '@/stores/modules'
 
-const loading = ref(false)
+const moduleStore = useModulesStore()
+const message = useMessage()
+
+// Modal state
+const showModal = ref(false)
+const isEditing = ref(false)
+const editingItem = ref<Module | null>(null)
+
+// Form data with proper Module interface
+interface ModuleFormData {
+  name: string
+  description?: string
+  version?: string
+  active: boolean
+  category?: string
+  permissions?: string[]
+  dependencies?: number[]
+}
+
+const formData = ref<ModuleFormData>({
+  name: '',
+  description: '',
+  version: '',
+  active: true,
+  category: '',
+  permissions: [],
+  dependencies: []
+})
+
+const selectedCount = computed(() => moduleStore.selectedModuleIds.length)
+
+const columns: DataTableColumns<Module> = [
+  {
+    type: 'selection',
+    width: 60
+  },
+  {
+    title: 'ID',
+    key: 'id',
+    width: 100
+  },
+  {
+    title: 'Name',
+    key: 'name',
+    width: 200,
+    ellipsis: {
+      tooltip: true
+    }
+  },
+  {
+    title: 'Description',
+    key: 'description',
+    width: 300,
+    ellipsis: {
+      tooltip: true
+    }
+  },
+  {
+    title: 'Version',
+    key: 'version',
+    width: 120
+  },
+  {
+    title: 'Category',
+    key: 'category',
+    width: 150
+  },
+  {
+    title: 'Active',
+    key: 'active',
+    width: 120,
+    render: (row) => row.active ? 'Yes' : 'No'
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    width: 180,
+    render: (row) => [
+      h(NButton, {
+        size: 'small',
+        onClick: () => handleEdit(row)
+      }, { default: () => 'Edit' }),
+      h(NPopconfirm, {
+        onPositiveClick: () => handleDelete(row.id)
+      }, {
+        default: () => 'Are you sure you want to delete this module?',
+        trigger: () => h(NButton, {
+          size: 'small',
+          type: 'error',
+          style: 'margin-left: 8px;'
+        }, { default: () => 'Delete' })
+      })
+    ]
+  }
+]
+
+// Module management functions
+function handleCreate() {
+  isEditing.value = false
+  editingItem.value = null
+  formData.value = {
+    name: '',
+    description: '',
+    version: '',
+    active: true,
+    category: '',
+    permissions: [],
+    dependencies: []
+  }
+  showModal.value = true
+}
+
+function handleEdit(item: Module) {
+  isEditing.value = true
+  editingItem.value = item
+  formData.value = {
+    name: item.name,
+    description: item.description || '',
+    version: item.version || '',
+    active: item.active,
+    category: item.category || '',
+    permissions: item.permissions || [],
+    dependencies: item.dependencies || []
+  }
+  showModal.value = true
+}
+
+async function handleSave() {
+  try {
+    if (isEditing.value && editingItem.value) {
+      await moduleStore.updateModule(editingItem.value.id, formData.value)
+      message.success('Module updated successfully')
+    } else {
+      await moduleStore.createModule(formData.value)
+      message.success('Module created successfully')
+    }
+    showModal.value = false
+    formData.value = {
+      name: '',
+      description: '',
+      version: '',
+      active: true,
+      category: '',
+      permissions: [],
+      dependencies: []
+    }
+  } catch (error) {
+    console.error('Failed to save module:', error)
+    message.error('Failed to save module')
+  }
+}
+
+async function handleDelete(id: number) {
+  try {
+    await moduleStore.deleteModule(id)
+    message.success('Module deleted successfully')
+  } catch (error) {
+    console.error('Failed to delete module:', error)
+    message.error('Failed to delete module')
+  }
+}
+
+async function handleBulkArchive() {
+  if (moduleStore.selectedModuleIds.length === 0) {
+    message.warning('Please select modules to archive')
+    return
+  }
+  
+  try {
+    await moduleStore.archiveModules(moduleStore.selectedModuleIds)
+    message.success('Modules archived successfully')
+  } catch (error) {
+    console.error('Failed to archive modules:', error)
+    message.error('Failed to archive modules')
+  }
+}
+
+function handleCancel() {
+  showModal.value = false
+  formData.value = {
+    name: '',
+    description: '',
+    version: '',
+    active: true,
+    category: '',
+    permissions: [],
+    dependencies: []
+  }
+}
+
+const categoryOptions = [
+  { label: 'Core', value: 'Core' },
+  { label: 'Extension', value: 'Extension' },
+  { label: 'Plugin', value: 'Plugin' },
+  { label: 'Integration', value: 'Integration' },
+  { label: 'Utility', value: 'Utility' }
+]
+
+onMounted(() => {
+  moduleStore.loadModules()
+})
+
+onBeforeUnmount(() => {
+  // Clear selection to prevent DOM access errors during navigation
+  moduleStore.clearSelection()
+})
 </script>
 
 <template>
   <div class="modules-view">
-    <NCard>
-      <template #header>
-        <div class="flex justify-between items-center">
-          <NH3>Modules Management</NH3>
-          <NSpace>
-            <NButton type="primary">Create Module</NButton>
-            <NButton type="warning" disabled>Archive Selected</NButton>
-          </NSpace>
-        </div>
+    <div class="mb-4">
+      <NSpace>
+        <NButton type="primary" @click="handleCreate">
+          Create Module
+        </NButton>
+        <NPopconfirm @positive-click="handleBulkArchive">
+          <template #trigger>
+            <NButton 
+              type="warning" 
+              :disabled="moduleStore.selectedModuleIds.length === 0"
+            >
+              Archive Selected ({{ moduleStore.selectedModuleIds.length }})
+            </NButton>
+          </template>
+          Are you sure you want to archive the selected modules?
+        </NPopconfirm>
+      </NSpace>
+    </div>
+
+    <NDataTable
+      :columns="columns"
+      :data="moduleStore.modules"
+      :loading="moduleStore.loading"
+      :row-key="(row: Module) => row.id"
+      v-model:checked-row-keys="moduleStore.selectedModuleIds"
+      :pagination="{
+        pageSize: 20,
+        showSizePicker: true,
+        pageSizes: [10, 20, 50, 100]
+      }"
+    />
+
+    <NModal
+      v-model:show="showModal"
+      preset="dialog"
+      :title="isEditing ? 'Edit Module' : 'Create Module'"
+      :style="{ width: '600px' }"
+    >
+      <NForm :model="formData" label-placement="left" label-width="120px">
+        <NFormItem label="Name" required>
+          <NInput v-model:value="formData.name" placeholder="Enter module name" />
+        </NFormItem>
+        
+        <NFormItem label="Description">
+          <NInput 
+            v-model:value="formData.description" 
+            placeholder="Enter module description"
+            type="textarea"
+            :rows="3"
+          />
+        </NFormItem>
+        
+        <NFormItem label="Version">
+          <NInput v-model:value="formData.version" placeholder="e.g., 1.0.0" />
+        </NFormItem>
+        
+        <NFormItem label="Category">
+          <NSelect 
+            v-model:value="formData.category" 
+            :options="categoryOptions"
+            placeholder="Select category"
+          />
+        </NFormItem>
+        
+        <NFormItem label="Active">
+          <NSwitch v-model:value="formData.active" />
+        </NFormItem>
+      </NForm>
+      
+      <template #action>
+        <NSpace>
+          <NButton @click="handleCancel">Cancel</NButton>
+          <NButton type="primary" @click="handleSave">Save</NButton>
+        </NSpace>
       </template>
-      
-      <NP class="text-gray-600">
-        Modules management functionality will be implemented here. 
-        This will include CRUD operations for system modules with the same pattern as Users.
-      </NP>
-      
-      <div class="mt-4 p-4 bg-gray-50 rounded">
-        <NP class="text-sm text-gray-500 mb-2">Coming soon:</NP>
-        <ul class="text-sm text-gray-600 space-y-1">
-          <li>• View all modules in a data table</li>
-          <li>• Create new modules</li>
-          <li>• Edit existing modules</li>
-          <li>• Archive/Delete modules</li>
-          <li>• Bulk operations</li>
-        </ul>
-      </div>
-    </NCard>
+    </NModal>
   </div>
 </template>
 
 <style scoped>
 .modules-view {
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
 }
 </style>

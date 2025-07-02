@@ -1,16 +1,18 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { NMessageProvider, NGlobalStyle } from 'naive-ui'
+import { NMessageProvider, NGlobalStyle, NConfigProvider } from 'naive-ui'
 
 // Authentication initialization is handled by the router guard
 // This prevents duplicate initialization calls
 </script>
 
 <template>
-  <NMessageProvider>
-    <NGlobalStyle />
-    <RouterView />
-  </NMessageProvider>
+  <NConfigProvider>
+    <NMessageProvider>
+      <NGlobalStyle />
+      <RouterView />
+    </NMessageProvider>
+  </NConfigProvider>
 </template>
 
 <style scoped>
