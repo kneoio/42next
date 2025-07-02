@@ -38,16 +38,18 @@ const message = useMessage()
 
 const columns: DataTableColumns<User> = [
   {
-    type: 'selection'
+    type: 'selection',
+    width: 60
   },
   {
     title: 'ID',
     key: 'id',
-    width: 80
+    width: 100
   },
   {
     title: 'Login',
     key: 'login',
+    width: 200,
     ellipsis: {
       tooltip: true
     }
@@ -55,6 +57,7 @@ const columns: DataTableColumns<User> = [
   {
     title: 'User Name',
     key: 'userName',
+    width: 250,
     ellipsis: {
       tooltip: true
     }
@@ -62,29 +65,29 @@ const columns: DataTableColumns<User> = [
   {
     title: 'Registration Date',
     key: 'regDate',
-    width: 180
+    width: 220
   },
   {
     title: 'Time Zone',
     key: 'timeZone',
-    width: 150
+    width: 200
   },
   {
     title: 'Active',
     key: 'active',
-    width: 100,
+    width: 120,
     render: (row) => row.active ? 'Yes' : 'No'
   },
   {
     title: 'Supervisor',
     key: 'supervisor',
-    width: 100,
+    width: 120,
     render: (row) => row.supervisor ? 'Yes' : 'No'
   },
   {
     title: 'Actions',
     key: 'actions',
-    width: 150,
+    width: 180,
     render: (row) => [
       h(NButton, {
         size: 'small',
@@ -318,5 +321,12 @@ onMounted(() => {
 <style scoped>
 .users-view {
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
 }
 </style>
