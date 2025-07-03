@@ -54,14 +54,6 @@ const columns: DataTableColumns<Role> = [
     width: 60
   },
   {
-    title: 'Identifier',
-    key: 'identifier',
-    width: 120,
-    ellipsis: {
-      tooltip: true
-    }
-  },
-  {
     title: 'Name',
     key: 'localizedName',
     width: 200,
@@ -88,31 +80,16 @@ const columns: DataTableColumns<Role> = [
     }
   },
   {
-    title: 'Last Modified',
-    key: 'lastModifiedDate',
-    width: 150,
-    render: (row) => new Date(row.lastModifiedDate).toLocaleDateString()
+    title: 'Created',
+    key: 'regDate',
+    width: 140,
+    render: (row) => new Date(row.regDate).toLocaleDateString()
   },
   {
-    title: 'Actions',
-    key: 'actions',
-    width: 180,
-    render: (row) => [
-      h(NButton, {
-        size: 'small',
-        onClick: () => handleEdit(row)
-      }, { default: () => 'Edit' }),
-      h(NPopconfirm, {
-        onPositiveClick: () => handleDelete(row.identifier)
-      }, {
-        default: () => 'Are you sure you want to delete this role?',
-        trigger: () => h(NButton, {
-          size: 'small',
-          type: 'error',
-          style: 'margin-left: 8px;'
-        }, { default: () => 'Delete' })
-      })
-    ]
+    title: 'Last Modified',
+    key: 'lastModifiedDate',
+    width: 140,
+    render: (row) => new Date(row.lastModifiedDate).toLocaleDateString()
   }
 ]
 
@@ -189,6 +166,24 @@ async function handleBulkArchive() {
   }
 }
 
+async function handleBulkDelete() {
+  if (rolesStore.selectedRoleIds.length === 0) {
+    message.warning('Please select roles to delete')
+    return
+  }
+  
+  try {
+    // Delete each selected role
+    for (const id of rolesStore.selectedRoleIds) {
+      await rolesStore.deleteRole(id)
+    }
+    message.success('Roles deleted successfully')
+  } catch (error) {
+    console.error('Failed to delete roles:', error)
+    message.error('Failed to delete roles')
+  }
+}
+
 function handleCancel() {
   showModal.value = false
   formData.value = {
@@ -226,6 +221,17 @@ onBeforeUnmount(() => {
           </template>
           Are you sure you want to archive the selected roles?
         </NPopconfirm>
+        <NPopconfirm @positive-click="handleBulkDelete">
+          <template #trigger>
+            <NButton 
+              type="error" 
+              :disabled="rolesStore.selectedRoleIds.length === 0"
+            >
+              Delete Selected ({{ rolesStore.selectedRoleIds.length }})
+            </NButton>
+          </template>
+          Are you sure you want to delete the selected roles?
+        </NPopconfirm>
       </NSpace>
     </div>
 
@@ -240,6 +246,7 @@ onBeforeUnmount(() => {
         showSizePicker: true,
         pageSizes: [10, 20, 50, 100]
       }"
+      :row-props="(row: Role) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
     />
 
     <NModal

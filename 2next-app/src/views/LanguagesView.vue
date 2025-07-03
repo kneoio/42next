@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, h } from 'vue'
+import { onMounted, onBeforeUnmount, ref, computed } from 'vue'
 import { 
   NDataTable, 
   NButton, 
@@ -10,22 +10,42 @@ import {
   NFormItem,
   NInput,
   NSwitch,
+  useMessage,
   type DataTableColumns
 } from 'naive-ui'
 import { useLanguagesStore, type Language } from '@/stores/languages'
-import { useDictionaryManagement } from '@/composables/useDictionaryManagement'
 
 const languagesStore = useLanguagesStore()
+const message = useMessage()
+
+// Modal state
+const showModal = ref(false)
+const isEditing = ref(false)
+const editingItem = ref<Language | null>(null)
+
+// Form data
+interface LanguageFormData {
+  name: string
+  code: string
+  locale?: string
+  isDefault: boolean
+  active: boolean
+}
+
+const formData = ref<LanguageFormData>({
+  name: '',
+  code: '',
+  locale: '',
+  isDefault: false,
+  active: true
+})
+
+const selectedCount = computed(() => languagesStore.selectedLanguageIds.length)
 
 const columns: DataTableColumns<Language> = [
   {
     type: 'selection',
     width: 60
-  },
-  {
-    title: 'ID',
-    key: 'id',
-    width: 100
   },
   {
     title: 'Name',
@@ -52,49 +72,113 @@ const columns: DataTableColumns<Language> = [
     render: (row) => row.isDefault ? 'Yes' : 'No'
   },
   {
-    title: 'Active',
+    title: 'Status',
     key: 'active',
     width: 120,
-    render: (row) => row.active ? 'Yes' : 'No'
-  },
-  {
-    title: 'Actions',
-    key: 'actions',
-    width: 180,
-    render: (row) => [
-      h(NButton, {
-        size: 'small',
-        onClick: () => handleEdit(row)
-      }, { default: () => 'Edit' }),
-      h(NPopconfirm, {
-        onPositiveClick: () => handleDelete(row.id)
-      }, {
-        default: () => 'Are you sure you want to delete this language?',
-        trigger: () => h(NButton, {
-          size: 'small',
-          type: 'error',
-          style: 'margin-left: 8px;'
-        }, { default: () => 'Delete' })
-      })
-    ]
+    render: (row) => row.active ? 'Active' : 'Inactive'
   }
 ]
 
-const {
-  showModal,
-  isEditing,
-  formData,
-  selectedCount,
-  handleCreate,
-  handleEdit,
-  handleSave,
-  handleDelete,
-  handleBulkArchive,
-  handleCancel
-} = useDictionaryManagement(languagesStore, 'Language', columns)
+// Language management functions
+function handleCreate() {
+  isEditing.value = false
+  editingItem.value = null
+  formData.value = {
+    name: '',
+    code: '',
+    locale: '',
+    isDefault: false,
+    active: true
+  }
+  showModal.value = true
+}
+
+function handleEdit(item: Language) {
+  isEditing.value = true
+  editingItem.value = item
+  formData.value = {
+    name: item.name,
+    code: item.code,
+    locale: item.locale || '',
+    isDefault: item.isDefault || false,
+    active: item.active
+  }
+  showModal.value = true
+}
+
+async function handleSave() {
+  try {
+    if (isEditing.value && editingItem.value) {
+      await languagesStore.updateLanguage(editingItem.value.id, formData.value)
+      message.success('Language updated successfully')
+    } else {
+      await languagesStore.createLanguage(formData.value)
+      message.success('Language created successfully')
+    }
+    showModal.value = false
+    formData.value = {
+      name: '',
+      code: '',
+      locale: '',
+      isDefault: false,
+      active: true
+    }
+  } catch (error) {
+    console.error('Failed to save language:', error)
+    message.error('Failed to save language')
+  }
+}
+
+async function handleBulkArchive() {
+  if (languagesStore.selectedLanguageIds.length === 0) {
+    message.warning('Please select languages to archive')
+    return
+  }
+  
+  try {
+    await languagesStore.archiveLanguages(languagesStore.selectedLanguageIds)
+    message.success('Languages archived successfully')
+  } catch (error) {
+    console.error('Failed to archive languages:', error)
+    message.error('Failed to archive languages')
+  }
+}
+
+async function handleBulkDelete() {
+  if (languagesStore.selectedLanguageIds.length === 0) {
+    message.warning('Please select languages to delete')
+    return
+  }
+  
+  try {
+    for (const id of languagesStore.selectedLanguageIds) {
+      await languagesStore.deleteLanguage(id)
+    }
+    message.success('Languages deleted successfully')
+  } catch (error) {
+    console.error('Failed to delete languages:', error)
+    message.error('Failed to delete languages')
+  }
+}
+
+function handleCancel() {
+  showModal.value = false
+  formData.value = {
+    name: '',
+    code: '',
+    locale: '',
+    isDefault: false,
+    active: true
+  }
+}
 
 onMounted(() => {
   languagesStore.loadLanguages()
+})
+
+onBeforeUnmount(() => {
+  // Clear selection to prevent DOM access errors during navigation
+  languagesStore.clearSelection()
 })
 </script>
 
@@ -116,6 +200,17 @@ onMounted(() => {
           </template>
           Are you sure you want to archive the selected languages?
         </NPopconfirm>
+        <NPopconfirm @positive-click="handleBulkDelete">
+          <template #trigger>
+            <NButton 
+              type="error" 
+              :disabled="languagesStore.selectedLanguageIds.length === 0"
+            >
+              Delete Selected ({{ languagesStore.selectedLanguageIds.length }})
+            </NButton>
+          </template>
+          Are you sure you want to delete the selected languages?
+        </NPopconfirm>
       </NSpace>
     </div>
 
@@ -130,6 +225,7 @@ onMounted(() => {
         showSizePicker: true,
         pageSizes: [10, 20, 50, 100]
       }"
+      :row-props="(row: Language) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
     />
 
     <NModal

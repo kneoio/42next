@@ -40,11 +40,6 @@ const columns: DataTableColumns<Module> = [
     width: 60
   },
   {
-    title: 'ID',
-    key: 'id',
-    width: 100
-  },
-  {
     title: 'Name',
     key: 'name',
     width: 200,
@@ -55,7 +50,7 @@ const columns: DataTableColumns<Module> = [
   {
     title: 'Description',
     key: 'description',
-    width: 300,
+    width: 250,
     ellipsis: {
       tooltip: true
     }
@@ -68,34 +63,13 @@ const columns: DataTableColumns<Module> = [
   {
     title: 'Category',
     key: 'category',
-    width: 150
+    width: 120
   },
   {
-    title: 'Active',
+    title: 'Status',
     key: 'active',
-    width: 120,
-    render: (row) => row.active ? 'Yes' : 'No'
-  },
-  {
-    title: 'Actions',
-    key: 'actions',
-    width: 180,
-    render: (row) => [
-      h(NButton, {
-        size: 'small',
-        onClick: () => handleEdit(row)
-      }, { default: () => 'Edit' }),
-      h(NPopconfirm, {
-        onPositiveClick: () => handleDelete(row.id)
-      }, {
-        default: () => 'Are you sure you want to delete this module?',
-        trigger: () => h(NButton, {
-          size: 'small',
-          type: 'error',
-          style: 'margin-left: 8px;'
-        }, { default: () => 'Delete' })
-      })
-    ]
+    width: 100,
+    render: (row) => row.active ? 'Active' : 'Inactive'
   }
 ]
 
@@ -180,6 +154,24 @@ async function handleBulkArchive() {
   }
 }
 
+async function handleBulkDelete() {
+  if (moduleStore.selectedModuleIds.length === 0) {
+    message.warning('Please select modules to delete')
+    return
+  }
+  
+  try {
+    // Delete each selected module
+    for (const id of moduleStore.selectedModuleIds) {
+      await moduleStore.deleteModule(id)
+    }
+    message.success('Modules deleted successfully')
+  } catch (error) {
+    console.error('Failed to delete modules:', error)
+    message.error('Failed to delete modules')
+  }
+}
+
 function handleCancel() {
   showModal.value = false
   formData.value = {
@@ -229,6 +221,17 @@ onBeforeUnmount(() => {
           </template>
           Are you sure you want to archive the selected modules?
         </NPopconfirm>
+        <NPopconfirm @positive-click="handleBulkDelete">
+          <template #trigger>
+            <NButton 
+              type="error" 
+              :disabled="moduleStore.selectedModuleIds.length === 0"
+            >
+              Delete Selected ({{ moduleStore.selectedModuleIds.length }})
+            </NButton>
+          </template>
+          Are you sure you want to delete the selected modules?
+        </NPopconfirm>
       </NSpace>
     </div>
 
@@ -243,6 +246,7 @@ onBeforeUnmount(() => {
         showSizePicker: true,
         pageSizes: [10, 20, 50, 100]
       }"
+      :row-props="(row: Module) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
     />
 
     <NModal

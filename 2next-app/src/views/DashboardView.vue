@@ -2,6 +2,7 @@
 import { ref, onMounted, h } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 import { 
   NLayout, 
   NLayoutSider, 
@@ -21,10 +22,13 @@ import {
   ExtensionPuzzleOutline as ModulesIcon,
   LanguageOutline as LanguagesIcon,
   PersonCircleOutline as ProfileIcon,
-  LogOutOutline as LogoutIcon
+  LogOutOutline as LogoutIcon,
+  SunnyOutline as LightIcon,
+  MoonOutline as DarkIcon
 } from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 const router = useRouter()
 
 const collapsed = ref(false)
@@ -126,6 +130,20 @@ const handleUserMenuSelect = async (key: string) => {
           </div>
           
           <NSpace>
+            <NButton 
+              circle 
+              quaternary
+              @click="themeStore.toggleTheme"
+              :title="themeStore.isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+            >
+              <template #icon>
+                <NIcon>
+                  <LightIcon v-if="themeStore.isDark" />
+                  <DarkIcon v-else />
+                </NIcon>
+              </template>
+            </NButton>
+            
             <NDropdown
               :options="userMenuOptions"
               @select="handleUserMenuSelect"

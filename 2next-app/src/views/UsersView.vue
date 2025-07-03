@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, h } from 'vue'
+import { ref, onMounted, onBeforeUnmount, h } from 'vue'
 import { 
   NDataTable, 
   NButton, 
@@ -40,11 +40,6 @@ const columns: DataTableColumns<User> = [
     width: 60
   },
   {
-    title: 'ID',
-    key: 'id',
-    width: 100
-  },
-  {
     title: 'Login',
     key: 'login',
     width: 200,
@@ -71,37 +66,16 @@ const columns: DataTableColumns<User> = [
     width: 200
   },
   {
-    title: 'Active',
+    title: 'Status',
     key: 'active',
     width: 120,
-    render: (row) => row.active ? 'Yes' : 'No'
+    render: (row) => row.active ? 'Active' : 'Inactive'
   },
   {
     title: 'Supervisor',
     key: 'supervisor',
     width: 120,
     render: (row) => row.supervisor ? 'Yes' : 'No'
-  },
-  {
-    title: 'Actions',
-    key: 'actions',
-    width: 180,
-    render: (row) => [
-      h(NButton, {
-        size: 'small',
-        onClick: () => handleEdit(row)
-      }, { default: () => 'Edit' }),
-      h(NPopconfirm, {
-        onPositiveClick: () => handleDelete(row.id)
-      }, {
-        default: () => 'Are you sure you want to delete this user?',
-        trigger: () => h(NButton, {
-          size: 'small',
-          type: 'error',
-          style: 'margin-left: 8px;'
-        }, { default: () => 'Delete' })
-      })
-    ]
   }
 ]
 
@@ -205,6 +179,23 @@ const handleBulkArchive = async () => {
   }
 }
 
+const handleBulkDelete = async () => {
+  if (userStore.selectedUserIds.length === 0) {
+    message.warning('Please select users to delete')
+    return
+  }
+  
+  try {
+    for (const id of userStore.selectedUserIds) {
+      await userStore.deleteUser(id)
+    }
+    message.success('Users deleted successfully')
+  } catch (error) {
+    console.error('Failed to delete users:', error)
+    message.error('Failed to delete users')
+  }
+}
+
 const handleCancel = () => {
   showModal.value = false
   formData.value = {
@@ -220,6 +211,11 @@ const handleCancel = () => {
 
 onMounted(() => {
   loadUsers()
+})
+
+onBeforeUnmount(() => {
+  // Clear selection to prevent DOM access errors during navigation
+  userStore.clearSelection()
 })
 </script>
 
@@ -241,6 +237,17 @@ onMounted(() => {
           </template>
           Are you sure you want to archive the selected users?
         </NPopconfirm>
+        <NPopconfirm @positive-click="handleBulkDelete">
+          <template #trigger>
+            <NButton 
+              type="error" 
+              :disabled="userStore.selectedUserIds.length === 0"
+            >
+              Delete Selected ({{ userStore.selectedUserIds.length }})
+            </NButton>
+          </template>
+          Are you sure you want to delete the selected users?
+        </NPopconfirm>
       </NSpace>
     </div>
 
@@ -255,6 +262,7 @@ onMounted(() => {
         showSizePicker: true,
         pageSizes: [10, 20, 50, 100]
       }"
+      :row-props="(row: User) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
     />
 
     <NModal
