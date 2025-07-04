@@ -231,7 +231,17 @@ onBeforeUnmount(() => {
           showSizePicker: true,
           pageSizes: [10, 20, 50, 100]
         }"
-        :row-props="(row: Language) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
+        :row-props="(row: Language) => ({ 
+          style: 'cursor: pointer;', 
+          onClick: (e: MouseEvent) => {
+            // Prevent opening form if clicking on checkbox area
+            const target = e.target as HTMLElement
+            if (target.closest('.n-data-table-td--selection') || target.closest('.n-checkbox')) {
+              return
+            }
+            handleEdit(row)
+          }
+        })"
       />
     </div>
 
