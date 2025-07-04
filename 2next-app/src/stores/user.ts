@@ -5,25 +5,16 @@ import apiService, { type User } from '@/services/api'
 export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([])
   const loading = ref(false)
-  const selectedUserIds = ref<number[]>([])
+  const selectedUserIds = ref<string[]>([])
 
   const selectedUsers = computed(() => 
-    users.value.filter(user => selectedUserIds.value.includes(user.id))
-  )
-
-  const activeUsers = computed(() => 
-    users.value.filter(user => user.active)
-  )
-
-  const supervisors = computed(() => 
-    users.value.filter(user => user.supervisor)
+    users.value.filter(user => selectedUserIds.value.includes(user.login))
   )
 
   async function loadUsers() {
     loading.value = true
     try {
-      const response = await apiService.request<{ payload: { viewData: User[] } }>('/users')
-      users.value = response.payload.viewData
+      users.value = await apiService.getDictionary<User>('/users')
     } catch (error) {
       console.error('Failed to load users:', error)
       throw error
@@ -34,10 +25,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function createUser(userData: Partial<User>) {
     try {
-      const newUser = await apiService.request<User>('/users', {
-        method: 'POST',
-        body: JSON.stringify(userData),
-      })
+      const newUser = await apiService.createDictionaryItem<User>('/users', userData)
       users.value.push(newUser)
       return newUser
     } catch (error) {
@@ -46,14 +34,11 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function updateUser(id: number, userData: Partial<User>) {
+  async function updateUser(login: string, userData: Partial<User>) {
     try {
-      const updatedUser = await apiService.request<User>(`/users/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(userData),
-      })
+      const updatedUser = await apiService.updateDictionaryItem<User>('/users', login, userData)
       
-      const index = users.value.findIndex(user => user.id === id)
+      const index = users.value.findIndex(user => user.login === login)
       if (index !== -1) {
         users.value[index] = updatedUser
       }
@@ -64,26 +49,21 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function deleteUser(id: number) {
+  async function deleteUser(login: string) {
     try {
-      await apiService.request<void>(`/users/${id}`, {
-        method: 'DELETE',
-      })
+      await apiService.deleteDictionaryItem('/users', login)
       
-      users.value = users.value.filter(user => user.id !== id)
-      selectedUserIds.value = selectedUserIds.value.filter(userId => userId !== id)
+      users.value = users.value.filter(user => user.login !== login)
+      selectedUserIds.value = selectedUserIds.value.filter(userId => userId !== login)
     } catch (error) {
       console.error('Failed to delete user:', error)
       throw error
     }
   }
 
-  async function archiveUsers(ids: number[]) {
+  async function archiveUsers(logins: string[]) {
     try {
-      await apiService.request<void>('/users/archive', {
-        method: 'POST',
-        body: JSON.stringify({ ids }),
-      })
+      await apiService.archiveDictionaryItems('/users', logins)
       
       // Refresh users after archiving
       await loadUsers()
@@ -94,21 +74,21 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  function selectUser(id: number) {
-    if (!selectedUserIds.value.includes(id)) {
-      selectedUserIds.value.push(id)
+  function selectUser(login: string) {
+    if (!selectedUserIds.value.includes(login)) {
+      selectedUserIds.value.push(login)
     }
   }
 
-  function deselectUser(id: number) {
-    selectedUserIds.value = selectedUserIds.value.filter(userId => userId !== id)
+  function deselectUser(login: string) {
+    selectedUserIds.value = selectedUserIds.value.filter(userId => userId !== login)
   }
 
-  function toggleUserSelection(id: number) {
-    if (selectedUserIds.value.includes(id)) {
-      deselectUser(id)
+  function toggleUserSelection(login: string) {
+    if (selectedUserIds.value.includes(login)) {
+      deselectUser(login)
     } else {
-      selectUser(id)
+      selectUser(login)
     }
   }
 
@@ -117,11 +97,11 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function selectAll() {
-    selectedUserIds.value = users.value.map(user => user.id)
+    selectedUserIds.value = users.value.map(user => user.login)
   }
 
-  function getUserById(id: number) {
-    return users.value.find(user => user.id === id)
+  function getUserByLogin(login: string) {
+    return users.value.find(user => user.login === login)
   }
 
   return {
@@ -132,8 +112,6 @@ export const useUserStore = defineStore('user', () => {
     
     // Computed
     selectedUsers,
-    activeUsers,
-    supervisors,
     
     // Actions
     loadUsers,
@@ -146,6 +124,6 @@ export const useUserStore = defineStore('user', () => {
     toggleUserSelection,
     clearSelection,
     selectAll,
-    getUserById
+    getUserByLogin
   }
 })

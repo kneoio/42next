@@ -1,22 +1,14 @@
 import authService from './auth'
 
 export interface User {
-  id: number
-  author: number
-  regDate: string
-  lastModifier: number
+  identifier: string | null
+  name: string
   login: string
-  modules: any[]
+  email: string
+  language: string | null
+  theme: string | null
   roles: any[]
-  pageSize: number
-  defaultLang: number
-  timeZone: string
-  confirmationCode: number
-  userName: string
-  supervisor: boolean
-  activatedRoles: any[]
-  active: boolean
-  editable: boolean
+  modules: any[]
 }
 
 export interface ApiResponse<T> {

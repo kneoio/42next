@@ -26,8 +26,8 @@ const getLocalizedText = (localizedObj: { [key: string]: string } | undefined, f
   return localizedObj[currentLanguage] || localizedObj['en'] || Object.values(localizedObj)[0] || fallback
 }
 
-// Modal state
-const showModal = ref(false)
+// Form state
+const showForm = ref(false)
 const isEditing = ref(false)
 const editingRole = ref<Role | null>(null)
 
@@ -63,15 +63,6 @@ const columns: DataTableColumns<Role> = [
     render: (row) => getLocalizedText(row.localizedName)
   },
   {
-    title: 'Description',
-    key: 'localizedDescription',
-    width: 250,
-    ellipsis: {
-      tooltip: true
-    },
-    render: (row) => getLocalizedText(row.localizedDescription)
-  },
-  {
     title: 'Author',
     key: 'author',
     width: 120,
@@ -102,7 +93,7 @@ function handleCreate() {
     localizedName: { en: '', pt: '', kk: '' },
     localizedDescription: { en: '', pt: '', kk: '' }
   }
-  showModal.value = true
+  showForm.value = true
 }
 
 function handleEdit(role: Role) {
@@ -117,7 +108,7 @@ function handleEdit(role: Role) {
     lastModifier: role.lastModifier,
     lastModifiedDate: role.lastModifiedDate
   }
-  showModal.value = true
+  showForm.value = true
 }
 
 async function handleSave() {
@@ -129,7 +120,7 @@ async function handleSave() {
       await rolesStore.createRole(formData.value)
       message.success('Role created successfully')
     }
-    showModal.value = false
+    showForm.value = false
     formData.value = {
       identifier: '',
       localizedName: { en: '', pt: '', kk: '' },
@@ -185,7 +176,7 @@ async function handleBulkDelete() {
 }
 
 function handleCancel() {
-  showModal.value = false
+  showForm.value = false
   formData.value = {
     identifier: '',
     localizedName: { en: '', pt: '', kk: '' },
@@ -205,117 +196,119 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="roles-view">
-    <div class="mb-4">
-      <NSpace>
-        <NButton type="primary" @click="handleCreate">
-          Create Role
-        </NButton>
-        <NPopconfirm @positive-click="handleBulkArchive">
-          <template #trigger>
-            <NButton 
-              type="warning" 
-              :disabled="rolesStore.selectedRoleIds.length === 0"
-            >
-              Archive Selected ({{ rolesStore.selectedRoleIds.length }})
-            </NButton>
-          </template>
-          Are you sure you want to archive the selected roles?
-        </NPopconfirm>
-        <NPopconfirm @positive-click="handleBulkDelete">
-          <template #trigger>
-            <NButton 
-              type="error" 
-              :disabled="rolesStore.selectedRoleIds.length === 0"
-            >
-              Delete Selected ({{ rolesStore.selectedRoleIds.length }})
-            </NButton>
-          </template>
-          Are you sure you want to delete the selected roles?
-        </NPopconfirm>
-      </NSpace>
+    <!-- List View -->
+    <div v-if="!showForm">
+      <div class="mb-4">
+        <NSpace>
+          <NButton type="primary" @click="handleCreate">
+            Create Role
+          </NButton>
+          <NPopconfirm @positive-click="handleBulkArchive">
+            <template #trigger>
+              <NButton 
+                type="warning" 
+                :disabled="rolesStore.selectedRoleIds.length === 0"
+              >
+                Archive Selected ({{ rolesStore.selectedRoleIds.length }})
+              </NButton>
+            </template>
+            Are you sure you want to archive the selected roles?
+          </NPopconfirm>
+          <NPopconfirm @positive-click="handleBulkDelete">
+            <template #trigger>
+              <NButton 
+                type="error" 
+                :disabled="rolesStore.selectedRoleIds.length === 0"
+              >
+                Delete Selected ({{ rolesStore.selectedRoleIds.length }})
+              </NButton>
+            </template>
+            Are you sure you want to delete the selected roles?
+          </NPopconfirm>
+        </NSpace>
+      </div>
+
+      <NDataTable
+        :columns="columns"
+        :data="rolesStore.roles"
+        :loading="rolesStore.loading"
+        :row-key="(row: Role) => row.identifier"
+        v-model:checked-row-keys="rolesStore.selectedRoleIds"
+        :pagination="{
+          pageSize: 20,
+          showSizePicker: true,
+          pageSizes: [10, 20, 50, 100]
+        }"
+        :row-props="(row: Role) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
+      />
     </div>
 
-    <NDataTable
-      :columns="columns"
-      :data="rolesStore.roles"
-      :loading="rolesStore.loading"
-      :row-key="(row: Role) => row.identifier"
-      v-model:checked-row-keys="rolesStore.selectedRoleIds"
-      :pagination="{
-        pageSize: 20,
-        showSizePicker: true,
-        pageSizes: [10, 20, 50, 100]
-      }"
-      :row-props="(row: Role) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
-    />
-
-    <NModal
-      v-model:show="showModal"
-      preset="dialog"
-      :title="isEditing ? 'Edit Role' : 'Create Role'"
-      :style="{ width: '600px' }"
-    >
-      <NForm :model="formData" label-placement="left" label-width="120px">
-        <NFormItem label="Identifier" required>
-          <NInput v-model:value="formData.identifier" placeholder="Enter role identifier" />
-        </NFormItem>
-        
-        <NFormItem label="Name (English)" required>
-          <NInput 
-            v-model:value="formData.localizedName.en" 
-            placeholder="Enter role name in English" 
-          />
-        </NFormItem>
-        
-        <NFormItem label="Name (Portuguese)">
-          <NInput 
-            v-model:value="formData.localizedName.pt" 
-            placeholder="Enter role name in Portuguese" 
-          />
-        </NFormItem>
-        
-        <NFormItem label="Name (Kazakh)">
-          <NInput 
-            v-model:value="formData.localizedName.kk" 
-            placeholder="Enter role name in Kazakh" 
-          />
-        </NFormItem>
-        
-        <NFormItem label="Description (English)">
-          <NInput 
-            v-model:value="formData.localizedDescription.en" 
-            placeholder="Enter role description in English"
-            type="textarea"
-            :rows="2"
-          />
-        </NFormItem>
-        
-        <NFormItem label="Description (Portuguese)">
-          <NInput 
-            v-model:value="formData.localizedDescription.pt" 
-            placeholder="Enter role description in Portuguese"
-            type="textarea"
-            :rows="2"
-          />
-        </NFormItem>
-        
-        <NFormItem label="Description (Kazakh)">
-          <NInput 
-            v-model:value="formData.localizedDescription.kk" 
-            placeholder="Enter role description in Kazakh"
-            type="textarea"
-            :rows="2"
-          />
-        </NFormItem>
-      </NForm>
-      
-      <template #action>
-        <NSpace>
+    <!-- Form View -->
+    <div v-else class="form-view">
+      <div class="form-header">
+        <h2 class="form-title">{{ isEditing ? 'Edit Role' : 'Create Role' }}</h2>
+        <NSpace class="form-actions">
           <NButton @click="handleCancel">Cancel</NButton>
           <NButton type="primary" @click="handleSave">Save</NButton>
         </NSpace>
-      </template>
-    </NModal>
+      </div>
+      
+      <div class="form-content">
+        <NForm :model="formData" label-placement="left" label-width="140px">
+          <NFormItem label="Identifier" required>
+            <NInput v-model:value="formData.identifier" placeholder="Enter role identifier" />
+          </NFormItem>
+          
+          <NFormItem label="Name (English)" required>
+            <NInput 
+              v-model:value="formData.localizedName.en" 
+              placeholder="Enter role name in English" 
+            />
+          </NFormItem>
+          
+          <NFormItem label="Name (Portuguese)">
+            <NInput 
+              v-model:value="formData.localizedName.pt" 
+              placeholder="Enter role name in Portuguese" 
+            />
+          </NFormItem>
+          
+          <NFormItem label="Name (Kazakh)">
+            <NInput 
+              v-model:value="formData.localizedName.kk" 
+              placeholder="Enter role name in Kazakh" 
+            />
+          </NFormItem>
+          
+          <NFormItem label="Description (English)">
+            <NInput 
+              v-model:value="formData.localizedDescription.en" 
+              placeholder="Enter role description in English"
+              type="textarea"
+              :rows="2"
+            />
+          </NFormItem>
+          
+          <NFormItem label="Description (Portuguese)">
+            <NInput 
+              v-model:value="formData.localizedDescription.pt" 
+              placeholder="Enter role description in Portuguese"
+              type="textarea"
+              :rows="2"
+            />
+          </NFormItem>
+          
+          <NFormItem label="Description (Kazakh)">
+            <NInput 
+              v-model:value="formData.localizedDescription.kk" 
+              placeholder="Enter role description in Kazakh"
+              type="textarea"
+              :rows="2"
+            />
+          </NFormItem>
+        </NForm>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -329,5 +322,38 @@ onBeforeUnmount(() => {
 
 .mb-4 {
   margin-bottom: 16px;
+}
+
+.form-view {
+  width: 100%;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.form-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.form-content {
+  max-width: 700px;
+  background: var(--card-color);
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
 }
 </style>

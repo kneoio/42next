@@ -6,30 +6,40 @@ import { useModulesStore, type Module } from '@/stores/modules'
 const moduleStore = useModulesStore()
 const message = useMessage()
 
-// Modal state
-const showModal = ref(false)
+// Form state
+const showForm = ref(false)
 const isEditing = ref(false)
 const editingItem = ref<Module | null>(null)
 
-// Form data with proper Module interface
+// Form data with actual Module interface
 interface ModuleFormData {
-  name: string
-  description?: string
-  version?: string
-  active: boolean
-  category?: string
-  permissions?: string[]
-  dependencies?: number[]
+  identifier: string
+  localizedName: {
+    en: string
+    pt: string
+    kk: string
+  }
+  localizedDescription: {
+    en: string
+    pt: string
+    kk: string
+  }
+  on: boolean
 }
 
 const formData = ref<ModuleFormData>({
-  name: '',
-  description: '',
-  version: '',
-  active: true,
-  category: '',
-  permissions: [],
-  dependencies: []
+  identifier: '',
+  localizedName: {
+    en: '',
+    pt: '',
+    kk: ''
+  },
+  localizedDescription: {
+    en: '',
+    pt: '',
+    kk: ''
+  },
+  on: true
 })
 
 const selectedCount = computed(() => moduleStore.selectedModuleIds.length)
@@ -40,36 +50,37 @@ const columns: DataTableColumns<Module> = [
     width: 60
   },
   {
-    title: 'Name',
-    key: 'name',
-    width: 200,
+    title: 'Identifier',
+    key: 'identifier',
+    width: 150,
     ellipsis: {
       tooltip: true
     }
   },
   {
     title: 'Description',
-    key: 'description',
+    key: 'localizedDescription',
     width: 250,
     ellipsis: {
       tooltip: true
-    }
+    },
+    render: (row) => row.localizedDescription?.en || 'N/A'
   },
   {
-    title: 'Version',
-    key: 'version',
+    title: 'Author',
+    key: 'author',
     width: 120
   },
   {
-    title: 'Category',
-    key: 'category',
-    width: 120
+    title: 'Registration Date',
+    key: 'regDate',
+    width: 180
   },
   {
     title: 'Status',
-    key: 'active',
+    key: 'on',
     width: 100,
-    render: (row) => row.active ? 'Active' : 'Inactive'
+    render: (row) => row.on ? 'On' : 'Off'
   }
 ]
 
@@ -78,30 +89,40 @@ function handleCreate() {
   isEditing.value = false
   editingItem.value = null
   formData.value = {
-    name: '',
-    description: '',
-    version: '',
-    active: true,
-    category: '',
-    permissions: [],
-    dependencies: []
+    identifier: '',
+    localizedName: {
+      en: '',
+      pt: '',
+      kk: ''
+    },
+    localizedDescription: {
+      en: '',
+      pt: '',
+      kk: ''
+    },
+    on: true
   }
-  showModal.value = true
+  showForm.value = true
 }
 
 function handleEdit(item: Module) {
   isEditing.value = true
   editingItem.value = item
   formData.value = {
-    name: item.name,
-    description: item.description || '',
-    version: item.version || '',
-    active: item.active,
-    category: item.category || '',
-    permissions: item.permissions || [],
-    dependencies: item.dependencies || []
+    identifier: item.identifier,
+    localizedName: {
+      en: item.localizedName.en || '',
+      pt: item.localizedName.pt || '',
+      kk: item.localizedName.kk || ''
+    },
+    localizedDescription: {
+      en: item.localizedDescription.en || '',
+      pt: item.localizedDescription.pt || '',
+      kk: item.localizedDescription.kk || ''
+    },
+    on: item.on
   }
-  showModal.value = true
+  showForm.value = true
 }
 
 async function handleSave() {
@@ -113,15 +134,20 @@ async function handleSave() {
       await moduleStore.createModule(formData.value)
       message.success('Module created successfully')
     }
-    showModal.value = false
+    showForm.value = false
     formData.value = {
-      name: '',
-      description: '',
-      version: '',
-      active: true,
-      category: '',
-      permissions: [],
-      dependencies: []
+      identifier: '',
+      localizedName: {
+        en: '',
+        pt: '',
+        kk: ''
+      },
+      localizedDescription: {
+        en: '',
+        pt: '',
+        kk: ''
+      },
+      on: true
     }
   } catch (error) {
     console.error('Failed to save module:', error)
@@ -129,7 +155,7 @@ async function handleSave() {
   }
 }
 
-async function handleDelete(id: number) {
+async function handleDelete(id: string) {
   try {
     await moduleStore.deleteModule(id)
     message.success('Module deleted successfully')
@@ -173,15 +199,20 @@ async function handleBulkDelete() {
 }
 
 function handleCancel() {
-  showModal.value = false
+  showForm.value = false
   formData.value = {
-    name: '',
-    description: '',
-    version: '',
-    active: true,
-    category: '',
-    permissions: [],
-    dependencies: []
+    identifier: '',
+    localizedName: {
+      en: '',
+      pt: '',
+      kk: ''
+    },
+    localizedDescription: {
+      en: '',
+      pt: '',
+      kk: ''
+    },
+    on: true
   }
 }
 
@@ -205,94 +236,114 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="modules-view">
-    <div class="mb-4">
-      <NSpace>
-        <NButton type="primary" @click="handleCreate">
-          Create Module
-        </NButton>
-        <NPopconfirm @positive-click="handleBulkArchive">
-          <template #trigger>
-            <NButton 
-              type="warning" 
-              :disabled="moduleStore.selectedModuleIds.length === 0"
-            >
-              Archive Selected ({{ moduleStore.selectedModuleIds.length }})
-            </NButton>
-          </template>
-          Are you sure you want to archive the selected modules?
-        </NPopconfirm>
-        <NPopconfirm @positive-click="handleBulkDelete">
-          <template #trigger>
-            <NButton 
-              type="error" 
-              :disabled="moduleStore.selectedModuleIds.length === 0"
-            >
-              Delete Selected ({{ moduleStore.selectedModuleIds.length }})
-            </NButton>
-          </template>
-          Are you sure you want to delete the selected modules?
-        </NPopconfirm>
-      </NSpace>
+    <!-- List View -->
+    <div v-if="!showForm">
+      <div class="mb-4">
+        <NSpace>
+          <NButton type="primary" @click="handleCreate">
+            Create Module
+          </NButton>
+          <NPopconfirm @positive-click="handleBulkArchive">
+            <template #trigger>
+              <NButton 
+                type="warning" 
+                :disabled="moduleStore.selectedModuleIds.length === 0"
+              >
+                Archive Selected ({{ moduleStore.selectedModuleIds.length }})
+              </NButton>
+            </template>
+            Are you sure you want to archive the selected modules?
+          </NPopconfirm>
+          <NPopconfirm @positive-click="handleBulkDelete">
+            <template #trigger>
+              <NButton 
+                type="error" 
+                :disabled="moduleStore.selectedModuleIds.length === 0"
+              >
+                Delete Selected ({{ moduleStore.selectedModuleIds.length }})
+              </NButton>
+            </template>
+            Are you sure you want to delete the selected modules?
+          </NPopconfirm>
+        </NSpace>
+      </div>
+
+      <NDataTable
+        :columns="columns"
+        :data="moduleStore.modules"
+        :loading="moduleStore.loading"
+        :row-key="(row: Module) => row.id"
+        v-model:checked-row-keys="moduleStore.selectedModuleIds"
+        :pagination="{
+          pageSize: 20,
+          showSizePicker: true,
+          pageSizes: [10, 20, 50, 100]
+        }"
+        :row-props="(row: Module) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
+      />
     </div>
 
-    <NDataTable
-      :columns="columns"
-      :data="moduleStore.modules"
-      :loading="moduleStore.loading"
-      :row-key="(row: Module) => row.id"
-      v-model:checked-row-keys="moduleStore.selectedModuleIds"
-      :pagination="{
-        pageSize: 20,
-        showSizePicker: true,
-        pageSizes: [10, 20, 50, 100]
-      }"
-      :row-props="(row: Module) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
-    />
-
-    <NModal
-      v-model:show="showModal"
-      preset="dialog"
-      :title="isEditing ? 'Edit Module' : 'Create Module'"
-      :style="{ width: '600px' }"
-    >
-      <NForm :model="formData" label-placement="left" label-width="120px">
-        <NFormItem label="Name" required>
-          <NInput v-model:value="formData.name" placeholder="Enter module name" />
-        </NFormItem>
-        
-        <NFormItem label="Description">
-          <NInput 
-            v-model:value="formData.description" 
-            placeholder="Enter module description"
-            type="textarea"
-            :rows="3"
-          />
-        </NFormItem>
-        
-        <NFormItem label="Version">
-          <NInput v-model:value="formData.version" placeholder="e.g., 1.0.0" />
-        </NFormItem>
-        
-        <NFormItem label="Category">
-          <NSelect 
-            v-model:value="formData.category" 
-            :options="categoryOptions"
-            placeholder="Select category"
-          />
-        </NFormItem>
-        
-        <NFormItem label="Active">
-          <NSwitch v-model:value="formData.active" />
-        </NFormItem>
-      </NForm>
-      
-      <template #action>
-        <NSpace>
+    <!-- Form View -->
+    <div v-else class="form-view">
+      <div class="form-header">
+        <h2 class="form-title">{{ isEditing ? 'Edit Module' : 'Create Module' }}</h2>
+        <NSpace class="form-actions">
           <NButton @click="handleCancel">Cancel</NButton>
           <NButton type="primary" @click="handleSave">Save</NButton>
         </NSpace>
-      </template>
-    </NModal>
+      </div>
+      
+      <div class="form-content">
+        <NForm :model="formData" label-placement="left" label-width="140px">
+          <NFormItem label="Identifier" required>
+            <NInput v-model:value="formData.identifier" placeholder="Enter module identifier" />
+          </NFormItem>
+          
+          <NFormItem label="Name (English)" required>
+            <NInput v-model:value="formData.localizedName.en" placeholder="Enter module name in English" />
+          </NFormItem>
+          
+          <NFormItem label="Name (Portuguese)">
+            <NInput v-model:value="formData.localizedName.pt" placeholder="Enter module name in Portuguese" />
+          </NFormItem>
+          
+          <NFormItem label="Name (Kazakh)">
+            <NInput v-model:value="formData.localizedName.kk" placeholder="Enter module name in Kazakh" />
+          </NFormItem>
+          
+          <NFormItem label="Description (English)">
+            <NInput 
+              v-model:value="formData.localizedDescription.en" 
+              placeholder="Enter module description in English"
+              type="textarea"
+              :rows="2"
+            />
+          </NFormItem>
+          
+          <NFormItem label="Description (Portuguese)">
+            <NInput 
+              v-model:value="formData.localizedDescription.pt" 
+              placeholder="Enter module description in Portuguese"
+              type="textarea"
+              :rows="2"
+            />
+          </NFormItem>
+          
+          <NFormItem label="Description (Kazakh)">
+            <NInput 
+              v-model:value="formData.localizedDescription.kk" 
+              placeholder="Enter module description in Kazakh"
+              type="textarea"
+              :rows="2"
+            />
+          </NFormItem>
+          
+          <NFormItem label="Status">
+            <NSwitch v-model:value="formData.on" />
+          </NFormItem>
+        </NForm>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -306,5 +357,38 @@ onBeforeUnmount(() => {
 
 .mb-4 {
   margin-bottom: 16px;
+}
+
+.form-view {
+  width: 100%;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.form-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.form-content {
+  max-width: 600px;
+  background: var(--card-color);
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
 }
 </style>

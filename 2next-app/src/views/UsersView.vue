@@ -20,16 +20,14 @@ import { useUserStore } from '@/stores/user'
 
 interface UserForm {
   login: string
-  userName: string
-  timeZone: string
-  active: boolean
-  supervisor: boolean
-  pageSize: string
-  defaultLang: string
+  name: string
+  email: string
+  language: string
+  theme: string
 }
 
 const userStore = useUserStore()
-const showModal = ref(false)
+const showForm = ref(false)
 const editingUser = ref<User | null>(null)
 const isEditing = ref(false)
 const message = useMessage()
@@ -48,45 +46,53 @@ const columns: DataTableColumns<User> = [
     }
   },
   {
-    title: 'User Name',
-    key: 'userName',
+    title: 'Name',
+    key: 'name',
     width: 250,
     ellipsis: {
       tooltip: true
     }
   },
   {
-    title: 'Registration Date',
-    key: 'regDate',
-    width: 220
+    title: 'Email',
+    key: 'email',
+    width: 250,
+    ellipsis: {
+      tooltip: true
+    }
   },
   {
-    title: 'Time Zone',
-    key: 'timeZone',
-    width: 200
-  },
-  {
-    title: 'Status',
-    key: 'active',
+    title: 'Language',
+    key: 'language',
     width: 120,
-    render: (row) => row.active ? 'Active' : 'Inactive'
+    render: (row) => row.language || 'Not set'
   },
   {
-    title: 'Supervisor',
-    key: 'supervisor',
+    title: 'Theme',
+    key: 'theme',
     width: 120,
-    render: (row) => row.supervisor ? 'Yes' : 'No'
+    render: (row) => row.theme || 'Not set'
+  },
+  {
+    title: 'Roles',
+    key: 'roles',
+    width: 120,
+    render: (row) => row.roles.length.toString()
+  },
+  {
+    title: 'Modules',
+    key: 'modules',
+    width: 120,
+    render: (row) => row.modules.length.toString()
   }
 ]
 
 const formData = ref<UserForm>({
   login: '',
-  userName: '',
-  timeZone: 'Europe/Lisbon',
-  active: true,
-  supervisor: false,
-  pageSize: '20',
-  defaultLang: '4'
+  name: '',
+  email: '',
+  language: '',
+  theme: ''
 })
 
 const loadUsers = async () => {
@@ -103,14 +109,12 @@ const handleCreate = () => {
   editingUser.value = null
   formData.value = {
     login: '',
-    userName: '',
-    timeZone: 'Europe/Lisbon',
-    active: true,
-    supervisor: false,
-    pageSize: '20',
-    defaultLang: '4'
+    name: '',
+    email: '',
+    language: '',
+    theme: ''
   }
-  showModal.value = true
+  showForm.value = true
 }
 
 const handleEdit = (user: User) => {
@@ -118,36 +122,32 @@ const handleEdit = (user: User) => {
   editingUser.value = user
   formData.value = {
     login: user.login,
-    userName: user.userName,
-    timeZone: user.timeZone,
-    active: user.active,
-    supervisor: user.supervisor,
-    pageSize: user.pageSize.toString(),
-    defaultLang: user.defaultLang.toString()
+    name: user.name || '',
+    email: user.email || '',
+    language: user.language || '',
+    theme: user.theme || ''
   }
-  showModal.value = true
+  showForm.value = true
 }
 
 const handleSave = async () => {
   try {
     const userData: Partial<User> = {
       login: formData.value.login,
-      userName: formData.value.userName,
-      timeZone: formData.value.timeZone,
-      active: formData.value.active,
-      supervisor: formData.value.supervisor,
-      pageSize: parseInt(formData.value.pageSize),
-      defaultLang: parseInt(formData.value.defaultLang)
+      name: formData.value.name,
+      email: formData.value.email,
+      language: formData.value.language || null,
+      theme: formData.value.theme || null
     }
     
     if (isEditing.value && editingUser.value) {
-      await userStore.updateUser(editingUser.value.id, userData)
+      await userStore.updateUser(editingUser.value.login, userData)
       message.success('User updated successfully')
     } else {
       await userStore.createUser(userData)
       message.success('User created successfully')
     }
-    showModal.value = false
+    showForm.value = false
   } catch (error) {
     console.error('Failed to save user:', error)
     message.error('Failed to save user')
@@ -197,15 +197,13 @@ const handleBulkDelete = async () => {
 }
 
 const handleCancel = () => {
-  showModal.value = false
+  showForm.value = false
   formData.value = {
     login: '',
-    userName: '',
-    timeZone: 'Europe/Lisbon',
-    active: true,
-    supervisor: false,
-    pageSize: '20',
-    defaultLang: '4'
+    name: '',
+    email: '',
+    language: '',
+    theme: ''
   }
 }
 
@@ -221,99 +219,87 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="users-view">
-    <div class="mb-4">
-      <NSpace>
-        <NButton type="primary" @click="handleCreate">
-          Create User
-        </NButton>
-        <NPopconfirm @positive-click="handleBulkArchive">
-          <template #trigger>
-            <NButton 
-              type="warning" 
-              :disabled="userStore.selectedUserIds.length === 0"
-            >
-              Archive Selected ({{ userStore.selectedUserIds.length }})
-            </NButton>
-          </template>
-          Are you sure you want to archive the selected users?
-        </NPopconfirm>
-        <NPopconfirm @positive-click="handleBulkDelete">
-          <template #trigger>
-            <NButton 
-              type="error" 
-              :disabled="userStore.selectedUserIds.length === 0"
-            >
-              Delete Selected ({{ userStore.selectedUserIds.length }})
-            </NButton>
-          </template>
-          Are you sure you want to delete the selected users?
-        </NPopconfirm>
-      </NSpace>
+    <!-- List View -->
+    <div v-if="!showForm">
+      <div class="mb-4">
+        <NSpace>
+          <NButton type="primary" @click="handleCreate">
+            Create User
+          </NButton>
+          <NPopconfirm @positive-click="handleBulkArchive">
+            <template #trigger>
+              <NButton 
+                type="warning" 
+                :disabled="userStore.selectedUserIds.length === 0"
+              >
+                Archive Selected ({{ userStore.selectedUserIds.length }})
+              </NButton>
+            </template>
+            Are you sure you want to archive the selected users?
+          </NPopconfirm>
+          <NPopconfirm @positive-click="handleBulkDelete">
+            <template #trigger>
+              <NButton 
+                type="error" 
+                :disabled="userStore.selectedUserIds.length === 0"
+              >
+                Delete Selected ({{ userStore.selectedUserIds.length }})
+              </NButton>
+            </template>
+            Are you sure you want to delete the selected users?
+          </NPopconfirm>
+        </NSpace>
+      </div>
+
+      <NDataTable
+        :columns="columns"
+        :data="userStore.users"
+        :loading="userStore.loading"
+        :row-key="(row: User) => row.login"
+        v-model:checked-row-keys="userStore.selectedUserIds"
+        :pagination="{
+          pageSize: 20,
+          showSizePicker: true,
+          pageSizes: [10, 20, 50, 100]
+        }"
+        :row-props="(row: User) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
+      />
     </div>
 
-    <NDataTable
-      :columns="columns"
-      :data="userStore.users"
-      :loading="userStore.loading"
-      :row-key="(row: User) => row.id"
-      v-model:checked-row-keys="userStore.selectedUserIds"
-      :pagination="{
-        pageSize: 20,
-        showSizePicker: true,
-        pageSizes: [10, 20, 50, 100]
-      }"
-      :row-props="(row: User) => ({ style: 'cursor: pointer;', onClick: () => handleEdit(row) })"
-    />
-
-    <NModal
-      v-model:show="showModal"
-      preset="dialog"
-      :title="isEditing ? 'Edit User' : 'Create User'"
-      :style="{ width: '600px' }"
-    >
-      <NForm :model="formData" label-placement="left" label-width="120px">
-        <NFormItem label="Login" required>
-          <NInput v-model:value="formData.login" placeholder="Enter login" />
-        </NFormItem>
-        
-        <NFormItem label="User Name" required>
-          <NInput v-model:value="formData.userName" placeholder="Enter user name" />
-        </NFormItem>
-        
-        <NFormItem label="Time Zone">
-          <NInput v-model:value="formData.timeZone" placeholder="Enter time zone" />
-        </NFormItem>
-        
-        <NFormItem label="Page Size">
-          <NInput 
-            v-model:value="formData.pageSize" 
-            placeholder="Enter page size" 
-          />
-        </NFormItem>
-        
-        <NFormItem label="Default Language">
-          <NInput 
-            v-model:value="formData.defaultLang" 
-            placeholder="Enter default language ID" 
-          />
-        </NFormItem>
-        
-        <NFormItem label="Active">
-          <NSwitch v-model:value="formData.active" />
-        </NFormItem>
-        
-        <NFormItem label="Supervisor">
-          <NSwitch v-model:value="formData.supervisor" />
-        </NFormItem>
-      </NForm>
-      
-      <template #action>
-        <NSpace>
+    <!-- Form View -->
+    <div v-else class="form-view">
+      <div class="form-header">
+        <h2 class="form-title">{{ isEditing ? 'Edit User' : 'Create User' }}</h2>
+        <NSpace class="form-actions">
           <NButton @click="handleCancel">Cancel</NButton>
           <NButton type="primary" @click="handleSave">Save</NButton>
         </NSpace>
-      </template>
-    </NModal>
+      </div>
+      
+      <div class="form-content">
+        <NForm :model="formData" label-placement="left" label-width="140px">
+          <NFormItem label="Login" required>
+            <NInput v-model:value="formData.login" placeholder="Enter login" />
+          </NFormItem>
+          
+          <NFormItem label="Name" required>
+            <NInput v-model:value="formData.name" placeholder="Enter user name" />
+          </NFormItem>
+          
+          <NFormItem label="Email" required>
+            <NInput v-model:value="formData.email" placeholder="Enter email address" />
+          </NFormItem>
+          
+          <NFormItem label="Language">
+            <NInput v-model:value="formData.language" placeholder="Enter language preference" />
+          </NFormItem>
+          
+          <NFormItem label="Theme">
+            <NInput v-model:value="formData.theme" placeholder="Enter theme preference" />
+          </NFormItem>
+        </NForm>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -327,5 +313,38 @@ onBeforeUnmount(() => {
 
 .mb-4 {
   margin-bottom: 16px;
+}
+
+.form-view {
+  width: 100%;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.form-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.form-content {
+  max-width: 600px;
+  background: var(--card-color);
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
 }
 </style>

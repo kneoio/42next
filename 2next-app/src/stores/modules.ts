@@ -3,40 +3,38 @@ import { ref, computed } from 'vue'
 import apiService from '@/services/api'
 
 export interface Module {
-  id: number
-  name: string
-  description?: string
-  version?: string
-  active: boolean
-  category?: string
-  permissions?: string[]
-  dependencies?: number[]
+  id: string
+  author: string
+  regDate: string
+  lastModifier: string
+  lastModifiedDate: string | null
+  identifier: string
+  localizedName: {
+    en: string
+    pt: string
+    kk: string
+  }
+  realm: string | null
+  localizedDescription: {
+    en: string
+    pt: string
+    kk: string
+  }
+  on: boolean
 }
 
 export const useModulesStore = defineStore('modules', () => {
   const modules = ref<Module[]>([])
   const loading = ref(false)
-  const selectedModuleIds = ref<number[]>([])
+  const selectedModuleIds = ref<string[]>([])
 
   const selectedModules = computed(() => 
     modules.value.filter(module => selectedModuleIds.value.includes(module.id))
   )
 
   const activeModules = computed(() => 
-    modules.value.filter(module => module.active)
+    modules.value.filter(module => module.on)
   )
-
-  const modulesByCategory = computed(() => {
-    const grouped: Record<string, Module[]> = {}
-    modules.value.forEach(module => {
-      const category = module.category || 'Uncategorized'
-      if (!grouped[category]) {
-        grouped[category] = []
-      }
-      grouped[category].push(module)
-    })
-    return grouped
-  })
 
   async function loadModules() {
     loading.value = true
@@ -61,7 +59,7 @@ export const useModulesStore = defineStore('modules', () => {
     }
   }
 
-  async function updateModule(id: number, moduleData: Partial<Module>) {
+  async function updateModule(id: string, moduleData: Partial<Module>) {
     try {
       const updatedModule = await apiService.updateDictionaryItem<Module>('/modules', id, moduleData)
       
@@ -76,7 +74,7 @@ export const useModulesStore = defineStore('modules', () => {
     }
   }
 
-  async function deleteModule(id: number) {
+  async function deleteModule(id: string) {
     try {
       await apiService.deleteDictionaryItem('/modules', id)
       
@@ -88,7 +86,7 @@ export const useModulesStore = defineStore('modules', () => {
     }
   }
 
-  async function archiveModules(ids: number[]) {
+  async function archiveModules(ids: string[]) {
     try {
       await apiService.archiveDictionaryItems('/modules', ids)
       
@@ -101,17 +99,17 @@ export const useModulesStore = defineStore('modules', () => {
     }
   }
 
-  function selectModule(id: number) {
+  function selectModule(id: string) {
     if (!selectedModuleIds.value.includes(id)) {
       selectedModuleIds.value.push(id)
     }
   }
 
-  function deselectModule(id: number) {
+  function deselectModule(id: string) {
     selectedModuleIds.value = selectedModuleIds.value.filter(moduleId => moduleId !== id)
   }
 
-  function toggleModuleSelection(id: number) {
+  function toggleModuleSelection(id: string) {
     if (selectedModuleIds.value.includes(id)) {
       deselectModule(id)
     } else {
@@ -127,19 +125,8 @@ export const useModulesStore = defineStore('modules', () => {
     selectedModuleIds.value = modules.value.map(module => module.id)
   }
 
-  function getModuleById(id: number) {
+  function getModuleById(id: string) {
     return modules.value.find(module => module.id === id)
-  }
-
-  function getModulesByCategory(category: string) {
-    return modules.value.filter(module => module.category === category)
-  }
-
-  function getModuleDependencies(id: number) {
-    const module = getModuleById(id)
-    if (!module?.dependencies) return []
-    
-    return module.dependencies.map(depId => getModuleById(depId)).filter(Boolean) as Module[]
   }
 
   return {
@@ -151,7 +138,6 @@ export const useModulesStore = defineStore('modules', () => {
     // Computed
     selectedModules,
     activeModules,
-    modulesByCategory,
     
     // Actions
     loadModules,
@@ -164,8 +150,6 @@ export const useModulesStore = defineStore('modules', () => {
     toggleModuleSelection,
     clearSelection,
     selectAll,
-    getModuleById,
-    getModulesByCategory,
-    getModuleDependencies
+    getModuleById
   }
 })

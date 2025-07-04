@@ -3,29 +3,23 @@ import { ref, computed } from 'vue'
 import apiService from '@/services/api'
 
 export interface Language {
-  id: number
-  name: string
+  id: string
   code: string
-  locale?: string
-  active: boolean
-  isDefault?: boolean
+  position: number
+  localizedName: { [key: string]: string }
+  author: string
+  regDate: string
+  lastModifier: string
+  lastModifiedDate: string
 }
 
 export const useLanguagesStore = defineStore('languages', () => {
   const languages = ref<Language[]>([])
   const loading = ref(false)
-  const selectedLanguageIds = ref<number[]>([])
+  const selectedLanguageIds = ref<string[]>([])
 
   const selectedLanguages = computed(() => 
     languages.value.filter(language => selectedLanguageIds.value.includes(language.id))
-  )
-
-  const activeLanguages = computed(() => 
-    languages.value.filter(language => language.active)
-  )
-
-  const defaultLanguage = computed(() => 
-    languages.value.find(language => language.isDefault)
   )
 
   async function loadLanguages() {
@@ -51,7 +45,7 @@ export const useLanguagesStore = defineStore('languages', () => {
     }
   }
 
-  async function updateLanguage(id: number, languageData: Partial<Language>) {
+  async function updateLanguage(id: string, languageData: Partial<Language>) {
     try {
       const updatedLanguage = await apiService.updateDictionaryItem<Language>('/languages', id, languageData)
       
@@ -66,7 +60,7 @@ export const useLanguagesStore = defineStore('languages', () => {
     }
   }
 
-  async function deleteLanguage(id: number) {
+  async function deleteLanguage(id: string) {
     try {
       await apiService.deleteDictionaryItem('/languages', id)
       
@@ -78,7 +72,7 @@ export const useLanguagesStore = defineStore('languages', () => {
     }
   }
 
-  async function archiveLanguages(ids: number[]) {
+  async function archiveLanguages(ids: string[]) {
     try {
       await apiService.archiveDictionaryItems('/languages', ids)
       
@@ -91,17 +85,17 @@ export const useLanguagesStore = defineStore('languages', () => {
     }
   }
 
-  function selectLanguage(id: number) {
+  function selectLanguage(id: string) {
     if (!selectedLanguageIds.value.includes(id)) {
       selectedLanguageIds.value.push(id)
     }
   }
 
-  function deselectLanguage(id: number) {
+  function deselectLanguage(id: string) {
     selectedLanguageIds.value = selectedLanguageIds.value.filter(languageId => languageId !== id)
   }
 
-  function toggleLanguageSelection(id: number) {
+  function toggleLanguageSelection(id: string) {
     if (selectedLanguageIds.value.includes(id)) {
       deselectLanguage(id)
     } else {
@@ -117,7 +111,7 @@ export const useLanguagesStore = defineStore('languages', () => {
     selectedLanguageIds.value = languages.value.map(language => language.id)
   }
 
-  function getLanguageById(id: number) {
+  function getLanguageById(id: string) {
     return languages.value.find(language => language.id === id)
   }
 
@@ -133,8 +127,6 @@ export const useLanguagesStore = defineStore('languages', () => {
     
     // Computed
     selectedLanguages,
-    activeLanguages,
-    defaultLanguage,
     
     // Actions
     loadLanguages,
