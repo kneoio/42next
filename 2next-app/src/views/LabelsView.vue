@@ -79,6 +79,10 @@ const columns: DataTableColumns<Label> = [
   {
     title: 'Name',
     key: 'localizedName',
+    width: 200,
+    ellipsis: {
+      tooltip: true
+    },
     render(row) {
       return getLocalizedText(row.localizedName)
     }

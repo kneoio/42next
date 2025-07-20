@@ -61,9 +61,11 @@ class ApiService {
   }
 
   async updateDictionaryItem<T>(endpoint: string, id: number | string, item: Partial<T>): Promise<T> {
-    return this.request<T>(`${endpoint}/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(item),
+    // Use POST for both create and update - API determines based on ID presence
+    const payload = { ...item, id }
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(payload),
     })
   }
 
