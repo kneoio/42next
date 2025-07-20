@@ -21,6 +21,7 @@ import {
   ShieldOutline as RolesIcon,
   ExtensionPuzzleOutline as ModulesIcon,
   LanguageOutline as LanguagesIcon,
+  PricetagOutline as LabelsIcon,
   PersonCircleOutline as ProfileIcon,
   LogOutOutline as LogoutIcon,
   SunnyOutline as LightIcon,
@@ -61,6 +62,11 @@ const menuOptions: MenuOption[] = [
     label: 'Languages',
     key: 'languages',
     icon: () => h(NIcon, null, { default: () => h(LanguagesIcon) })
+  },
+  {
+    label: 'Labels',
+    key: 'labels',
+    icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
   }
 ]
 
