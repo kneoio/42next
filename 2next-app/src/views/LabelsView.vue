@@ -39,8 +39,10 @@ interface LabelFormData {
   identifier: string
   localizedName: { [key: string]: string }
   color: string
+  fontColor?: string
   hidden: boolean
   category: string
+  parent?: string | null
   author?: string
   regDate?: string
   lastModifier?: string
@@ -51,8 +53,10 @@ const formData = ref<LabelFormData>({
   identifier: '',
   localizedName: { en: '', pt: '', kk: '' },
   color: '#FF8C00',
+  fontColor: '#000000',
   hidden: false,
-  category: 'platform'
+  category: 'platform',
+  parent: null
 })
 
 // Category options
@@ -142,25 +146,47 @@ function handleCreate() {
     identifier: '',
     localizedName: { en: '', pt: '', kk: '' },
     color: '#FF8C00',
+    fontColor: '#000000',
     hidden: false,
-    category: 'platform'
+    category: 'platform',
+    parent: null
   }
   showForm.value = true
 }
 
-function handleEdit(label: Label) {
+async function handleEdit(label: Label) {
   isEditing.value = true
   editingLabel.value = label
-  formData.value = {
-    identifier: label.identifier,
-    localizedName: { ...label.localizedName },
-    color: label.color,
-    hidden: label.hidden,
-    category: label.category,
-    author: label.author,
-    regDate: label.regDate,
-    lastModifier: label.lastModifier,
-    lastModifiedDate: label.lastModifiedDate
+  try {
+    const fullDoc = await labelsStore.fetchLabel(label.id)
+    formData.value = {
+      identifier: fullDoc.identifier,
+      localizedName: { ...fullDoc.localizedName },
+      color: fullDoc.color,
+      fontColor: fullDoc.fontColor,
+      hidden: fullDoc.hidden,
+      category: fullDoc.category,
+      parent: fullDoc.parent ?? null,
+      author: fullDoc.author,
+      regDate: fullDoc.regDate,
+      lastModifier: fullDoc.lastModifier,
+      lastModifiedDate: fullDoc.lastModifiedDate
+    }
+  } catch (e) {
+    // fallback to row data if fetch fails
+    formData.value = {
+      identifier: label.identifier,
+      localizedName: { ...label.localizedName },
+      color: label.color,
+      fontColor: label.fontColor,
+      hidden: label.hidden,
+      category: label.category,
+      parent: label.parent ?? null,
+      author: label.author,
+      regDate: label.regDate,
+      lastModifier: label.lastModifier,
+      lastModifiedDate: label.lastModifiedDate
+    }
   }
   showForm.value = true
 }
@@ -168,7 +194,7 @@ function handleEdit(label: Label) {
 async function handleSave() {
   try {
     if (isEditing.value && editingLabel.value) {
-      await labelsStore.updateLabel(editingLabel.value.identifier, formData.value)
+      await labelsStore.updateLabel(editingLabel.value.id, formData.value)
       message.success('Label updated successfully')
     } else {
       await labelsStore.createLabel(formData.value)
@@ -341,6 +367,13 @@ onBeforeUnmount(() => {
         <NFormItem label="Color" required>
           <NColorPicker 
             v-model:value="formData.color"
+            :show-alpha="false"
+          />
+        </NFormItem>
+
+        <NFormItem label="Font Color">
+          <NColorPicker 
+            v-model:value="formData.fontColor"
             :show-alpha="false"
           />
         </NFormItem>

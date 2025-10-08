@@ -23,13 +23,25 @@ export interface ApiResponse<T> {
   }
 }
 
+export interface ApiDocResponse<T> {
+  payload: {
+    docData: T
+  }
+}
+
 class ApiService {
   private baseUrl = 'http://localhost:38700/api'
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const authHeaders = authService.getAuthHeader()
     
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+    const url = `${this.baseUrl}${endpoint}`
+    if (import.meta && import.meta.env && import.meta.env.DEV) {
+      // Debug the outgoing request during development
+      // eslint-disable-next-line no-console
+      console.debug('[api] ', options.method || 'GET', url)
+    }
+    const response = await fetch(url, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -53,19 +65,23 @@ class ApiService {
     return response.payload.viewData.entries
   }
 
+  async getDocument<T>(endpoint: string, id: string | number): Promise<T> {
+    const response = await this.request<ApiDocResponse<T>>(`${endpoint}/${id}`)
+    return response.payload.docData
+  }
+
   async createDictionaryItem<T>(endpoint: string, item: Partial<T>): Promise<T> {
-    return this.request<T>(endpoint, {
+    return this.request<T>(`${endpoint}/new`, {
       method: 'POST',
       body: JSON.stringify(item),
     })
   }
 
   async updateDictionaryItem<T>(endpoint: string, id: number | string, item: Partial<T>): Promise<T> {
-    // Use POST for both create and update - API determines based on ID presence
-    const payload = { ...item, id }
-    return this.request<T>(endpoint, {
+    // Post to /{endpoint}/{id} for updates; backend uses path UUID
+    return this.request<T>(`${endpoint}/${id}`, {
       method: 'POST',
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ ...item, id }),
     })
   }
 
@@ -85,3 +101,4 @@ class ApiService {
 
 export const apiService = new ApiService()
 export default apiService
+

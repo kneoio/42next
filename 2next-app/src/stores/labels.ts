@@ -13,8 +13,10 @@ export interface Label {
     [languageCode: string]: string
   }
   color: string
+  fontColor?: string
   hidden: boolean
   category: string
+  parent?: string | null
 }
 
 export const useLabelsStore = defineStore('labels', () => {
@@ -38,6 +40,15 @@ export const useLabelsStore = defineStore('labels', () => {
     }
   }
 
+  async function fetchLabel(id: string) {
+    try {
+      return await apiService.getDocument<Label>('/labels', id)
+    } catch (error) {
+      console.error('Failed to fetch label:', error)
+      throw error
+    }
+  }
+
   async function createLabel(labelData: Partial<Label>) {
     try {
       const newLabel = await apiService.createDictionaryItem<Label>('/labels', labelData)
@@ -49,10 +60,10 @@ export const useLabelsStore = defineStore('labels', () => {
     }
   }
 
-  async function updateLabel(identifier: string, labelData: Partial<Label>) {
+  async function updateLabel(id: string, labelData: Partial<Label>) {
     try {
-      const updatedLabel = await apiService.updateDictionaryItem<Label>('/labels', identifier, labelData)
-      const index = labels.value.findIndex(label => label.identifier === identifier)
+      const updatedLabel = await apiService.updateDictionaryItem<Label>('/labels', id, labelData)
+      const index = labels.value.findIndex(label => label.id === id)
       if (index !== -1) {
         labels.value[index] = updatedLabel
       }
@@ -123,6 +134,7 @@ export const useLabelsStore = defineStore('labels', () => {
     
     // Actions
     loadLabels,
+    fetchLabel,
     createLabel,
     updateLabel,
     deleteLabel,
