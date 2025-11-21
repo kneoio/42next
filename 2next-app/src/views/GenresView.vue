@@ -1,24 +1,22 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, h, ref, computed } from 'vue'
 import { 
-  NDataTable, 
-  NButton, 
-  NSpace, 
+  NDataTable,
+  NButton,
+  NSpace,
   NPopconfirm,
   NForm,
   NFormItem,
   NInput,
   NColorPicker,
-  NSelect,
-  NCheckbox,
   type DataTableColumns,
   useMessage
 } from 'naive-ui'
 import FormPageHeader from '@/components/FormPageHeader.vue'
 import ListPageHeader from '@/components/ListPageHeader.vue'
-import { useLabelsStore, type Label } from '@/stores/labels'
+import { useGenresStore, type Genre } from '@/stores/genres'
 
-const labelsStore = useLabelsStore()
+const genresStore = useGenresStore()
 const message = useMessage()
 
 // Default language for display
@@ -26,11 +24,11 @@ const currentLanguage = 'en'
 
 // Pagination state derived from store (single source of truth)
 const pagination = computed(() => ({
-  page: labelsStore.pageNum,
-  pageSize: labelsStore.pageSize,
+  page: genresStore.pageNum,
+  pageSize: genresStore.pageSize,
   pageSizes: [10, 20, 50, 100],
   showSizePicker: true,
-  itemCount: labelsStore.totalCount
+  itemCount: genresStore.totalCount
 }))
 
 // Helper function to get localized text
@@ -42,42 +40,33 @@ const getLocalizedText = (localizedObj: { [key: string]: string } | undefined, f
 // Form state
 const showForm = ref(false)
 const isEditing = ref(false)
-const editingLabel = ref<Label | null>(null)
+const editingGenre = ref<Genre | null>(null)
 
-// Form data - matching Label structure for compatibility
-interface LabelFormData {
+// Form data - matching Genre structure for compatibility
+interface GenreFormData {
   identifier: string
   localizedName: { [key: string]: string }
-  color: string
+  rank: number
+  color?: string
   fontColor?: string
-  hidden: boolean
-  category: string
   parent?: string | null
   author?: string
   regDate?: string
   lastModifier?: string
-  lastModifiedDate?: string
+  lastModifiedDate?: string | null
 }
 
-const formData = ref<LabelFormData>({
+const formData = ref<GenreFormData>({
   identifier: '',
   localizedName: { en: '', pt: '', kk: '' },
+  rank: 999,
   color: '#FF8C00',
   fontColor: '#000000',
-  hidden: false,
-  category: 'platform',
   parent: null
 })
 
-// Category options
-const categoryOptions = [
-  { label: 'Platform', value: 'platform' },
-  { label: 'Audio Type', value: 'audio_type' },
-  { label: 'Content Status', value: 'content_status' }
-]
-
 // Table columns
-const columns: DataTableColumns<Label> = [
+const columns: DataTableColumns<Genre> = [
   {
     type: 'selection',
     multiple: true
@@ -102,41 +91,31 @@ const columns: DataTableColumns<Label> = [
     }
   },
   {
+    title: 'Rank',
+    key: 'rank',
+    width: 80
+  },
+  {
     title: 'Color',
     key: 'color',
     width: 100,
     render(row) {
-      return h('div', { 
-        style: { 
-          width: '20px', 
-          height: '20px', 
-          backgroundColor: row.color, 
+      if (!row.color) return '-'
+      return h('div', {
+        style: {
+          width: '20px',
+          height: '20px',
+          backgroundColor: row.color,
           borderRadius: '4px',
           border: '1px solid #ccc'
-        } 
+        }
       })
-    }
-  },
-  {
-    title: 'Category',
-    key: 'category',
-    width: 120
-  },
-  {
-    title: 'Hidden',
-    key: 'hidden',
-    width: 80,
-    render(row) {
-      return row.hidden ? 'Yes' : 'No'
     }
   },
   {
     title: 'Author',
     key: 'author',
-    width: 120,
-    render(row) {
-      return row.author === 'undefined' ? '-' : row.author
-    }
+    width: 120
   },
   {
     title: 'Last Modified',
@@ -148,34 +127,32 @@ const columns: DataTableColumns<Label> = [
   }
 ]
 
-// Label management functions
+// Genre management functions
 function handleCreate() {
   isEditing.value = false
-  editingLabel.value = null
+  editingGenre.value = null
   formData.value = {
     identifier: '',
     localizedName: { en: '', pt: '', kk: '' },
+    rank: 999,
     color: '#FF8C00',
     fontColor: '#000000',
-    hidden: false,
-    category: 'platform',
     parent: null
   }
   showForm.value = true
 }
 
-async function handleEdit(label: Label) {
+async function handleEdit(genre: Genre) {
   isEditing.value = true
-  editingLabel.value = label
+  editingGenre.value = genre
   try {
-    const fullDoc = await labelsStore.fetchLabel(label.id)
+    const fullDoc = await genresStore.fetchGenre(genre.id)
     formData.value = {
       identifier: fullDoc.identifier,
       localizedName: { ...fullDoc.localizedName },
+      rank: fullDoc.rank,
       color: fullDoc.color,
       fontColor: fullDoc.fontColor,
-      hidden: fullDoc.hidden,
-      category: fullDoc.category,
       parent: fullDoc.parent ?? null,
       author: fullDoc.author,
       regDate: fullDoc.regDate,
@@ -185,17 +162,16 @@ async function handleEdit(label: Label) {
   } catch (e) {
     // fallback to row data if fetch fails
     formData.value = {
-      identifier: label.identifier,
-      localizedName: { ...label.localizedName },
-      color: label.color,
-      fontColor: label.fontColor,
-      hidden: label.hidden,
-      category: label.category,
-      parent: label.parent ?? null,
-      author: label.author,
-      regDate: label.regDate,
-      lastModifier: label.lastModifier,
-      lastModifiedDate: label.lastModifiedDate
+      identifier: genre.identifier,
+      localizedName: { ...genre.localizedName },
+      rank: genre.rank,
+      color: genre.color,
+      fontColor: genre.fontColor,
+      parent: genre.parent ?? null,
+      author: genre.author,
+      regDate: genre.regDate,
+      lastModifier: genre.lastModifier,
+      lastModifiedDate: genre.lastModifiedDate
     }
   }
   showForm.value = true
@@ -203,89 +179,80 @@ async function handleEdit(label: Label) {
 
 async function handleSave() {
   try {
-    if (isEditing.value && editingLabel.value) {
-      await labelsStore.updateLabel(editingLabel.value.id, formData.value)
-      message.success('Label updated successfully')
+    if (isEditing.value && editingGenre.value) {
+      await genresStore.updateGenre(editingGenre.value.id, formData.value)
+      message.success('Genre updated successfully')
     } else {
-      await labelsStore.createLabel(formData.value)
-      message.success('Label created successfully')
+      await genresStore.createGenre(formData.value)
+      message.success('Genre created successfully')
     }
-    await labelsStore.loadLabels(labelsStore.pageNum, labelsStore.pageSize)
+    await genresStore.loadGenres(genresStore.pageNum, genresStore.pageSize)
     showForm.value = false
   } catch (error) {
     const errorMessage = error instanceof Error
       ? error.message
       : isEditing.value
-        ? 'Failed to update label'
-        : 'Failed to create label'
+        ? 'Failed to update genre'
+        : 'Failed to create genre'
     message.error(errorMessage)
   }
 }
 
-async function applyFilters() {
-  await labelsStore.loadLabels(1, labelsStore.pageSize)
-}
-
-async function resetFilters() {
-  labelsStore.resetFilters()
-  await labelsStore.loadLabels(1, labelsStore.pageSize)
-}
-
 async function handleDelete(identifier: string) {
   try {
-    await labelsStore.deleteLabel(identifier)
-    message.success('Label deleted successfully')
-    const currentTotal = labelsStore.totalCount
+    await genresStore.deleteGenre(identifier)
+    message.success('Genre deleted successfully')
+    const currentTotal = genresStore.totalCount
     const newTotal = Math.max(0, currentTotal - 1)
-    const pageSize = labelsStore.pageSize
-    const currentPage = labelsStore.pageNum
+    const pageSize = genresStore.pageSize
+    const currentPage = genresStore.pageNum
     const maxPageAfterDelete = newTotal === 0 ? 1 : Math.ceil(newTotal / pageSize)
     const targetPage = Math.min(currentPage, maxPageAfterDelete)
-    await labelsStore.loadLabels(targetPage, pageSize)
+    await genresStore.loadGenres(targetPage, pageSize)
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to delete label'
+    const errorMessage = error instanceof Error ? error.message : 'Failed to delete genre'
     message.error(errorMessage)
   }
 }
 
 async function handleBulkArchive() {
-  if (labelsStore.selectedLabelIds.length === 0) {
-    message.warning('Please select labels to archive')
+  if (genresStore.selectedGenreIds.length === 0) {
+    message.warning('Please select genres to archive')
     return
   }
-  
+
   try {
-    await labelsStore.archiveLabels(labelsStore.selectedLabelIds)
-    message.success(`${labelsStore.selectedLabelIds.length} labels archived successfully`)
-    labelsStore.clearSelection()
+    await genresStore.archiveGenres(genresStore.selectedGenreIds)
+    message.success(`${genresStore.selectedGenreIds.length} genres archived successfully`)
+    genresStore.clearSelection()
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to archive labels'
+    const errorMessage = error instanceof Error ? error.message : 'Failed to archive genres'
     message.error(errorMessage)
   }
 }
 
 async function handleBulkDelete() {
-  if (labelsStore.selectedLabelIds.length === 0) {
-    message.warning('Please select labels to delete')
+  if (genresStore.selectedGenreIds.length === 0) {
+    message.warning('Please select genres to delete')
     return
   }
-  
+
   try {
-    for (const identifier of labelsStore.selectedLabelIds) {
-      await labelsStore.deleteLabel(identifier)
+    for (const identifier of genresStore.selectedGenreIds) {
+      await genresStore.deleteGenre(identifier)
     }
-    message.success(`${labelsStore.selectedLabelIds.length} labels deleted successfully`)
-    const deletedCount = labelsStore.selectedLabelIds.length
-    labelsStore.clearSelection()
-    const currentTotal = labelsStore.totalCount
+    message.success(`${genresStore.selectedGenreIds.length} genres deleted successfully`)
+    const deletedCount = genresStore.selectedGenreIds.length
+    genresStore.clearSelection()
+    const currentTotal = genresStore.totalCount
     const newTotal = Math.max(0, currentTotal - deletedCount)
-    const pageSize = labelsStore.pageSize
-    const currentPage = labelsStore.pageNum
+    const pageSize = genresStore.pageSize
+    const currentPage = genresStore.pageNum
     const maxPageAfterDelete = newTotal === 0 ? 1 : Math.ceil(newTotal / pageSize)
     const targetPage = Math.min(currentPage, maxPageAfterDelete)
-    await labelsStore.loadLabels(targetPage, pageSize)
+    await genresStore.loadGenres(targetPage, pageSize)
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to delete labels'
+    const errorMessage = error instanceof Error ? error.message : 'Failed to delete genres'
     message.error(errorMessage)
   }
 }
@@ -295,37 +262,38 @@ function handleCancel() {
   formData.value = {
     identifier: '',
     localizedName: { en: '', pt: '', kk: '' },
+    rank: 999,
     color: '#FF8C00',
-    hidden: false,
-    category: 'platform'
+    fontColor: '#000000',
+    parent: null
   }
 }
 
 onMounted(() => {
-  labelsStore.loadLabels(labelsStore.pageNum, labelsStore.pageSize)
+  genresStore.loadGenres(genresStore.pageNum, genresStore.pageSize)
 })
 
 onBeforeUnmount(() => {
-  labelsStore.clearSelection()
+  genresStore.clearSelection()
 })
 
 async function handlePageChange(page: number) {
-  await labelsStore.loadLabels(page, labelsStore.pageSize)
+  await genresStore.loadGenres(page, genresStore.pageSize)
 }
 
 async function handlePageSizeChange(pageSize: number) {
-  await labelsStore.loadLabels(1, pageSize)
+  await genresStore.loadGenres(1, pageSize)
 }
 </script>
 
 <template>
-  <div class="labels-view">
+  <div class="genres-view">
     <!-- List View -->
     <div v-if="!showForm">
       <ListPageHeader
-        title="Labels"
-        subtitle="Manage labels"
-        :count="labelsStore.totalCount"
+        title="Genres"
+        subtitle="Manage genres"
+        :count="genresStore.totalCount"
       >
         <template #actions>
           <NSpace>
@@ -333,63 +301,41 @@ async function handlePageSizeChange(pageSize: number) {
               type="primary" 
               @click="handleCreate"
             >
-              Add Label
+              Add Genre
             </NButton>
             <NButton 
-              v-if="labelsStore.selectedLabelIds.length > 0"
+              v-if="genresStore.selectedGenreIds.length > 0"
               type="warning"
               @click="handleBulkArchive"
             >
-              Archive Selected ({{ labelsStore.selectedLabelIds.length }})
+              Archive Selected ({{ genresStore.selectedGenreIds.length }})
             </NButton>
             <NPopconfirm
-              v-if="labelsStore.selectedLabelIds.length > 0"
+              v-if="genresStore.selectedGenreIds.length > 0"
               @positive-click="handleBulkDelete"
             >
               <template #trigger>
                 <NButton type="error">
-                  Delete Selected ({{ labelsStore.selectedLabelIds.length }})
+                  Delete Selected ({{ genresStore.selectedGenreIds.length }})
                 </NButton>
               </template>
-              Are you sure you want to delete the selected labels?
+              Are you sure you want to delete the selected genres?
             </NPopconfirm>
           </NSpace>
         </template>
       </ListPageHeader>
 
-      <div class="filters">
-        <NSpace>
-          <NSelect
-            v-model:value="labelsStore.filterCategory"
-            :options="categoryOptions"
-            clearable
-            placeholder="Filter by category"
-          />
-          <NInput
-            v-model:value="labelsStore.filterIdentifier"
-            clearable
-            placeholder="Filter by identifier"
-          />
-          <NButton @click="applyFilters" type="primary" ghost>
-            Apply Filters
-          </NButton>
-          <NButton @click="resetFilters" quaternary>
-            Reset
-          </NButton>
-        </NSpace>
-      </div>
-
       <NDataTable
         :columns="columns"
-        :data="labelsStore.labels"
-        :loading="labelsStore.loading"
-        :row-key="(row: Label) => row.identifier"
-        v-model:checked-row-keys="labelsStore.selectedLabelIds"
+        :data="genresStore.genres"
+        :loading="genresStore.loading"
+        :row-key="(row: Genre) => row.identifier"
+        v-model:checked-row-keys="genresStore.selectedGenreIds"
         :pagination="pagination"
         remote
         @update:page="handlePageChange"
         @update:page-size="handlePageSizeChange"
-        :row-props="(row: Label) => ({ 
+        :row-props="(row: Genre) => ({ 
           style: 'cursor: pointer;', 
           onClick: (e: MouseEvent) => {
             // Prevent opening form if clicking on checkbox area
@@ -406,8 +352,8 @@ async function handlePageSizeChange(pageSize: number) {
     <!-- Form View -->
     <div v-else class="form-view">
       <FormPageHeader
-        :title="isEditing ? 'Edit Label' : 'Create Label'"
-        :subtitle="isEditing ? 'Update existing label' : 'Create a new label'"
+        :title="isEditing ? 'Edit Genre' : 'Create Genre'"
+        :subtitle="isEditing ? 'Update existing genre' : 'Create a new genre'"
         @back="handleCancel"
       >
         <template #actions>
@@ -445,7 +391,15 @@ async function handlePageSizeChange(pageSize: number) {
             />
           </NFormItem>
 
-          <NFormItem label="Color" required>
+          <NFormItem label="Rank" required>
+            <NInput 
+              v-model:value="(formData.rank as unknown as string)" 
+              type="number"
+              placeholder="Enter rank"
+            />
+          </NFormItem>
+
+          <NFormItem label="Color">
             <NColorPicker 
               v-model:value="formData.color"
               :show-alpha="false"
@@ -459,20 +413,6 @@ async function handlePageSizeChange(pageSize: number) {
             />
           </NFormItem>
 
-          <NFormItem label="Category" required>
-            <NSelect
-              v-model:value="formData.category"
-              :options="categoryOptions"
-              placeholder="Select category"
-            />
-          </NFormItem>
-
-          <NFormItem label="Hidden">
-            <NCheckbox v-model:checked="formData.hidden">
-              Hide this label
-            </NCheckbox>
-          </NFormItem>
-
           <NFormItem label="Identifier" v-if="isEditing">
             <span>{{ formData.identifier }}</span>
           </NFormItem>
@@ -483,7 +423,7 @@ async function handlePageSizeChange(pageSize: number) {
 </template>
 
 <style scoped>
-.labels-view {
+.genres-view {
   padding: 24px;
 }
 
@@ -498,20 +438,11 @@ async function handlePageSizeChange(pageSize: number) {
   margin: 0;
 }
 
-.form-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.filters {
-  margin-bottom: 16px;
-}
-
-:deep(.n-data-table-th) {
-  background-color: var(--n-th-color);
-}
-
-:deep(.n-data-table-td) {
-  border-bottom: 1px solid var(--n-divider-color);
+.form-content {
+  max-width: 600px;
+  background: var(--card-color);
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid var(--border-color);
 }
 </style>

@@ -52,8 +52,8 @@ class AuthService {
       this.state = globalAuthState
     } else {
       this.keycloak = new Keycloak({
-        url: 'https://auth.kneo.io',
-        realm: 'kneo',
+        url: 'https://auth.semantyca.com',
+        realm: 'master',
         clientId: '2next'
       })
       globalKeycloakInstance = this.keycloak
@@ -90,8 +90,7 @@ class AuthService {
 
     try {
       const authenticated = await this.keycloak.init({
-        onLoad: 'check-sso',
-        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+        onLoad: 'login-required',
         checkLoginIframe: false, // Disable iframe check to avoid cross-domain issues
         enableLogging: true, // Enable logging for debugging
         pkceMethod: 'S256', // Use PKCE for better security

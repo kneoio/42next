@@ -51,6 +51,24 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'genres',
+          name: 'genres',
+          component: () => import('../views/GenresView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'agreements',
+          name: 'agreements',
+          component: () => import('../views/AgreementsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'consents',
+          name: 'consents',
+          component: () => import('../views/ConsentsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('../views/ProfileView.vue'),

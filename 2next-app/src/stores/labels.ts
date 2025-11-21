@@ -23,15 +23,29 @@ export const useLabelsStore = defineStore('labels', () => {
   const labels = ref<Label[]>([])
   const loading = ref(false)
   const selectedLabelIds = ref<string[]>([])
+  const totalCount = ref(0)
+  const pageNum = ref(1)
+  const pageSize = ref(10)
+  const maxPage = ref(1)
+  const filterCategory = ref<string | null>(null)
+  const filterIdentifier = ref<string>('')
 
   const selectedLabels = computed(() => 
     labels.value.filter(label => selectedLabelIds.value.includes(label.identifier))
   )
 
-  async function loadLabels() {
+  async function loadLabels(page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
-      labels.value = await apiService.getDictionary<Label>('/labels')
+      const result = await apiService.getPagedDictionary<Label>('/labels', page, size, {
+        category: filterCategory.value || undefined,
+        identifier: filterIdentifier.value || undefined
+      })
+      labels.value = result.entries
+      totalCount.value = result.count
+      pageNum.value = result.pageNum
+      pageSize.value = result.pageSize
+      maxPage.value = result.maxPage
     } catch (error) {
       console.error('Failed to load labels:', error)
       throw error
@@ -51,7 +65,18 @@ export const useLabelsStore = defineStore('labels', () => {
 
   async function createLabel(labelData: Partial<Label>) {
     try {
-      const newLabel = await apiService.createDictionaryItem<Label>('/labels', labelData)
+      // Backend generates identifier and manages audit fields; do not send them from the client
+      const {
+        id: _id,
+        identifier: _identifier,
+        author: _author,
+        regDate: _regDate,
+        lastModifier: _lastModifier,
+        lastModifiedDate: _lastModifiedDate,
+        ...payload
+      } = labelData as Partial<Label>
+
+      const newLabel = await apiService.createDictionaryItem<Label>('/labels', payload)
       labels.value.push(newLabel)
       return newLabel
     } catch (error) {
@@ -62,7 +87,18 @@ export const useLabelsStore = defineStore('labels', () => {
 
   async function updateLabel(id: string, labelData: Partial<Label>) {
     try {
-      const updatedLabel = await apiService.updateDictionaryItem<Label>('/labels', id, labelData)
+      // Do not send audit fields; backend owns them
+      const {
+        id: _id,
+        identifier: _identifier,
+        author: _author,
+        regDate: _regDate,
+        lastModifier: _lastModifier,
+        lastModifiedDate: _lastModifiedDate,
+        ...payload
+      } = labelData as Partial<Label>
+
+      const updatedLabel = await apiService.updateDictionaryItem<Label>('/labels', id, payload)
       const index = labels.value.findIndex(label => label.id === id)
       if (index !== -1) {
         labels.value[index] = updatedLabel
@@ -76,7 +112,10 @@ export const useLabelsStore = defineStore('labels', () => {
 
   async function deleteLabel(identifier: string) {
     try {
-      await apiService.deleteDictionaryItem('/labels', identifier)
+      const label = labels.value.find(label => label.identifier === identifier)
+      const idToDelete = label ? label.id : identifier
+
+      await apiService.deleteDictionaryItem('/labels', idToDelete)
       labels.value = labels.value.filter(label => label.identifier !== identifier)
     } catch (error) {
       console.error('Failed to delete label:', error)
@@ -86,8 +125,13 @@ export const useLabelsStore = defineStore('labels', () => {
 
   async function archiveLabels(identifiers: string[]) {
     try {
-      await apiService.archiveDictionaryItems('/labels', identifiers)
-      // Remove archived labels from the list
+      const idsToArchive = identifiers.map(identifier => {
+        const label = labels.value.find(label => label.identifier === identifier)
+        return label ? label.id : identifier
+      })
+
+      await apiService.archiveDictionaryItems('/labels', idsToArchive)
+      // Remove archived labels from the list (by identifier, UI-facing key)
       labels.value = labels.value.filter(label => !identifiers.includes(label.identifier))
     } catch (error) {
       console.error('Failed to archive labels:', error)
@@ -125,11 +169,22 @@ export const useLabelsStore = defineStore('labels', () => {
     return labels.value.find(label => label.identifier === identifier)
   }
 
+  function resetFilters() {
+    filterCategory.value = null
+    filterIdentifier.value = ''
+  }
+
   return {
     // State
     labels,
     loading,
     selectedLabelIds,
+    totalCount,
+    pageNum,
+    pageSize,
+    maxPage,
+    filterCategory,
+    filterIdentifier,
     selectedLabels,
     
     // Actions
@@ -144,6 +199,7 @@ export const useLabelsStore = defineStore('labels', () => {
     toggleLabelSelection,
     clearSelection,
     selectAll,
-    getLabelByIdentifier
+    getLabelByIdentifier,
+    resetFilters
   }
 })

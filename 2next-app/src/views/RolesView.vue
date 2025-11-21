@@ -12,6 +12,7 @@ import {
   type DataTableColumns,
   useMessage
 } from 'naive-ui'
+import FormPageHeader from '@/components/FormPageHeader.vue'
 import { useRolesStore, type Role } from '@/stores/roles'
 
 const rolesStore = useRolesStore()
@@ -255,13 +256,16 @@ onBeforeUnmount(() => {
 
     <!-- Form View -->
     <div v-else class="form-view">
-      <div class="form-header">
-        <h2 class="form-title">{{ isEditing ? 'Edit Role' : 'Create Role' }}</h2>
-        <NSpace class="form-actions">
-          <NButton @click="handleCancel">Cancel</NButton>
+      <FormPageHeader
+        :title="isEditing ? 'Edit Role' : 'Create Role'"
+        :subtitle="isEditing ? 'Update existing role' : 'Create a new role'"
+        @back="handleCancel"
+      >
+        <template #actions>
+          <NButton @click="handleCancel">Close</NButton>
           <NButton type="primary" @click="handleSave">Save</NButton>
-        </NSpace>
-      </div>
+        </template>
+      </FormPageHeader>
       
       <div class="form-content">
         <NForm :model="formData" label-placement="left" label-width="140px">

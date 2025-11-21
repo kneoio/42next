@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref, computed, h } from 'vue'
 import { NButton, NDataTable, NModal, NForm, NFormItem, NInput, NSwitch, NSelect, NSpace, NPopconfirm, useMessage, type DataTableColumns } from 'naive-ui'
+import FormPageHeader from '@/components/FormPageHeader.vue'
 import { useModulesStore, type Module } from '@/stores/modules'
 
 const moduleStore = useModulesStore()
@@ -295,13 +296,16 @@ onBeforeUnmount(() => {
 
     <!-- Form View -->
     <div v-else class="form-view">
-      <div class="form-header">
-        <h2 class="form-title">{{ isEditing ? 'Edit Module' : 'Create Module' }}</h2>
-        <NSpace class="form-actions">
-          <NButton @click="handleCancel">Cancel</NButton>
+      <FormPageHeader
+        :title="isEditing ? 'Edit Module' : 'Create Module'"
+        :subtitle="isEditing ? 'Update existing module' : 'Create a new module'"
+        @back="handleCancel"
+      >
+        <template #actions>
+          <NButton @click="handleCancel">Close</NButton>
           <NButton type="primary" @click="handleSave">Save</NButton>
-        </NSpace>
-      </div>
+        </template>
+      </FormPageHeader>
       
       <div class="form-content">
         <NForm :model="formData" label-placement="left" label-width="140px">

@@ -50,7 +50,16 @@ export const useModulesStore = defineStore('modules', () => {
 
   async function createModule(moduleData: Partial<Module>) {
     try {
-      const newModule = await apiService.createDictionaryItem<Module>('/modules', moduleData)
+      const {
+        id: _id,
+        author: _author,
+        regDate: _regDate,
+        lastModifier: _lastModifier,
+        lastModifiedDate: _lastModifiedDate,
+        ...payload
+      } = moduleData as Partial<Module>
+
+      const newModule = await apiService.createDictionaryItem<Module>('/modules', payload)
       modules.value.push(newModule)
       return newModule
     } catch (error) {
@@ -61,7 +70,16 @@ export const useModulesStore = defineStore('modules', () => {
 
   async function updateModule(id: string, moduleData: Partial<Module>) {
     try {
-      const updatedModule = await apiService.updateDictionaryItem<Module>('/modules', id, moduleData)
+      const {
+        id: _id,
+        author: _author,
+        regDate: _regDate,
+        lastModifier: _lastModifier,
+        lastModifiedDate: _lastModifiedDate,
+        ...payload
+      } = moduleData as Partial<Module>
+
+      const updatedModule = await apiService.updateDictionaryItem<Module>('/modules', id, payload)
       
       const index = modules.value.findIndex(module => module.id === id)
       if (index !== -1) {

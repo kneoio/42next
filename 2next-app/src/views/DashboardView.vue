@@ -22,6 +22,9 @@ import {
   ExtensionPuzzleOutline as ModulesIcon,
   LanguageOutline as LanguagesIcon,
   PricetagOutline as LabelsIcon,
+  MusicalNotesOutline as GenresIcon,
+  DocumentAttachOutline as AgreementsIcon,
+  HandLeftOutline as ConsentsIcon,
   PersonCircleOutline as ProfileIcon,
   LogOutOutline as LogoutIcon,
   SunnyOutline as LightIcon,
@@ -67,6 +70,30 @@ const menuOptions: MenuOption[] = [
     label: 'Labels',
     key: 'labels',
     icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
+  },
+  {
+    label: 'Genres',
+    key: 'genres',
+    icon: () => h(NIcon, null, { default: () => h(GenresIcon) })
+  },
+  {
+    label: 'Agreements',
+    key: 'agreements',
+    icon: () => h(NIcon, null, { default: () => h(AgreementsIcon) })
+  },
+  {
+    label: 'Consents',
+    key: 'consents',
+    icon: () => h(NIcon, null, { default: () => h(ConsentsIcon) })
+  },
+  {
+    key: 'divider-logout',
+    type: 'divider'
+  },
+  {
+    label: 'Logout',
+    key: 'logout',
+    icon: () => h(NIcon, null, { default: () => h(LogoutIcon) })
   }
 ]
 
@@ -83,7 +110,12 @@ const userMenuOptions = [
   }
 ]
 
-const handleMenuSelect = (key: string) => {
+const handleMenuSelect = async (key: string) => {
+  if (key === 'logout') {
+    await authStore.logout()
+    return
+  }
+
   activeKey.value = key
   router.push(`/dashboard/${key}`)
 }

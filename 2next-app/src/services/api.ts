@@ -23,6 +23,14 @@ export interface ApiResponse<T> {
   }
 }
 
+export interface PagedResult<T> {
+  entries: T[]
+  count: number
+  pageNum: number
+  maxPage: number
+  pageSize: number
+}
+
 export interface ApiDocResponse<T> {
   payload: {
     docData: T
@@ -51,7 +59,24 @@ class ApiService {
     })
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      let errorMessage = `HTTP error! status: ${response.status}`
+
+      try {
+        const data = await response.json()
+        if (response.status === 401 && data && typeof (data as any).error === 'string') {
+          errorMessage = (data as any).error
+        }
+      } catch {
+        // Ignore JSON parse errors and fallback to default message
+      }
+
+      throw new Error(errorMessage)
+    }
+
+    // Some endpoints (e.g. DELETE) legitimately return 204 No Content.
+    // In that case there is no body to parse.
+    if (response.status === 204) {
+      return undefined as T
     }
 
     return response.json()
@@ -63,6 +88,37 @@ class ApiService {
   async getDictionary<T>(endpoint: string): Promise<T[]> {
     const response = await this.request<ApiResponse<T>>(endpoint)
     return response.payload.viewData.entries
+  }
+
+  async getPagedDictionary<T>(
+    endpoint: string,
+    pageNum: number,
+    pageSize: number,
+    filters?: Record<string, string | number | boolean | null | undefined>
+  ): Promise<PagedResult<T>> {
+    const params = new URLSearchParams()
+    params.set('page', String(pageNum))
+    params.set('size', String(pageSize))
+
+    if (filters) {
+      for (const [key, value] of Object.entries(filters)) {
+        if (value !== undefined && value !== null && value !== '') {
+          params.set(key, String(value))
+        }
+      }
+    }
+
+    const query = `?${params.toString()}`
+    const response = await this.request<ApiResponse<T>>(`${endpoint}${query}`)
+    const viewData = response.payload.viewData
+
+    return {
+      entries: viewData.entries,
+      count: viewData.count,
+      pageNum: viewData.pageNum,
+      maxPage: viewData.maxPage,
+      pageSize: viewData.pageSize
+    }
   }
 
   async getDocument<T>(endpoint: string, id: string | number): Promise<T> {

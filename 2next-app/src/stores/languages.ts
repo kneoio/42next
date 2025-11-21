@@ -36,7 +36,16 @@ export const useLanguagesStore = defineStore('languages', () => {
 
   async function createLanguage(languageData: Partial<Language>) {
     try {
-      const newLanguage = await apiService.createDictionaryItem<Language>('/languages', languageData)
+      const {
+        id: _id,
+        author: _author,
+        regDate: _regDate,
+        lastModifier: _lastModifier,
+        lastModifiedDate: _lastModifiedDate,
+        ...payload
+      } = languageData as Partial<Language>
+
+      const newLanguage = await apiService.createDictionaryItem<Language>('/languages', payload)
       languages.value.push(newLanguage)
       return newLanguage
     } catch (error) {
@@ -47,7 +56,16 @@ export const useLanguagesStore = defineStore('languages', () => {
 
   async function updateLanguage(id: string, languageData: Partial<Language>) {
     try {
-      const updatedLanguage = await apiService.updateDictionaryItem<Language>('/languages', id, languageData)
+      const {
+        id: _id,
+        author: _author,
+        regDate: _regDate,
+        lastModifier: _lastModifier,
+        lastModifiedDate: _lastModifiedDate,
+        ...payload
+      } = languageData as Partial<Language>
+
+      const updatedLanguage = await apiService.updateDictionaryItem<Language>('/languages', id, payload)
       
       const index = languages.value.findIndex(language => language.id === id)
       if (index !== -1) {

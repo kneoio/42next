@@ -39,7 +39,15 @@ export const useRolesStore = defineStore('roles', () => {
 
   async function createRole(roleData: Partial<Role>) {
     try {
-      const newRole = await apiService.createDictionaryItem<Role>('/roles', roleData)
+      const {
+        author: _author,
+        regDate: _regDate,
+        lastModifier: _lastModifier,
+        lastModifiedDate: _lastModifiedDate,
+        ...payload
+      } = roleData as Partial<Role>
+
+      const newRole = await apiService.createDictionaryItem<Role>('/roles', payload)
       roles.value.push(newRole)
       return newRole
     } catch (error) {
@@ -50,7 +58,15 @@ export const useRolesStore = defineStore('roles', () => {
 
   async function updateRole(identifier: string, roleData: Partial<Role>) {
     try {
-      const updatedRole = await apiService.updateDictionaryItem<Role>('/roles', identifier, roleData)
+      const {
+        author: _author,
+        regDate: _regDate,
+        lastModifier: _lastModifier,
+        lastModifiedDate: _lastModifiedDate,
+        ...payload
+      } = roleData as Partial<Role>
+
+      const updatedRole = await apiService.updateDictionaryItem<Role>('/roles', identifier, payload)
       
       const index = roles.value.findIndex(role => role.identifier === identifier)
       if (index !== -1) {
