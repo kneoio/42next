@@ -69,6 +69,24 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'billings/:id?',
+          name: 'billings',
+          component: () => import('../views/BillingsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'subscriptions/:id?',
+          name: 'subscriptions',
+          component: () => import('../views/SubscriptionsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'subscription-products/:id?',
+          name: 'subscription-products',
+          component: () => import('../views/SubscriptionProductsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('../views/ProfileView.vue'),

@@ -52,6 +52,21 @@ const menuOptions: MenuOption[] = [
     icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
   },
   {
+    label: 'Billings',
+    key: 'billings',
+    icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
+  },
+  {
+    label: 'Subscriptions',
+    key: 'subscriptions',
+    icon: () => h(NIcon, null, { default: () => h(ModulesIcon) })
+  },
+  {
+    label: 'Subscription Products',
+    key: 'subscription-products',
+    icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
+  },
+  {
     label: 'Roles',
     key: 'roles',
     icon: () => h(NIcon, null, { default: () => h(RolesIcon) })

@@ -37,6 +37,82 @@ export interface ApiDocResponse<T> {
   }
 }
 
+export interface ViewData<T> {
+  entries: T[]
+  count: number
+  page: number
+  maxPage: number
+  size: number
+}
+
+export interface ViewPage<T> {
+  page: number
+  size: number
+  maxPage: number
+  payloads: {
+    VIEW_DATA: ViewData<T>
+  }
+}
+
+export interface FormPage<T> {
+  payloads: {
+    DOC_DATA: T
+  }
+}
+
+export interface PagedViewResult<T> {
+  entries: T[]
+  count: number
+  page: number
+  maxPage: number
+  size: number
+}
+
+export interface UserBillingDTO {
+  id: string
+  author: string
+  regDate: string
+  lastModifier: string
+  lastModifiedDate: string
+  userId: number
+  stripeCustomerId: string
+  meta: Record<string, unknown> | null
+}
+
+export interface UserSubscriptionDTO {
+  id: string
+  author: string
+  regDate: string
+  lastModifier: string
+  lastModifiedDate: string
+  userId: number
+  stripeSubscriptionId: string
+  subscriptionType: string
+  subscriptionStatus: string
+  trialEnd: string | null
+  active: boolean
+  meta: Record<string, unknown> | null
+}
+
+export interface SubscriptionProductDTO {
+  id: string
+  author: string
+  regDate: string
+  lastModifier: string
+  lastModifiedDate: string
+  identifier: string
+  localizedName: {
+    [languageCode: string]: string
+  }
+  localizedDescription: {
+    [languageCode: string]: string
+  }
+  stripePriceId: string
+  stripeProductId: string
+  active: boolean
+  meta: Record<string, unknown> | null
+}
+
 class ApiService {
   private baseUrl = 'http://localhost:38700/api'
 
@@ -65,6 +141,14 @@ class ApiService {
         const data = await response.json()
         if (response.status === 401 && data && typeof (data as any).error === 'string') {
           errorMessage = (data as any).error
+        } else if (response.status === 400) {
+          if (data && typeof (data as any).message === 'string') {
+            errorMessage = (data as any).message
+          } else {
+            errorMessage = 'Invalid JSON payload'
+          }
+        } else if (data && typeof (data as any).message === 'string') {
+          errorMessage = (data as any).message
         }
       } catch {
         // Ignore JSON parse errors and fallback to default message
@@ -151,6 +235,240 @@ class ApiService {
     await this.request<void>(`${endpoint}/archive`, {
       method: 'POST',
       body: JSON.stringify({ ids }),
+    })
+  }
+
+  async getBillings(page: number, size: number): Promise<PagedViewResult<UserBillingDTO>> {
+    const params = new URLSearchParams()
+    params.set('page', String(page))
+    params.set('size', String(size))
+
+    const response = await this.request<any>(`/billings?${params.toString()}`)
+    const legacyViewData = response?.payload?.viewData
+    const newViewData = response?.payloads?.VIEW_DATA
+    const viewData = newViewData ?? legacyViewData
+
+    if (!viewData) {
+      throw new Error('Unexpected billings response format')
+    }
+
+    const pageValue = viewData.page ?? viewData.pageNum ?? page
+    const sizeValue = viewData.size ?? viewData.pageSize ?? size
+
+    return {
+      entries: viewData.entries,
+      count: viewData.count,
+      page: pageValue,
+      maxPage: viewData.maxPage,
+      size: sizeValue
+    }
+  }
+
+  async getBillingDocument(id: string | 'new'): Promise<UserBillingDTO> {
+    const response = await this.request<any>(`/billings/${id}`)
+    const doc =
+      response?.payloads?.DOC_DATA ??
+      response?.payload?.DOC_DATA ??
+      response?.payload?.docData
+
+    if (!doc) {
+      throw new Error('Unexpected billing document response format')
+    }
+
+    return doc as UserBillingDTO
+  }
+
+  async createBilling(billing: Partial<UserBillingDTO>): Promise<UserBillingDTO> {
+    const {
+      id: _id,
+      author: _author,
+      regDate: _regDate,
+      lastModifier: _lastModifier,
+      lastModifiedDate: _lastModifiedDate,
+      ...payload
+    } = billing as Partial<UserBillingDTO>
+
+    return this.request<UserBillingDTO>('/billings', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  }
+
+  async updateBilling(id: string, billing: Partial<UserBillingDTO>): Promise<UserBillingDTO> {
+    const {
+      id: _id,
+      author: _author,
+      regDate: _regDate,
+      lastModifier: _lastModifier,
+      lastModifiedDate: _lastModifiedDate,
+      ...payload
+    } = billing as Partial<UserBillingDTO>
+
+    return this.request<UserBillingDTO>(`/billings/${id}`, {
+      method: 'POST',
+      body: JSON.stringify({ ...payload, id }),
+    })
+  }
+
+  async deleteBilling(id: string): Promise<void> {
+    await this.request<void>(`/billings/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async getSubscriptions(page: number, size: number): Promise<PagedViewResult<UserSubscriptionDTO>> {
+    const params = new URLSearchParams()
+    params.set('page', String(page))
+    params.set('size', String(size))
+
+    const response = await this.request<any>(`/subscriptions?${params.toString()}`)
+    const legacyViewData = response?.payload?.viewData
+    const newViewData = response?.payloads?.VIEW_DATA
+    const viewData = newViewData ?? legacyViewData
+
+    if (!viewData) {
+      throw new Error('Unexpected subscriptions response format')
+    }
+
+    const pageValue = viewData.page ?? viewData.pageNum ?? page
+    const sizeValue = viewData.size ?? viewData.pageSize ?? size
+
+    return {
+      entries: viewData.entries,
+      count: viewData.count,
+      page: pageValue,
+      maxPage: viewData.maxPage,
+      size: sizeValue
+    }
+  }
+
+  async getSubscriptionDocument(id: string | 'new'): Promise<UserSubscriptionDTO> {
+    const response = await this.request<any>(`/subscriptions/${id}`)
+    const doc =
+      response?.payloads?.DOC_DATA ??
+      response?.payload?.DOC_DATA ??
+      response?.payload?.docData
+
+    if (!doc) {
+      throw new Error('Unexpected subscription document response format')
+    }
+
+    return doc as UserSubscriptionDTO
+  }
+
+  async createSubscription(subscription: Partial<UserSubscriptionDTO>): Promise<UserSubscriptionDTO> {
+    const {
+      id: _id,
+      author: _author,
+      regDate: _regDate,
+      lastModifier: _lastModifier,
+      lastModifiedDate: _lastModifiedDate,
+      ...payload
+    } = subscription as Partial<UserSubscriptionDTO>
+
+    return this.request<UserSubscriptionDTO>('/subscriptions', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  }
+
+  async updateSubscription(id: string, subscription: Partial<UserSubscriptionDTO>): Promise<UserSubscriptionDTO> {
+    const {
+      id: _id,
+      author: _author,
+      regDate: _regDate,
+      lastModifier: _lastModifier,
+      lastModifiedDate: _lastModifiedDate,
+      ...payload
+    } = subscription as Partial<UserSubscriptionDTO>
+
+    return this.request<UserSubscriptionDTO>(`/subscriptions/${id}`, {
+      method: 'POST',
+      body: JSON.stringify({ ...payload, id }),
+    })
+  }
+
+  async deleteSubscription(id: string): Promise<void> {
+    await this.request<void>(`/subscriptions/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async getSubscriptionProducts(page: number, size: number): Promise<PagedViewResult<SubscriptionProductDTO>> {
+    const params = new URLSearchParams()
+    params.set('page', String(page))
+    params.set('size', String(size))
+
+    const response = await this.request<any>(`/subscription-products?${params.toString()}`)
+    const legacyViewData = response?.payload?.viewData
+    const newViewData = response?.payloads?.VIEW_DATA
+    const viewData = newViewData ?? legacyViewData
+
+    if (!viewData) {
+      throw new Error('Unexpected subscription products response format')
+    }
+
+    const pageValue = viewData.page ?? viewData.pageNum ?? page
+    const sizeValue = viewData.size ?? viewData.pageSize ?? size
+
+    return {
+      entries: viewData.entries,
+      count: viewData.count,
+      page: pageValue,
+      maxPage: viewData.maxPage,
+      size: sizeValue
+    }
+  }
+
+  async getSubscriptionProductDocument(id: string | 'new'): Promise<SubscriptionProductDTO> {
+    const response = await this.request<any>(`/subscription-products/${id}`)
+    const doc =
+      response?.payloads?.DOC_DATA ??
+      response?.payload?.DOC_DATA ??
+      response?.payload?.docData
+
+    if (!doc) {
+      throw new Error('Unexpected subscription product document response format')
+    }
+
+    return doc as SubscriptionProductDTO
+  }
+
+  async createSubscriptionProduct(product: Partial<SubscriptionProductDTO>): Promise<SubscriptionProductDTO> {
+    const {
+      id: _id,
+      author: _author,
+      regDate: _regDate,
+      lastModifier: _lastModifier,
+      lastModifiedDate: _lastModifiedDate,
+      ...payload
+    } = product as Partial<SubscriptionProductDTO>
+
+    return this.request<SubscriptionProductDTO>('/subscription-products', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  }
+
+  async updateSubscriptionProduct(id: string, product: Partial<SubscriptionProductDTO>): Promise<SubscriptionProductDTO> {
+    const {
+      id: _id,
+      author: _author,
+      regDate: _regDate,
+      lastModifier: _lastModifier,
+      lastModifiedDate: _lastModifiedDate,
+      ...payload
+    } = product as Partial<SubscriptionProductDTO>
+
+    return this.request<SubscriptionProductDTO>(`/subscription-products/${id}`, {
+      method: 'POST',
+      body: JSON.stringify({ ...payload, id }),
+    })
+  }
+
+  async deleteSubscriptionProduct(id: string): Promise<void> {
+    await this.request<void>(`/subscription-products/${id}`, {
+      method: 'DELETE',
     })
   }
 }
