@@ -1,4 +1,5 @@
 import authService from './auth'
+import { appConfig } from '@/config/appConfig'
 
 export interface User {
   identifier: string | null
@@ -115,7 +116,7 @@ export interface SubscriptionProductDTO {
 
 class ApiService {
   //private baseUrl = 'http://localhost:38700/api'
-  private baseUrl = 'http://localhost:38707/api'
+  private baseUrl = appConfig.apiBaseUrl
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const authHeaders = authService.getAuthHeader()

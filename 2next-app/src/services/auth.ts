@@ -1,4 +1,5 @@
 import Keycloak from 'keycloak-js'
+import { appConfig } from '@/config/appConfig'
 
 // Utility function to clear all cookies for the current domain
 function clearAuthCookies() {
@@ -52,9 +53,9 @@ class AuthService {
       this.state = globalAuthState
     } else {
       this.keycloak = new Keycloak({
-        url: 'https://auth.semantyca.com',
-        realm: 'master',
-        clientId: '2next'
+        url: appConfig.keycloak.url,
+        realm: appConfig.keycloak.realm,
+        clientId: appConfig.keycloak.clientId
       })
       globalKeycloakInstance = this.keycloak
       this.state = globalAuthState
