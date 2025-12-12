@@ -8,6 +8,7 @@ import {
   NForm,
   NFormItem,
   NInput,
+  NInputNumber,
   NColorPicker,
   type DataTableColumns,
   useMessage
@@ -392,9 +393,8 @@ async function handlePageSizeChange(pageSize: number) {
           </NFormItem>
 
           <NFormItem label="Rank" required>
-            <NInput 
-              v-model:value="(formData.rank as unknown as string)" 
-              type="number"
+            <NInputNumber
+              v-model:value="formData.rank"
               placeholder="Enter rank"
             />
           </NFormItem>

@@ -154,9 +154,9 @@ const handleSave = async () => {
   }
 }
 
-const handleDelete = async (id: number) => {
+const handleDelete = async (login: string) => {
   try {
-    await userStore.deleteUser(id)
+    await userStore.deleteUser(login)
     message.success('User deleted successfully')
   } catch (error) {
     console.error('Failed to delete user:', error)
