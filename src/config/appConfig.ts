@@ -21,8 +21,16 @@ function readEnvString(key: keyof ImportMetaEnv, fallback: string): string {
   return fallback
 }
 
+function readRequiredEnvString(key: keyof ImportMetaEnv): string {
+  const value = import.meta.env[key]
+  if (typeof value === 'string' && value.trim() !== '') {
+    return value
+  }
+  throw new Error(`Missing required environment variable: ${String(key)}`)
+}
+
 export const appConfig: AppConfig = {
-  apiBaseUrl: normalizeUrl(readEnvString('VITE_API_BASE_URL', 'http://localhost:38707/api')),
+  apiBaseUrl: normalizeUrl(readRequiredEnvString('VITE_API_BASE_URL')),
   keycloak: {
     url: normalizeUrl(readEnvString('VITE_KEYCLOAK_URL', 'https://auth.semantyca.com')),
     realm: readEnvString('VITE_KEYCLOAK_REALM', 'master'),
