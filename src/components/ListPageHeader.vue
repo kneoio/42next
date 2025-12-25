@@ -1,14 +1,3 @@
-<script setup lang="ts">
-import { NPageHeader } from 'naive-ui'
-
-interface Props {
-  title: string
-  subtitle?: string
-  count?: number
-}
-
-const props = defineProps<Props>()
-</script>
 
 <template>
   <div class="list-page-header">
@@ -25,19 +14,14 @@ const props = defineProps<Props>()
   </div>
 </template>
 
-<style scoped>
-.list-page-header {
-  margin-bottom: 16px;
+<script setup lang="ts">
+import { NPageHeader } from 'naive-ui'
+
+interface Props {
+  title: string
+  subtitle?: string
+  count?: number
 }
 
-.list-header-extra {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.total-count {
-  font-size: 13px;
-  color: var(--text-color);
-}
-</style>
+const props = defineProps<Props>()
+</script>

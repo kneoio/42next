@@ -51,6 +51,18 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'labels/new',
+          name: 'label-new',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/:id',
+          name: 'label-edit',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'genres',
           name: 'genres',
           component: () => import('../views/GenresView.vue'),

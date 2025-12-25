@@ -1,25 +1,3 @@
-<script setup lang="ts">
-import { computed } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
-import { NButton, NCard, NH1, NP, NSpace, NLayout, NLayoutContent, NAvatar, NDivider } from 'naive-ui'
-
-const authStore = useAuthStore()
-const router = useRouter()
-
-const handleLogin = async () => {
-  await authStore.login()
-}
-
-const goToDashboard = () => {
-  router.push('/dashboard')
-}
-
-const isAuthenticated = computed(() => authStore.isAuthenticated)
-const userName = computed(() => authStore.userName)
-const userProfile = computed(() => authStore.userProfile)
-</script>
-
 <template>
   <NLayout class="min-h-screen">
     <NLayoutContent class="flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -100,8 +78,27 @@ const userProfile = computed(() => authStore.userProfile)
   </NLayout>
 </template>
 
-<style scoped>
-.min-h-screen {
-  min-height: 100vh;
+
+
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+import { NButton, NCard, NH1, NP, NSpace, NLayout, NLayoutContent, NAvatar, NDivider } from 'naive-ui'
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+const handleLogin = async () => {
+  await authStore.login()
 }
-</style>
+
+const goToDashboard = () => {
+  router.push('/dashboard')
+}
+
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+const userName = computed(() => authStore.userName)
+const userProfile = computed(() => authStore.userProfile)
+</script>
+

@@ -13,6 +13,7 @@ import {
   NDropdown,
   NAvatar,
   NSpace,
+  NFlex,
   NIcon,
   type MenuOption
 } from 'naive-ui'
@@ -145,7 +146,7 @@ const handleUserMenuSelect = async (key: string) => {
 </script>
 
 <template>
-  <NLayout has-sider class="min-h-screen">
+  <NLayout has-sider style="min-height: 100vh; width: 100%; overflow-x: hidden;">
     <NLayoutSider
       bordered
       collapse-mode="width"
@@ -156,11 +157,11 @@ const handleUserMenuSelect = async (key: string) => {
       @collapse="collapsed = true"
       @expand="collapsed = false"
     >
-      <div class="p-4">
-        <div class="text-center mb-6">
-          <h2 v-if="!collapsed" class="text-xl font-bold text-gray-800">2next Platform</h2>
-          <h2 v-else class="text-lg font-bold text-gray-800">2n</h2>
-        </div>
+      <NSpace vertical style="padding: 16px;">
+        <NFlex justify="center">
+          <h2 v-if="!collapsed">2next Platform</h2>
+          <h2 v-else>2n</h2>
+        </NFlex>
         
         <NMenu
           :collapsed="collapsed"
@@ -170,17 +171,15 @@ const handleUserMenuSelect = async (key: string) => {
           :value="activeKey"
           @update:value="handleMenuSelect"
         />
-      </div>
+      </NSpace>
     </NLayoutSider>
 
-    <NLayout>
-      <NLayoutHeader bordered class="p-4">
-        <div class="flex justify-between items-center">
-          <div class="flex items-center space-x-4">
-            <h1 class="text-2xl font-semibold text-gray-800 capitalize">
-              {{ activeKey }} Management
-            </h1>
-          </div>
+    <NLayout style="flex: 1; min-width: 1000px;">
+      <NLayoutHeader bordered style="padding: 16px;">
+        <NFlex justify="space-between" align="center">
+          <h1 style="text-transform: capitalize;">
+            {{ activeKey }} Management
+          </h1>
           
           <NSpace>
             <NButton 
@@ -202,27 +201,22 @@ const handleUserMenuSelect = async (key: string) => {
               @select="handleUserMenuSelect"
             >
               <NButton text>
-                <template #icon>
+                <NSpace align="center" :size="8">
                   <NAvatar size="small" :src="authStore.userProfile?.picture">
                     {{ authStore.userName.charAt(0).toUpperCase() }}
                   </NAvatar>
-                </template>
-                <span v-if="!collapsed" class="ml-2">{{ authStore.userName }}</span>
+                  <span v-if="!collapsed">{{ authStore.userName }}</span>
+                </NSpace>
               </NButton>
             </NDropdown>
           </NSpace>
-        </div>
+        </NFlex>
       </NLayoutHeader>
 
-      <NLayoutContent class="p-6">
+      <NLayoutContent style="padding: 24px; min-width: 800px;">
         <router-view />
       </NLayoutContent>
     </NLayout>
   </NLayout>
 </template>
 
-<style scoped>
-.min-h-screen {
-  min-height: 100vh;
-}
-</style>
