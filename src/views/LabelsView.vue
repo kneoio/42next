@@ -69,14 +69,11 @@ const formData = ref<LabelFormData>({
   parent: null
 })
 
-// Category options
 const categoryOptions = [
-  { label: 'Platform', value: 'platform' },
-  { label: 'Audio Type', value: 'audio_type' },
-  { label: 'Content Status', value: 'content_status' }
+  { label: 'Sound Fragment', value: 'sound_fragment' },
+  { label: 'Script', value: 'script' }
 ]
 
-// Table columns
 const columns: DataTableColumns<Label> = [
   {
     type: 'selection',
