@@ -1,25 +1,22 @@
 <template>
-  <div>
-    <ListPageHeader
-      :title="isEditing ? 'Edit Label' : 'Create Label'"
-      :subtitle="isEditing ? 'Update existing label' : 'Create a new label'"
-    />
-
-    <div style="margin-top: 16px; margin-bottom: 16px;">
+  <FormWrapper
+    :title="isEditing ? 'Edit Label' : 'Create Label'"
+    :subtitle="isEditing ? 'Update existing label' : 'Create a new label'"
+  >
+    <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
         <NButton type="primary" @click="handleSave" :loading="loading">
           Save
         </NButton>
       </NSpace>
-    </div>
+    </template>
     
     <NForm
       :model="formData"
       label-placement="left"
       label-width="120"
       :disabled="loading"
-      style="margin-top: 24px; max-width: 600px;"
     >
         <NFormItem label="Name (EN)" required>
           <NInput 
@@ -74,7 +71,7 @@
           <span>{{ formData.identifier }}</span>
         </NFormItem>
       </NForm>
-  </div>
+  </FormWrapper>
 </template>
 
 
@@ -92,7 +89,7 @@ import {
   NCheckbox,
   useMessage
 } from 'naive-ui'
-import ListPageHeader from '@/components/ListPageHeader.vue'
+import FormWrapper from '@/components/FormWrapper.vue'
 import { useLabelsStore, type Label } from '@/stores/labels'
 import { useRoute, useRouter } from 'vue-router'
 

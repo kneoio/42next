@@ -1,44 +1,38 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, h } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted, computed, h } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   NDataTable,
   NButton,
   NSpace,
   NPopconfirm,
-  NForm,
-  NFormItem,
-  NInputNumber,
-  NInput,
-  NSwitch,
-  NDatePicker,
-  NPagination,
-  useMessage,
   type DataTableColumns
 } from 'naive-ui'
+import PageHeader from '@/components/PageHeader.vue'
+import ActionBar from '@/components/ActionBar.vue'
 import apiService, { type UserSubscriptionDTO } from '@/services/api'
 
-const route = useRoute()
 const router = useRouter()
-const message = useMessage()
-
 const subscriptions = ref<UserSubscriptionDTO[]>([])
 const loading = ref(false)
 const page = ref(1)
 const size = ref(10)
-const maxPage = ref(1)
 const totalCount = ref(0)
+const selectedSubscriptionIds = ref<string[]>([])
 
-const formSubscription = ref<UserSubscriptionDTO | null>(null)
-const formLoading = ref(false)
-const metaText = ref('')
-const trialEndValue = ref<number | null>(null)
-
-const currentId = computed(() => route.params.id as string | undefined)
-const isFormRoute = computed(() => !!currentId.value)
-const isNew = computed(() => currentId.value === 'new')
+const pagination = computed(() => ({
+  page: page.value,
+  pageSize: size.value,
+  pageSizes: [10, 20, 50, 100],
+  showSizePicker: true,
+  itemCount: totalCount.value
+}))
 
 const columns: DataTableColumns<UserSubscriptionDTO> = [
+  {
+    type: 'selection',
+    width: 60
+  },
   {
     title: 'User ID',
     key: 'userId',
@@ -62,79 +56,21 @@ const columns: DataTableColumns<UserSubscriptionDTO> = [
     key: 'active',
     width: 80,
     render: (row) => (row.active ? 'Yes' : 'No')
-  },
-  {
-    title: 'Actions',
-    key: 'actions',
-    width: 200,
-    render(row) {
-      return h(
-        NSpace,
-        null,
-        {
-          default: () => [
-            h(
-              NButton,
-              {
-                size: 'small',
-                type: 'primary',
-                onClick: () => handleEdit(row),
-              },
-              { default: () => 'Edit' }
-            ),
-            h(
-              NPopconfirm,
-              {
-                onPositiveClick: () => handleDelete(row.id),
-              },
-              {
-                trigger: () =>
-                  h(
-                    NButton,
-                    {
-                      size: 'small',
-                      type: 'error',
-                    },
-                    { default: () => 'Delete' }
-                  ),
-                default: () => 'Are you sure you want to delete this subscription?',
-              }
-            ),
-          ],
-        }
-      )
-    }
   }
 ]
 
-async function loadSubscriptions() {
+async function loadSubscriptions(pageNum: number, pageSize: number) {
   loading.value = true
   try {
-    const result = await apiService.getSubscriptions(page.value, size.value)
+    const result = await apiService.getSubscriptions(pageNum, pageSize)
     subscriptions.value = result.entries
     totalCount.value = result.count
-    maxPage.value = result.maxPage
+    page.value = pageNum
+    size.value = pageSize
   } catch (error) {
     console.error('Failed to load subscriptions:', error)
-    message.error((error as Error).message || 'Failed to load subscriptions')
   } finally {
     loading.value = false
-  }
-}
-
-async function loadSubscriptionDocument(id: string) {
-  formLoading.value = true
-  try {
-    const dto = await apiService.getSubscriptionDocument(id)
-    formSubscription.value = dto
-    metaText.value = dto.meta ? JSON.stringify(dto.meta, null, 2) : ''
-    trialEndValue.value = dto.trialEnd ? Date.parse(dto.trialEnd) : null
-  } catch (error) {
-    console.error('Failed to load subscription document:', error)
-    message.error((error as Error).message || 'Failed to load subscription')
-    router.push('/dashboard/subscriptions')
-  } finally {
-    formLoading.value = false
   }
 }
 
@@ -142,172 +78,114 @@ function handleCreate() {
   router.push('/dashboard/subscriptions/new')
 }
 
-function handleEdit(row: UserSubscriptionDTO) {
+async function handleEdit(row: UserSubscriptionDTO) {
   router.push(`/dashboard/subscriptions/${row.id}`)
 }
 
 async function handleDelete(id: string) {
   try {
     await apiService.deleteSubscription(id)
-    message.success('Subscription deleted')
-    await loadSubscriptions()
+    await loadSubscriptions(page.value, size.value)
   } catch (error) {
     console.error('Failed to delete subscription:', error)
-    const msg = (error as Error).message
-    if (msg.includes('Not found') || msg.includes('404')) {
-      message.error('Not found')
-    } else {
-      message.error(msg || 'Failed to delete subscription')
-    }
   }
 }
 
-async function handleSave() {
-  if (!formSubscription.value) return
-
-  let parsedMeta: Record<string, unknown> | null = null
-  if (metaText.value.trim()) {
-    try {
-      parsedMeta = JSON.parse(metaText.value)
-    } catch {
-      message.error('Invalid JSON payload')
-      return
-    }
+async function handleBulkDelete() {
+  if (selectedSubscriptionIds.value.length === 0) {
+    return
   }
-
-  const payload: Partial<UserSubscriptionDTO> = {
-    ...formSubscription.value,
-    meta: parsedMeta,
-    trialEnd: trialEndValue.value ? new Date(trialEndValue.value).toISOString() : null
-  }
-
+  
   try {
-    if (isNew.value) {
-      await apiService.createSubscription(payload)
-    } else {
-      await apiService.updateSubscription(formSubscription.value.id, payload)
+    for (const id of selectedSubscriptionIds.value) {
+      await apiService.deleteSubscription(id)
     }
-    message.success('Subscription saved')
-    await loadSubscriptions()
-    router.push('/dashboard/subscriptions')
+    selectedSubscriptionIds.value = []
+    await loadSubscriptions(page.value, size.value)
   } catch (error) {
-    console.error('Failed to save subscription:', error)
-    message.error((error as Error).message || 'Failed to save subscription')
+    console.error('Failed to delete subscriptions:', error)
   }
 }
 
-function handleCancel() {
-  router.push('/dashboard/subscriptions')
+async function handlePageChange(pageNum: number) {
+  await loadSubscriptions(pageNum, size.value)
 }
 
-function handlePageChange(newPage: number) {
-  page.value = newPage
-  loadSubscriptions()
+async function handlePageSizeChange(pageSize: number) {
+  await loadSubscriptions(1, pageSize)
 }
 
 onMounted(() => {
-  if (isFormRoute.value && currentId.value) {
-    loadSubscriptionDocument(currentId.value)
-  } else {
-    loadSubscriptions()
-  }
+  loadSubscriptions(page.value, size.value)
 })
 
-watch(
-  () => route.params.id,
-  (newId) => {
-    if (typeof newId === 'string') {
-      loadSubscriptionDocument(newId)
-    } else {
-      formSubscription.value = null
-      metaText.value = ''
-      trialEndValue.value = null
-      loadSubscriptions()
-    }
-  }
-)
 </script>
 
 <template>
   <div class="subscriptions-view">
-    <div v-if="!isFormRoute">
-      <div class="mb-4">
+    <PageHeader
+      title="Subscriptions"
+      subtitle="Manage user subscriptions"
+      :count="totalCount"
+    >
+      <template #actions>
         <NSpace>
-          <NButton type="primary" @click="handleCreate">
-            Create Subscription
-          </NButton>
+          <NPopconfirm
+            v-if="selectedSubscriptionIds.length > 0"
+            @positive-click="handleBulkDelete"
+          >
+            <template #trigger>
+              <NButton type="error">
+                Delete Selected ({{ selectedSubscriptionIds.length }})
+              </NButton>
+            </template>
+            Are you sure you want to delete the selected subscriptions?
+          </NPopconfirm>
         </NSpace>
-      </div>
+      </template>
+    </PageHeader>
 
-      <NDataTable
-        :columns="columns"
-        :data="subscriptions"
-        :loading="loading"
-        :row-key="(row: UserSubscriptionDTO) => row.id"
-      />
+    <ActionBar>
+      <NSpace>
+        <NButton 
+          type="primary" 
+          @click="handleCreate"
+        >
+          Add Subscription
+        </NButton>
+      </NSpace>
+    </ActionBar>
 
-      <div class="mt-4 flex justify-end">
-        <NPagination
-          :page="page"
-          :page-count="maxPage"
-          :page-size="size"
-          :item-count="totalCount"
-          @update:page="handlePageChange"
-        />
-      </div>
-    </div>
-
-    <div v-else class="form-view">
-      <div class="form-header mb-4 flex justify-between items-center">
-        <h2 class="text-xl font-semibold">
-          {{ isNew ? 'Create Subscription' : 'Edit Subscription' }}
-        </h2>
-        <NSpace>
-          <NButton @click="handleCancel">Cancel</NButton>
-          <NButton type="primary" :loading="formLoading" @click="handleSave">Save</NButton>
-        </NSpace>
-      </div>
-
-      <div v-if="formSubscription" class="form-content max-w-xl">
-        <NForm :model="formSubscription" label-placement="left" label-width="180">
-          <NFormItem label="User ID" required>
-            <NInputNumber v-model:value="formSubscription.userId" :min="1" />
-          </NFormItem>
-
-          <NFormItem label="Stripe Subscription ID" required>
-            <NInput v-model:value="formSubscription.stripeSubscriptionId" />
-          </NFormItem>
-
-          <NFormItem label="Subscription Type" required>
-            <NInput v-model:value="formSubscription.subscriptionType" />
-          </NFormItem>
-
-          <NFormItem label="Subscription Status" required>
-            <NInput v-model:value="formSubscription.subscriptionStatus" />
-          </NFormItem>
-
-          <NFormItem label="Trial End">
-            <NDatePicker
-              v-model:value="trialEndValue"
-              type="datetime"
-              clearable
-            />
-          </NFormItem>
-
-          <NFormItem label="Active">
-            <NSwitch v-model:value="formSubscription.active" />
-          </NFormItem>
-
-          <NFormItem label="Meta (JSON)">
-            <NInput
-              v-model:value="metaText"
-              type="textarea"
-              :rows="6"
-              placeholder="Enter JSON object or leave empty"
-            />
-          </NFormItem>
-        </NForm>
-      </div>
-    </div>
+    <NDataTable
+      :columns="columns"
+      :data="subscriptions"
+      :loading="loading"
+      :row-key="(row: UserSubscriptionDTO) => row.id"
+      v-model:checked-row-keys="selectedSubscriptionIds"
+      :pagination="pagination"
+      remote
+      @update:page="handlePageChange"
+      @update:page-size="handlePageSizeChange"
+      :row-props="(row: UserSubscriptionDTO) => ({
+        style: 'cursor: pointer;',
+        onClick: (e: MouseEvent) => {
+          const target = e.target as HTMLElement
+          if (target.closest('.n-data-table-td--selection') || target.closest('.n-checkbox')) {
+            return
+          }
+          handleEdit(row)
+        }
+      })"
+    />
   </div>
 </template>
+
+<style scoped>
+:deep(.n-data-table-th) {
+  background-color: var(--n-th-color);
+}
+
+:deep(.n-data-table-td) {
+  border-bottom: 1px solid var(--n-divider-color);
+}
+</style>

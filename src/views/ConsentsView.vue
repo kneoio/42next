@@ -1,25 +1,20 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, h, ref, computed } from 'vue'
+import { onMounted, onBeforeUnmount, computed } from 'vue'
 import {
   NDataTable,
   NButton,
   NSpace,
   NPopconfirm,
-  NForm,
-  NFormItem,
-  NInput,
-  NSwitch,
-  type DataTableColumns,
-  useMessage
+  type DataTableColumns
 } from 'naive-ui'
-import FormPageHeader from '@/components/FormPageHeader.vue'
-import ListPageHeader from '@/components/ListPageHeader.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import ActionBar from '@/components/ActionBar.vue'
 import { useConsentsStore, type UserConsent } from '@/stores/consents'
+import { useRouter } from 'vue-router'
 
 const consentsStore = useConsentsStore()
-const message = useMessage()
+const router = useRouter()
 
-// Pagination state derived from store
 const pagination = computed(() => ({
   page: consentsStore.pageNum,
   pageSize: consentsStore.pageSize,
@@ -27,32 +22,6 @@ const pagination = computed(() => ({
   showSizePicker: true,
   itemCount: consentsStore.totalCount
 }))
-
-// Form state
-const showForm = ref(false)
-const isEditing = ref(false)
-const editingConsent = ref<UserConsent | null>(null)
-
-interface ConsentFormData {
-  userId: string
-  essential: boolean
-  analytics: boolean
-  marketing: boolean
-  timestamp?: string | null
-  ipAddress?: string
-  userAgent?: string
-  author?: string
-  regDate?: string
-  lastModifier?: string
-  lastModifiedDate?: string | null
-}
-
-const formData = ref<ConsentFormData>({
-  userId: '',
-  essential: true,
-  analytics: false,
-  marketing: false
-})
 
 // Table columns
 const columns: DataTableColumns<UserConsent> = [
@@ -113,79 +82,24 @@ const columns: DataTableColumns<UserConsent> = [
   }
 ]
 
-// Consent management
 function handleCreate() {
-  isEditing.value = false
-  editingConsent.value = null
-  formData.value = {
-    userId: '',
-    essential: true,
-    analytics: false,
-    marketing: false
-  }
-  showForm.value = true
+  router.push('/dashboard/consents/new')
 }
 
 async function handleEdit(consent: UserConsent) {
-  isEditing.value = true
-  editingConsent.value = consent
-  try {
-    const fullDoc = await consentsStore.fetchConsent(consent.id)
-    formData.value = {
-      userId: fullDoc.userId,
-      essential: fullDoc.essential,
-      analytics: fullDoc.analytics,
-      marketing: fullDoc.marketing,
-      timestamp: fullDoc.timestamp,
-      ipAddress: fullDoc.ipAddress,
-      userAgent: fullDoc.userAgent,
-      author: fullDoc.author,
-      regDate: fullDoc.regDate,
-      lastModifier: fullDoc.lastModifier,
-      lastModifiedDate: fullDoc.lastModifiedDate
-    }
-  } catch (e) {
-    formData.value = {
-      userId: consent.userId,
-      essential: consent.essential,
-      analytics: consent.analytics,
-      marketing: consent.marketing,
-      timestamp: consent.timestamp,
-      ipAddress: consent.ipAddress,
-      userAgent: consent.userAgent,
-      author: consent.author,
-      regDate: consent.regDate,
-      lastModifier: consent.lastModifier,
-      lastModifiedDate: consent.lastModifiedDate
-    }
-  }
-  showForm.value = true
+  router.push(`/dashboard/consents/${consent.id}`)
 }
 
-async function handleSave() {
+async function handleDelete(id: string) {
   try {
-    if (isEditing.value && editingConsent.value) {
-      await consentsStore.updateConsent(editingConsent.value.id, formData.value)
-      message.success('Consent updated successfully')
-    } else {
-      await consentsStore.createConsent(formData.value)
-      message.success('Consent created successfully')
-    }
-    await consentsStore.loadConsents(consentsStore.pageNum, consentsStore.pageSize)
-    showForm.value = false
+    await consentsStore.deleteConsent(id)
   } catch (error) {
-    const errorMessage = error instanceof Error
-      ? error.message
-      : isEditing.value
-        ? 'Failed to update consent'
-        : 'Failed to create consent'
-    message.error(errorMessage)
+    console.error('Failed to delete consent:', error)
   }
 }
 
 async function handleBulkDelete() {
   if (consentsStore.selectedConsentIds.length === 0) {
-    message.warning('Please select consents to delete')
     return
   }
 
@@ -193,7 +107,7 @@ async function handleBulkDelete() {
     const toDelete = [...consentsStore.selectedConsentIds]
     const deletedCount = toDelete.length
     await consentsStore.deleteConsents(toDelete)
-    message.success(`${deletedCount} consents deleted successfully`)
+    consentsStore.clearSelection()
 
     const currentTotal = consentsStore.totalCount
     const newTotal = Math.max(0, currentTotal - deletedCount)
@@ -203,18 +117,7 @@ async function handleBulkDelete() {
     const targetPage = Math.min(currentPage, maxPageAfterDelete)
     await consentsStore.loadConsents(targetPage, pageSize)
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to delete consents'
-    message.error(errorMessage)
-  }
-}
-
-function handleCancel() {
-  showForm.value = false
-  formData.value = {
-    userId: '',
-    essential: true,
-    analytics: false,
-    marketing: false
+    console.error('Failed to delete consents:', error)
   }
 }
 
@@ -237,119 +140,69 @@ async function handlePageSizeChange(pageSize: number) {
 
 <template>
   <div class="consents-view">
-    <!-- List View -->
-    <div v-if="!showForm">
-      <ListPageHeader
-        title="User Consents"
-        subtitle="Manage user consent flags"
-        :count="consentsStore.totalCount"
-      >
-        <template #actions>
-          <NSpace>
-            <NButton type="primary" @click="handleCreate">
-              Add Consent
-            </NButton>
-            <NPopconfirm
-              v-if="consentsStore.selectedConsentIds.length > 0"
-              @positive-click="handleBulkDelete"
-            >
-              <template #trigger>
-                <NButton type="error">
-                  Delete Selected ({{ consentsStore.selectedConsentIds.length }})
-                </NButton>
-              </template>
-              Are you sure you want to delete the selected consents?
-            </NPopconfirm>
-          </NSpace>
-        </template>
-      </ListPageHeader>
+    <PageHeader
+      title="User Consents"
+      subtitle="Manage user consents"
+      :count="consentsStore.totalCount"
+    >
+      <template #actions>
+        <NSpace>
+          <NPopconfirm
+            v-if="consentsStore.selectedConsentIds.length > 0"
+            @positive-click="handleBulkDelete"
+          >
+            <template #trigger>
+              <NButton type="error">
+                Delete Selected ({{ consentsStore.selectedConsentIds.length }})
+              </NButton>
+            </template>
+            Are you sure you want to delete the selected consents?
+          </NPopconfirm>
+        </NSpace>
+      </template>
+    </PageHeader>
 
-      <NDataTable
-        :columns="columns"
-        :data="consentsStore.consents"
-        :loading="consentsStore.loading"
-        :row-key="(row: UserConsent) => row.id"
-        v-model:checked-row-keys="consentsStore.selectedConsentIds"
-        :pagination="pagination"
-        remote
-        @update:page="handlePageChange"
-        @update:page-size="handlePageSizeChange"
-        :row-props="(row: UserConsent) => ({
-          style: 'cursor: pointer;',
-          onClick: (e: MouseEvent) => {
-            const target = e.target as HTMLElement
-            if (target.closest('.n-data-table-td--selection') || target.closest('.n-checkbox')) {
-              return
-            }
-            handleEdit(row)
-          }
-        })"
-      />
-    </div>
-
-    <!-- Form View -->
-    <div v-else class="form-view">
-      <FormPageHeader
-        :title="isEditing ? 'Edit Consent' : 'Create Consent'"
-        :subtitle="isEditing ? 'Update existing consent' : 'Create a new consent'"
-        @back="handleCancel"
-      >
-        <template #actions>
-          <NButton @click="handleCancel">Close</NButton>
-          <NButton type="primary" @click="handleSave">
-            Save
-          </NButton>
-        </template>
-      </FormPageHeader>
-
-      <div class="form-content">
-        <NForm
-          :model="formData"
-          label-placement="left"
-          label-width="160px"
+    <ActionBar>
+      <NSpace>
+        <NButton 
+          type="primary" 
+          @click="handleCreate"
         >
-          <NFormItem label="User ID" required>
-            <NInput
-              v-model:value="formData.userId"
-              placeholder="Enter user ID"
-            />
-          </NFormItem>
+          Add Consent
+        </NButton>
+      </NSpace>
+    </ActionBar>
 
-          <NFormItem label="Essential" required>
-            <NSwitch v-model:value="formData.essential" />
-          </NFormItem>
-
-          <NFormItem label="Analytics" required>
-            <NSwitch v-model:value="formData.analytics" />
-          </NFormItem>
-
-          <NFormItem label="Marketing" required>
-            <NSwitch v-model:value="formData.marketing" />
-          </NFormItem>
-
-          <NFormItem label="IP Address" v-if="isEditing && formData.ipAddress">
-            <NInput v-model:value="formData.ipAddress" disabled />
-          </NFormItem>
-
-          <NFormItem label="User Agent" v-if="isEditing && formData.userAgent">
-            <NInput v-model:value="formData.userAgent" type="textarea" :rows="2" disabled />
-          </NFormItem>
-        </NForm>
-      </div>
-    </div>
+    <NDataTable
+      :columns="columns"
+      :data="consentsStore.consents"
+      :loading="consentsStore.loading"
+      :row-key="(row: UserConsent) => row.id"
+      v-model:checked-row-keys="consentsStore.selectedConsentIds"
+      :pagination="pagination"
+      remote
+      @update:page="handlePageChange"
+      @update:page-size="handlePageSizeChange"
+      :row-props="(row: UserConsent) => ({
+        style: 'cursor: pointer;',
+        onClick: (e: MouseEvent) => {
+          const target = e.target as HTMLElement
+          if (target.closest('.n-data-table-td--selection') || target.closest('.n-checkbox')) {
+            return
+          }
+          handleEdit(row)
+        }
+      })"
+    />
   </div>
 </template>
 
 <style scoped>
-.consents-view {
-  padding: 24px;
+:deep(.n-data-table-th) {
+  background-color: var(--n-th-color);
 }
 
-.form-content {
-  max-width: 800px;
-  background: var(--card-color);
-  border-radius: 8px;
-  padding: 24px;
-  border: 1px solid var(--border-color);
+:deep(.n-data-table-td) {
+  border-bottom: 1px solid var(--n-divider-color);
 }
 </style>

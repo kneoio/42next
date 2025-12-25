@@ -1,7 +1,7 @@
 
 <template>
   <div class="labels-view">
-    <ListPageHeader
+    <PageHeader
       title="Labels"
       subtitle="Manage labels"
       :count="labelsStore.totalCount"
@@ -28,9 +28,9 @@
           </NPopconfirm>
         </NSpace>
       </template>
-    </ListPageHeader>
+    </PageHeader>
 
-    <div class="filters">
+    <ActionBar>
       <NSpace>
         <NButton 
           type="primary" 
@@ -59,7 +59,7 @@
           Reset
         </NButton>
       </NSpace>
-    </div>
+    </ActionBar>
 
     <NDataTable
       :columns="columns"
@@ -97,7 +97,8 @@ import {
   NInput,
   type DataTableColumns
 } from 'naive-ui'
-import ListPageHeader from '@/components/ListPageHeader.vue'
+import PageHeader from '@/components/PageHeader.vue'
+import ActionBar from '@/components/ActionBar.vue'
 import { useLabelsStore, type Label } from '@/stores/labels'
 import { useRouter } from 'vue-router'
 
@@ -284,11 +285,6 @@ async function handlePageSizeChange(pageSize: number) {
 
 
 <style scoped>
-.filters {
-  margin-top: 16px;
-  margin-bottom: 16px;
-}
-
 :deep(.n-data-table-th) {
   background-color: var(--n-th-color);
 }
