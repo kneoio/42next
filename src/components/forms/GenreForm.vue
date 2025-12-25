@@ -123,7 +123,11 @@ async function loadGenre() {
         const fullDoc = await genresStore.fetchGenre(genre.id)
         formData.value = {
           identifier: fullDoc.identifier,
-          localizedName: { ...fullDoc.localizedName },
+          localizedName: { 
+            en: fullDoc.localizedName.en || '', 
+            pt: fullDoc.localizedName.pt || '', 
+            kk: fullDoc.localizedName.kk || '' 
+          },
           rank: fullDoc.rank,
           color: fullDoc.color || '#FF8C00',
           fontColor: fullDoc.fontColor || '#000000',

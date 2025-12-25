@@ -126,14 +126,14 @@ const message = useMessage()
 const isEditing = computed(() => route.params.id !== 'new')
 const productId = computed(() => route.params.id as string)
 
-const formData = ref<Partial<SubscriptionProductDTO>>({
+const formData = ref({
   identifier: '',
   stripePriceId: '',
   stripeProductId: '',
   active: true,
   localizedName: { en: '', pt: '', kk: '' },
   localizedDescription: { en: '', pt: '', kk: '' },
-  meta: null
+  meta: null as Record<string, any> | null
 })
 
 const metaText = ref('')
@@ -149,8 +149,16 @@ async function loadProduct() {
         stripePriceId: dto.stripePriceId,
         stripeProductId: dto.stripeProductId,
         active: dto.active,
-        localizedName: { ...dto.localizedName },
-        localizedDescription: { ...dto.localizedDescription },
+        localizedName: { 
+          en: dto.localizedName?.en || '', 
+          pt: dto.localizedName?.pt || '', 
+          kk: dto.localizedName?.kk || '' 
+        },
+        localizedDescription: { 
+          en: dto.localizedDescription?.en || '', 
+          pt: dto.localizedDescription?.pt || '', 
+          kk: dto.localizedDescription?.kk || '' 
+        },
         meta: dto.meta
       }
       metaText.value = dto.meta ? JSON.stringify(dto.meta, null, 2) : ''

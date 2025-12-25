@@ -98,7 +98,11 @@ async function loadLanguage() {
         formData.value = {
           code: language.code,
           position: language.position,
-          localizedName: { ...language.localizedName }
+          localizedName: { 
+            en: language.localizedName.en || '', 
+            pt: language.localizedName.pt || '', 
+            kk: language.localizedName.kk || '' 
+          }
         }
       } else {
         message.error('Language not found')
