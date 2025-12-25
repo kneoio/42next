@@ -99,18 +99,6 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
-          path: 'tags/new',
-          name: 'tag-new',
-          component: () => import('../components/forms/TagForm.vue'),
-          meta: { requiresAuth: true }
-        },
-        {
-          path: 'tags/:id',
-          name: 'tag-edit',
-          component: () => import('../components/forms/TagForm.vue'),
-          meta: { requiresAuth: true }
-        },
-        {
           path: 'users/new',
           name: 'user-new',
           component: () => import('../components/forms/UserForm.vue'),
