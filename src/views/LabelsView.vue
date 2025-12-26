@@ -50,12 +50,6 @@
           clearable
           placeholder="Filter by identifier"
         />
-        <NButton @click="applyFilters" type="primary" ghost>
-          Apply Filters
-        </NButton>
-        <NButton @click="resetFilters" quaternary>
-          Reset
-        </NButton>
       </NSpace>
     </ActionBar>
 
@@ -85,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, h, computed } from 'vue'
+import { onMounted, onBeforeUnmount, h, computed, watch } from 'vue'
 import { 
   NDataTable, 
   NButton, 
@@ -211,6 +205,15 @@ async function resetFilters() {
   labelsStore.resetFilters()
   await labelsStore.loadLabels(1, labelsStore.pageSize)
 }
+
+// Auto-search when user types 2+ characters
+watch(() => labelsStore.filterIdentifier, (newValue) => {
+  if (newValue && newValue.length >= 2) {
+    applyFilters()
+  } else if (newValue === '' || newValue === null) {
+    applyFilters()
+  }
+})
 
 async function handleDelete(identifier: string) {
   try {

@@ -26,6 +26,7 @@ export const useGenresStore = defineStore('genres', () => {
   const pageNum = ref(1)
   const pageSize = ref(10)
   const maxPage = ref(1)
+  const filterIdentifier = ref('')
 
   const selectedGenres = computed(() =>
     genres.value.filter(genre => selectedGenreIds.value.includes(genre.identifier))
@@ -34,7 +35,11 @@ export const useGenresStore = defineStore('genres', () => {
   async function loadGenres(page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
-      const result = await apiService.getPagedDictionary<Genre>('/genres', page, size)
+      const params: Record<string, string> = {}
+      if (filterIdentifier.value) {
+        params.search = filterIdentifier.value
+      }
+      const result = await apiService.getPagedDictionary<Genre>('/genres', page, size, params)
       genres.value = result.entries
       totalCount.value = result.count
       pageNum.value = result.pageNum
@@ -172,6 +177,7 @@ export const useGenresStore = defineStore('genres', () => {
     pageNum,
     pageSize,
     maxPage,
+    filterIdentifier,
     selectedGenres,
 
     // Actions

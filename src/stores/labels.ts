@@ -39,7 +39,7 @@ export const useLabelsStore = defineStore('labels', () => {
     try {
       const result = await apiService.getPagedDictionary<Label>('/labels', page, size, {
         category: filterCategory.value || undefined,
-        identifier: filterIdentifier.value || undefined
+        search: filterIdentifier.value || undefined
       })
       labels.value = result.entries
       totalCount.value = result.count

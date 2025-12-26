@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, h, computed } from 'vue'
+import { onMounted, onBeforeUnmount, h, computed, watch } from 'vue'
 import { 
   NDataTable,
   NButton,
   NSpace,
   NPopconfirm,
+  NInput,
   type DataTableColumns
 } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
@@ -159,6 +160,15 @@ async function handlePageChange(page: number) {
 async function handlePageSizeChange(pageSize: number) {
   await genresStore.loadGenres(1, pageSize)
 }
+
+// Auto-search when user types 2+ characters
+watch(() => genresStore.filterIdentifier, (newValue) => {
+  if (newValue && newValue.length >= 2) {
+    genresStore.loadGenres(1, genresStore.pageSize)
+  } else if (newValue === '' || newValue === null) {
+    genresStore.loadGenres(1, genresStore.pageSize)
+  }
+})
 </script>
 
 <template>
@@ -198,6 +208,11 @@ async function handlePageSizeChange(pageSize: number) {
         >
           Archive
         </NButton>
+        <NInput
+          v-model:value="genresStore.filterIdentifier"
+          clearable
+          placeholder="Filter by identifier"
+        />
       </NSpace>
     </ActionBar>
 
