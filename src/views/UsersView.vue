@@ -139,30 +139,7 @@ onBeforeUnmount(() => {
       title="Users"
       subtitle="Manage users"
       :count="userStore.users.length"
-    >
-      <template #actions>
-        <NSpace>
-          <NButton 
-            v-if="userStore.selectedUserIds.length > 0"
-            type="warning"
-            @click="handleBulkArchive"
-          >
-            Archive Selected ({{ userStore.selectedUserIds.length }})
-          </NButton>
-          <NPopconfirm
-            v-if="userStore.selectedUserIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ userStore.selectedUserIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected users?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -170,7 +147,28 @@ onBeforeUnmount(() => {
           type="primary" 
           @click="handleCreate"
         >
-          Add User
+          Add
+        </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="userStore.selectedUserIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="userStore.selectedUserIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ userStore.selectedUserIds.length }} selected user(s)?
+        </NPopconfirm>
+        <NButton 
+          type="warning"
+          :disabled="userStore.selectedUserIds.length === 0"
+          @click="handleBulkArchive"
+        >
+          Archive
         </NButton>
       </NSpace>
     </ActionBar>

@@ -127,23 +127,7 @@ onMounted(() => {
       title="Subscriptions"
       subtitle="Manage user subscriptions"
       :count="totalCount"
-    >
-      <template #actions>
-        <NSpace>
-          <NPopconfirm
-            v-if="selectedSubscriptionIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ selectedSubscriptionIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected subscriptions?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -151,8 +135,22 @@ onMounted(() => {
           type="primary" 
           @click="handleCreate"
         >
-          Add Subscription
+          Add
         </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="selectedSubscriptionIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="selectedSubscriptionIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ selectedSubscriptionIds.length }} selected subscription(s)?
+        </NPopconfirm>
       </NSpace>
     </ActionBar>
 

@@ -116,30 +116,7 @@ onBeforeUnmount(() => {
       title="Modules"
       subtitle="Manage modules"
       :count="moduleStore.modules.length"
-    >
-      <template #actions>
-        <NSpace>
-          <NButton 
-            v-if="moduleStore.selectedModuleIds.length > 0"
-            type="warning"
-            @click="handleBulkArchive"
-          >
-            Archive Selected ({{ moduleStore.selectedModuleIds.length }})
-          </NButton>
-          <NPopconfirm
-            v-if="moduleStore.selectedModuleIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ moduleStore.selectedModuleIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected modules?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -147,7 +124,28 @@ onBeforeUnmount(() => {
           type="primary" 
           @click="handleCreate"
         >
-          Add Module
+          Add
+        </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="moduleStore.selectedModuleIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="moduleStore.selectedModuleIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ moduleStore.selectedModuleIds.length }} selected module(s)?
+        </NPopconfirm>
+        <NButton 
+          type="warning"
+          :disabled="moduleStore.selectedModuleIds.length === 0"
+          @click="handleBulkArchive"
+        >
+          Archive
         </NButton>
       </NSpace>
     </ActionBar>

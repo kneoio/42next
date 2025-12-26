@@ -5,30 +5,7 @@
       title="Labels"
       subtitle="Manage labels"
       :count="labelsStore.totalCount"
-    >
-      <template #actions>
-        <NSpace>
-          <NButton 
-            v-if="labelsStore.selectedLabelIds.length > 0"
-            type="warning"
-            @click="handleBulkArchive"
-          >
-            Archive Selected ({{ labelsStore.selectedLabelIds.length }})
-          </NButton>
-          <NPopconfirm
-            v-if="labelsStore.selectedLabelIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ labelsStore.selectedLabelIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected labels?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -36,7 +13,28 @@
           type="primary" 
           @click="handleCreate"
         >
-          Add Label
+          Add
+        </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="labelsStore.selectedLabelIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="labelsStore.selectedLabelIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ labelsStore.selectedLabelIds.length }} selected label(s)?
+        </NPopconfirm>
+        <NButton 
+          type="warning"
+          :disabled="labelsStore.selectedLabelIds.length === 0"
+          @click="handleBulkArchive"
+        >
+          Archive
         </NButton>
         <NSelect
           v-model:value="labelsStore.filterCategory"

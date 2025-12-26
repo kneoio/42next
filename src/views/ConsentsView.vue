@@ -144,23 +144,7 @@ async function handlePageSizeChange(pageSize: number) {
       title="User Consents"
       subtitle="Manage user consents"
       :count="consentsStore.totalCount"
-    >
-      <template #actions>
-        <NSpace>
-          <NPopconfirm
-            v-if="consentsStore.selectedConsentIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ consentsStore.selectedConsentIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected consents?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -168,8 +152,22 @@ async function handlePageSizeChange(pageSize: number) {
           type="primary" 
           @click="handleCreate"
         >
-          Add Consent
+          Add
         </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="consentsStore.selectedConsentIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="consentsStore.selectedConsentIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ consentsStore.selectedConsentIds.length }} selected consent(s)?
+        </NPopconfirm>
       </NSpace>
     </ActionBar>
 

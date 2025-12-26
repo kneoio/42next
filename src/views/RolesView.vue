@@ -126,30 +126,7 @@ onBeforeUnmount(() => {
       title="Roles"
       subtitle="Manage roles"
       :count="rolesStore.roles.length"
-    >
-      <template #actions>
-        <NSpace>
-          <NButton 
-            v-if="rolesStore.selectedRoleIds.length > 0"
-            type="warning"
-            @click="handleBulkArchive"
-          >
-            Archive Selected ({{ rolesStore.selectedRoleIds.length }})
-          </NButton>
-          <NPopconfirm
-            v-if="rolesStore.selectedRoleIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ rolesStore.selectedRoleIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected roles?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -157,7 +134,28 @@ onBeforeUnmount(() => {
           type="primary" 
           @click="handleCreate"
         >
-          Add Role
+          Add
+        </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="rolesStore.selectedRoleIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="rolesStore.selectedRoleIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ rolesStore.selectedRoleIds.length }} selected role(s)?
+        </NPopconfirm>
+        <NButton 
+          type="warning"
+          :disabled="rolesStore.selectedRoleIds.length === 0"
+          @click="handleBulkArchive"
+        >
+          Archive
         </NButton>
       </NSpace>
     </ActionBar>

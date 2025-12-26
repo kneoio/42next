@@ -134,30 +134,7 @@ onBeforeUnmount(() => {
       title="Languages"
       subtitle="Manage languages"
       :count="languagesStore.languages.length"
-    >
-      <template #actions>
-        <NSpace>
-          <NButton 
-            v-if="languagesStore.selectedLanguageIds.length > 0"
-            type="warning"
-            @click="handleBulkArchive"
-          >
-            Archive Selected ({{ languagesStore.selectedLanguageIds.length }})
-          </NButton>
-          <NPopconfirm
-            v-if="languagesStore.selectedLanguageIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ languagesStore.selectedLanguageIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected languages?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -165,7 +142,28 @@ onBeforeUnmount(() => {
           type="primary" 
           @click="handleCreate"
         >
-          Add Language
+          Add
+        </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="languagesStore.selectedLanguageIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="languagesStore.selectedLanguageIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ languagesStore.selectedLanguageIds.length }} selected language(s)?
+        </NPopconfirm>
+        <NButton 
+          type="warning"
+          :disabled="languagesStore.selectedLanguageIds.length === 0"
+          @click="handleBulkArchive"
+        >
+          Archive
         </NButton>
       </NSpace>
     </ActionBar>

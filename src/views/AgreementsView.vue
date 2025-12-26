@@ -125,23 +125,7 @@ async function handlePageSizeChange(pageSize: number) {
       title="Agreements"
       subtitle="Manage agreements"
       :count="agreementsStore.totalCount"
-    >
-      <template #actions>
-        <NSpace>
-          <NPopconfirm
-            v-if="agreementsStore.selectedAgreementIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ agreementsStore.selectedAgreementIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected agreements?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -149,8 +133,22 @@ async function handlePageSizeChange(pageSize: number) {
           type="primary" 
           @click="handleCreate"
         >
-          Add Agreement
+          Add
         </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="agreementsStore.selectedAgreementIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="agreementsStore.selectedAgreementIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ agreementsStore.selectedAgreementIds.length }} selected agreement(s)?
+        </NPopconfirm>
       </NSpace>
     </ActionBar>
 

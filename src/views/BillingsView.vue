@@ -133,23 +133,7 @@ async function handleBulkDelete() {
       title="Billings"
       subtitle="Manage user billing records"
       :count="totalCount"
-    >
-      <template #actions>
-        <NSpace>
-          <NPopconfirm
-            v-if="selectedBillingIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ selectedBillingIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected billings?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -157,8 +141,22 @@ async function handleBulkDelete() {
           type="primary" 
           @click="handleCreate"
         >
-          Add Billing
+          Add
         </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="selectedBillingIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="selectedBillingIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ selectedBillingIds.length }} selected billing(s)?
+        </NPopconfirm>
       </NSpace>
     </ActionBar>
 

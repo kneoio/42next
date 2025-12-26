@@ -167,30 +167,7 @@ async function handlePageSizeChange(pageSize: number) {
       title="Genres"
       subtitle="Manage genres"
       :count="genresStore.totalCount"
-    >
-      <template #actions>
-        <NSpace>
-          <NButton 
-            v-if="genresStore.selectedGenreIds.length > 0"
-            type="warning"
-            @click="handleBulkArchive"
-          >
-            Archive Selected ({{ genresStore.selectedGenreIds.length }})
-          </NButton>
-          <NPopconfirm
-            v-if="genresStore.selectedGenreIds.length > 0"
-            @positive-click="handleBulkDelete"
-          >
-            <template #trigger>
-              <NButton type="error">
-                Delete Selected ({{ genresStore.selectedGenreIds.length }})
-              </NButton>
-            </template>
-            Are you sure you want to delete the selected genres?
-          </NPopconfirm>
-        </NSpace>
-      </template>
-    </PageHeader>
+    />
 
     <ActionBar>
       <NSpace>
@@ -198,7 +175,28 @@ async function handlePageSizeChange(pageSize: number) {
           type="primary" 
           @click="handleCreate"
         >
-          Add Genre
+          Add
+        </NButton>
+        <NPopconfirm
+          @positive-click="handleBulkDelete"
+          :disabled="genresStore.selectedGenreIds.length === 0"
+        >
+          <template #trigger>
+            <NButton 
+              type="error"
+              :disabled="genresStore.selectedGenreIds.length === 0"
+            >
+              Delete
+            </NButton>
+          </template>
+          Are you sure you want to delete {{ genresStore.selectedGenreIds.length }} selected genre(s)?
+        </NPopconfirm>
+        <NButton 
+          type="warning"
+          :disabled="genresStore.selectedGenreIds.length === 0"
+          @click="handleBulkArchive"
+        >
+          Archive
         </NButton>
       </NSpace>
     </ActionBar>
