@@ -123,7 +123,7 @@ const formData = ref<LabelFormData>({
   color: '#FF8C00',
   fontColor: '#000000',
   hidden: false,
-  category: 'platform',
+  category: 'sound_fragment',
   parent: null
 })
 

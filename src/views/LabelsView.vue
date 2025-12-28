@@ -122,14 +122,6 @@ const columns: DataTableColumns<Label> = [
     multiple: true
   },
   {
-    title: 'Identifier',
-    key: 'identifier',
-    width: 150,
-    render(row) {
-      return h('span', { style: { fontWeight: 'bold' } }, row.identifier)
-    }
-  },
-  {
     title: 'Name',
     key: 'localizedName',
     width: 200,
