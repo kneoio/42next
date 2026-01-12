@@ -70,10 +70,27 @@
       </NFormItem>
 
       <NFormItem label="Parent">
-        <NInput 
-          v-model:value="formData.parent" 
-          placeholder="Enter parent genre identifier (optional)"
-        />
+        <NSpace align="center">
+          <NSelect 
+            v-model:value="formData.parent" 
+            :options="parentGenreOptions"
+            placeholder="Select parent genre (optional)"
+            clearable
+            filterable
+            style="width: 300px"
+          />
+          <NButton 
+            @click="formData.parent = ''"
+            :disabled="!formData.parent"
+            quaternary
+            circle
+            title="Clear parent"
+          >
+            <template #icon>
+              <NIcon><CloseOutline /></NIcon>
+            </template>
+          </NButton>
+        </NSpace>
       </NFormItem>
     </NForm>
   </FormWrapper>
@@ -89,8 +106,11 @@ import {
   NInput,
   NInputNumber,
   NColorPicker,
+  NSelect,
+  NIcon,
   useMessage
 } from 'naive-ui'
+import { CloseOutline } from '@vicons/ionicons5'
 import FormWrapper from '@/components/FormWrapper.vue'
 import { useGenresStore, type Genre } from '@/stores/genres'
 import { useRoute, useRouter } from 'vue-router'
@@ -109,10 +129,27 @@ const formData = ref({
   rank: 999,
   color: '#FF8C00',
   fontColor: '#000000',
-  parent: null as string | null
+  parent: '' as string // Use UUID
 })
 
 const loading = ref(false)
+
+// Computed property for parent genre options
+const parentGenreOptions = computed(() => {
+  return genresStore.allGenres
+    .filter(genre => {
+      // Exclude current genre when editing to prevent self-reference
+      if (isEditing.value && genreId.value) {
+        return genre.identifier !== genreId.value
+      }
+      return true
+    })
+    .map(genre => ({
+      label: `${genre.localizedName.en || genre.identifier} (${genre.identifier})`,
+      value: genre.id // Use UUID instead of identifier
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label))
+})
 
 async function loadGenre() {
   if (isEditing.value && genreId.value) {
@@ -131,7 +168,7 @@ async function loadGenre() {
           rank: fullDoc.rank,
           color: fullDoc.color || '#FF8C00',
           fontColor: fullDoc.fontColor || '#000000',
-          parent: fullDoc.parent || null
+          parent: fullDoc.parent || ''
         }
       } else {
         message.error('Genre not found')
@@ -175,8 +212,12 @@ function handleCancel() {
 }
 
 onMounted(() => {
-  if (isEditing.value) {
-    loadGenre()
-  }
+  // Load ALL genres for parent dropdown
+  genresStore.loadAllGenres().then(() => {
+    // After loading genres, load the current genre if editing
+    if (isEditing.value) {
+      loadGenre()
+    }
+  })
 })
 </script>

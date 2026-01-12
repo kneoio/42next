@@ -17,13 +17,16 @@ const genresStore = useGenresStore()
 const router = useRouter()
 const currentLanguage = 'en'
 
-const pagination = computed(() => ({
-  page: genresStore.pageNum,
-  pageSize: genresStore.pageSize,
-  pageSizes: [10, 20, 50, 100],
-  showSizePicker: true,
-  itemCount: genresStore.totalCount
-}))
+const pagination = computed(() => {
+  const rootCount = treeData.value.length
+  return {
+    page: genresStore.pageNum,
+    pageSize: genresStore.pageSize,
+    pageSizes: [10, 20, 50, 100],
+    showSizePicker: true,
+    itemCount: rootCount
+  }
+})
 
 // Helper function to get localized text
 const getLocalizedText = (localizedObj: { [key: string]: string } | undefined, fallback = '') => {
@@ -93,6 +96,46 @@ const columns: DataTableColumns<Genre> = [
   }
 ]
 
+// Transform flat data to tree structure
+const treeData = computed(() => {
+  const processedData: any[] = []
+  
+  // Process each genre from the server
+  genresStore.genres.forEach(genre => {
+    const processedGenre = {
+      ...genre,
+      key: genre.identifier, // Use identifier as key for selection
+      children: genre.children || [] // Use children from server if available
+    }
+    processedData.push(processedGenre)
+    
+    // Debug: Check if genre has children
+    if (processedGenre.children && processedGenre.children.length > 0) {
+      console.log(`Genre ${genre.identifier} has children:`, processedGenre.children)
+    }
+  })
+  
+  // Sort by rank
+  const sortByRank = (a: any, b: any) => (a.rank || 999) - (b.rank || 999)
+  processedData.sort(sortByRank)
+  
+  // Sort children by rank
+  processedData.forEach(genre => {
+    if (genre.children && genre.children.length > 0) {
+      genre.children.sort(sortByRank)
+    }
+  })
+  
+  return processedData
+})
+
+// Paginated tree data for display
+const paginatedTreeData = computed(() => {
+  const startIndex = (genresStore.pageNum - 1) * genresStore.pageSize
+  const endIndex = startIndex + genresStore.pageSize
+  return treeData.value.slice(startIndex, endIndex)
+})
+
 function handleCreate() {
   router.push('/dashboard/genres/new')
 }
@@ -146,7 +189,8 @@ async function handleBulkDelete() {
 }
 
 onMounted(() => {
-  genresStore.loadGenres(genresStore.pageNum, genresStore.pageSize)
+  // Load all parent genres with their children
+  genresStore.loadGenres(1, 10000)
 })
 
 onBeforeUnmount(() => {
@@ -154,19 +198,22 @@ onBeforeUnmount(() => {
 })
 
 async function handlePageChange(page: number) {
-  await genresStore.loadGenres(page, genresStore.pageSize)
+  genresStore.pageNum = page
+  // No need to reload data since we have all genres loaded
 }
 
 async function handlePageSizeChange(pageSize: number) {
-  await genresStore.loadGenres(1, pageSize)
+  genresStore.pageSize = pageSize
+  genresStore.pageNum = 1
+  // No need to reload data since we have all genres loaded
 }
 
 // Auto-search when user types 2+ characters
 watch(() => genresStore.filterIdentifier, (newValue) => {
   if (newValue && newValue.length >= 2) {
-    genresStore.loadGenres(1, genresStore.pageSize)
+    genresStore.loadGenres(1, 10000)
   } else if (newValue === '' || newValue === null) {
-    genresStore.loadGenres(1, genresStore.pageSize)
+    genresStore.loadGenres(1, 10000)
   }
 })
 </script>
@@ -218,12 +265,11 @@ watch(() => genresStore.filterIdentifier, (newValue) => {
 
     <NDataTable
       :columns="columns"
-      :data="genresStore.genres"
+      :data="paginatedTreeData"
       :loading="genresStore.loading"
       :row-key="(row: Genre) => row.identifier"
       v-model:checked-row-keys="genresStore.selectedGenreIds"
       :pagination="pagination"
-      remote
       @update:page="handlePageChange"
       @update:page-size="handlePageSizeChange"
       :row-props="(row: Genre) => ({ 
@@ -236,6 +282,8 @@ watch(() => genresStore.filterIdentifier, (newValue) => {
           handleEdit(row)
         }
       })"
+      :default-expanded-row-keys="[]"
+      children-key="children"
     />
   </div>
 </template>

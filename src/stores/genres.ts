@@ -16,6 +16,7 @@ export interface Genre {
   color?: string
   fontColor?: string
   parent?: string | null
+  children?: Genre[] // Add children property for tree structure
 }
 
 export const useGenresStore = defineStore('genres', () => {
@@ -28,9 +29,23 @@ export const useGenresStore = defineStore('genres', () => {
   const maxPage = ref(1)
   const filterIdentifier = ref('')
 
+  const allGenres = ref<Genre[]>([])
+
   const selectedGenres = computed(() =>
     genres.value.filter(genre => selectedGenreIds.value.includes(genre.identifier))
   )
+
+  async function loadAllGenres() {
+    try {
+      // Load all genres without pagination for dropdowns
+      const result = await apiService.getPagedDictionary<Genre>('/genres', 1, 10000)
+      allGenres.value = result.entries
+      return result.entries
+    } catch (error) {
+      console.error('Failed to load all genres:', error)
+      throw error
+    }
+  }
 
   async function loadGenres(page = pageNum.value, size = pageSize.value) {
     loading.value = true
@@ -171,6 +186,7 @@ export const useGenresStore = defineStore('genres', () => {
   return {
     // State
     genres,
+    allGenres,
     loading,
     selectedGenreIds,
     totalCount,
@@ -182,6 +198,7 @@ export const useGenresStore = defineStore('genres', () => {
 
     // Actions
     loadGenres,
+    loadAllGenres,
     fetchGenre,
     createGenre,
     updateGenre,
