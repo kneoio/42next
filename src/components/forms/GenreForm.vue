@@ -155,7 +155,20 @@ async function loadGenre() {
   if (isEditing.value && genreId.value) {
     try {
       loading.value = true
-      const genre = genresStore.genres.find(g => g.identifier === genreId.value)
+      
+      // Search for genre in both parent genres and children
+      let genre = genresStore.genres.find(g => g.identifier === genreId.value)
+      
+      // If not found in top level, search in children
+      if (!genre) {
+        for (const parent of genresStore.genres) {
+          if (parent.children) {
+            genre = parent.children.find((child: Genre) => child.identifier === genreId.value)
+            if (genre) break
+          }
+        }
+      }
+      
       if (genre) {
         const fullDoc = await genresStore.fetchGenre(genre.id)
         formData.value = {
@@ -187,10 +200,25 @@ async function loadGenre() {
 async function handleSave() {
   try {
     if (isEditing.value && genreId.value) {
-      const genre = genresStore.genres.find(g => g.identifier === genreId.value)
+      // Search for genre in both parent genres and children
+      let genre = genresStore.genres.find(g => g.identifier === genreId.value)
+      
+      // If not found in top level, search in children
+      if (!genre) {
+        for (const parent of genresStore.genres) {
+          if (parent.children) {
+            genre = parent.children.find((child: Genre) => child.identifier === genreId.value)
+            if (genre) break
+          }
+        }
+      }
+      
       if (genre) {
         await genresStore.updateGenre(genre.id, formData.value)
         message.success('Genre updated successfully')
+      } else {
+        message.error('Genre not found')
+        return
       }
     } else {
       await genresStore.createGenre(formData.value)

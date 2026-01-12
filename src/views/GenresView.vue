@@ -18,13 +18,12 @@ const router = useRouter()
 const currentLanguage = 'en'
 
 const pagination = computed(() => {
-  const rootCount = treeData.value.length
   return {
     page: genresStore.pageNum,
     pageSize: genresStore.pageSize,
     pageSizes: [10, 20, 50, 100],
     showSizePicker: true,
-    itemCount: rootCount
+    itemCount: genresStore.totalCount // Use total count from backend
   }
 })
 
@@ -189,8 +188,8 @@ async function handleBulkDelete() {
 }
 
 onMounted(() => {
-  // Load all parent genres with their children
-  genresStore.loadGenres(1, 10000)
+  // Load genres with normal pagination
+  genresStore.loadGenres(genresStore.pageNum, genresStore.pageSize)
 })
 
 onBeforeUnmount(() => {
@@ -198,22 +197,19 @@ onBeforeUnmount(() => {
 })
 
 async function handlePageChange(page: number) {
-  genresStore.pageNum = page
-  // No need to reload data since we have all genres loaded
+  await genresStore.loadGenres(page, genresStore.pageSize)
 }
 
 async function handlePageSizeChange(pageSize: number) {
-  genresStore.pageSize = pageSize
-  genresStore.pageNum = 1
-  // No need to reload data since we have all genres loaded
+  await genresStore.loadGenres(1, pageSize)
 }
 
 // Auto-search when user types 2+ characters
 watch(() => genresStore.filterIdentifier, (newValue) => {
   if (newValue && newValue.length >= 2) {
-    genresStore.loadGenres(1, 10000)
+    genresStore.loadGenres(1, genresStore.pageSize)
   } else if (newValue === '' || newValue === null) {
-    genresStore.loadGenres(1, 10000)
+    genresStore.loadGenres(1, genresStore.pageSize)
   }
 })
 </script>
@@ -265,18 +261,23 @@ watch(() => genresStore.filterIdentifier, (newValue) => {
 
     <NDataTable
       :columns="columns"
-      :data="paginatedTreeData"
+      :data="treeData"
       :loading="genresStore.loading"
       :row-key="(row: Genre) => row.identifier"
       v-model:checked-row-keys="genresStore.selectedGenreIds"
       :pagination="pagination"
+      remote
       @update:page="handlePageChange"
       @update:page-size="handlePageSizeChange"
       :row-props="(row: Genre) => ({ 
         style: 'cursor: pointer;', 
         onClick: (e: MouseEvent) => {
           const target = e.target as HTMLElement
-          if (target.closest('.n-data-table-td--selection') || target.closest('.n-checkbox')) {
+          // Don't trigger edit when clicking checkbox, expand button, or their parent elements
+          if (target.closest('.n-data-table-td--selection') || 
+              target.closest('.n-checkbox') ||
+              target.closest('.n-data-table-expand') ||
+              target.closest('.n-base-icon')) {
             return
           }
           handleEdit(row)
