@@ -129,7 +129,9 @@ const formData = ref<LabelFormData>({
 
 const categoryOptions = [
   { label: 'Sound Fragment', value: 'sound_fragment' },
-  { label: 'Script', value: 'script' }
+  { label: 'Script', value: 'script' },
+  { label: 'Ai Agent', value: 'ai_agent' },
+  { label: 'Listener', value: 'listener' }
 ]
 
 const loading = ref(false)
