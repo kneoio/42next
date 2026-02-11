@@ -34,6 +34,25 @@ export const useLabelsStore = defineStore('labels', () => {
     labels.value.filter(label => selectedLabelIds.value.includes(label.identifier))
   )
 
+  async function loadLabelsByCategory(category: string, page = pageNum.value, size = pageSize.value) {
+    loading.value = true
+    try {
+      const result = await apiService.getPagedDictionary<Label>(`/labels/only/category/${category}`, page, size, {
+        search: filterIdentifier.value || undefined
+      })
+      labels.value = result.entries
+      totalCount.value = result.count
+      pageNum.value = result.pageNum
+      pageSize.value = result.pageSize
+      maxPage.value = result.maxPage
+    } catch (error) {
+      console.error(`Failed to load labels for category ${category}:`, error)
+      throw error
+    } finally {
+      loading.value = false
+    }
+  }
+
   async function loadLabels(page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
@@ -189,6 +208,7 @@ export const useLabelsStore = defineStore('labels', () => {
     
     // Actions
     loadLabels,
+    loadLabelsByCategory,
     fetchLabel,
     createLabel,
     updateLabel,

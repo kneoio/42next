@@ -58,6 +58,7 @@
             v-model:value="formData.category"
             :options="categoryOptions"
             placeholder="Select category"
+            disabled
           />
         </NFormItem>
 
@@ -102,6 +103,24 @@ const message = useMessage()
 const isEditing = computed(() => route.params.id !== 'new')
 const labelId = computed(() => route.params.id as string)
 
+// Determine category from route path
+const categoryFromRoute = computed(() => {
+  const path = route.path
+  if (path.includes('/sound-fragment')) return 'sound_fragment'
+  if (path.includes('/script')) return 'script'
+  if (path.includes('/ai-agent')) return 'ai_agent'
+  return 'sound_fragment'
+})
+
+// Determine return path based on category
+const returnPath = computed(() => {
+  const path = route.path
+  if (path.includes('/sound-fragment')) return '/dashboard/labels/sound-fragment'
+  if (path.includes('/script')) return '/dashboard/labels/script'
+  if (path.includes('/ai-agent')) return '/dashboard/labels/ai-agent'
+  return '/dashboard/labels/sound-fragment'
+})
+
 // Form data interface
 interface LabelFormData {
   identifier: string
@@ -123,7 +142,7 @@ const formData = ref<LabelFormData>({
   color: '#FF8C00',
   fontColor: '#000000',
   hidden: false,
-  category: 'sound_fragment',
+  category: categoryFromRoute.value,
   parent: null
 })
 
@@ -173,7 +192,7 @@ async function handleSave() {
       await labelsStore.createLabel(formData.value)
       message.success('Label created successfully')
     }
-    router.push('/dashboard/labels')
+    router.push(returnPath.value)
   } catch (error) {
     const errorMessage = error instanceof Error
       ? error.message
@@ -185,7 +204,7 @@ async function handleSave() {
 }
 
 function handleCancel() {
-  router.push('/dashboard/labels')
+  router.push(returnPath.value)
 }
 
 // Load data on mount if editing

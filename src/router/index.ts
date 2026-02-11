@@ -71,18 +71,60 @@ const router = createRouter({
         {
           path: 'labels',
           name: 'labels',
-          component: () => import('../views/LabelsView.vue'),
+          redirect: '/dashboard/labels/sound-fragment',
           meta: { requiresAuth: true }
         },
         {
-          path: 'labels/new',
-          name: 'label-new',
+          path: 'labels/sound-fragment',
+          name: 'labels-sound-fragment',
+          component: () => import('../views/labels/SoundFragmentLabelsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/sound-fragment/new',
+          name: 'label-sound-fragment-new',
           component: () => import('../components/forms/LabelForm.vue'),
           meta: { requiresAuth: true }
         },
         {
-          path: 'labels/:id',
-          name: 'label-edit',
+          path: 'labels/sound-fragment/:id',
+          name: 'label-sound-fragment-edit',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/script',
+          name: 'labels-script',
+          component: () => import('../views/labels/ScriptLabelsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/script/new',
+          name: 'label-script-new',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/script/:id',
+          name: 'label-script-edit',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/ai-agent',
+          name: 'labels-ai-agent',
+          component: () => import('../views/labels/AiAgentLabelsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/ai-agent/new',
+          name: 'label-ai-agent-new',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/ai-agent/:id',
+          name: 'label-ai-agent-edit',
           component: () => import('../components/forms/LabelForm.vue'),
           meta: { requiresAuth: true }
         },

@@ -85,7 +85,21 @@ const menuOptions: MenuOption[] = [
   {
     label: 'Labels',
     key: 'labels',
-    icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
+    icon: () => h(NIcon, null, { default: () => h(LabelsIcon) }),
+    children: [
+      {
+        label: 'Sound Fragment',
+        key: 'labels/sound-fragment'
+      },
+      {
+        label: 'Script',
+        key: 'labels/script'
+      },
+      {
+        label: 'AI Agent',
+        key: 'labels/ai-agent'
+      }
+    ]
   },
   {
     label: 'Genres',
