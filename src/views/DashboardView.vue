@@ -31,7 +31,7 @@ import {
   SunnyOutline as LightIcon,
   MoonOutline as DarkIcon,
   AppsOutline as MixplaIcon,
-  RocketOutline as RaquelIcon
+  AppsOutline as RaquelIcon
 } from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
