@@ -29,7 +29,9 @@ import {
   PersonCircleOutline as ProfileIcon,
   LogOutOutline as LogoutIcon,
   SunnyOutline as LightIcon,
-  MoonOutline as DarkIcon
+  MoonOutline as DarkIcon,
+  AppsOutline as MixplaIcon,
+  RocketOutline as RaquelIcon
 } from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
@@ -48,73 +50,92 @@ onMounted(() => {
 
 const menuOptions: MenuOption[] = [
   {
-    label: 'Users',
-    key: 'users',
-    icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
-  },
-  {
-    label: 'Billings',
-    key: 'billings',
-    icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
-  },
-  {
-    label: 'Subscriptions',
-    key: 'subscriptions',
-    icon: () => h(NIcon, null, { default: () => h(ModulesIcon) })
-  },
-  {
-    label: 'Subscription Products',
-    key: 'subscription-products',
-    icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
-  },
-  {
-    label: 'Roles',
-    key: 'roles',
-    icon: () => h(NIcon, null, { default: () => h(RolesIcon) })
-  },
-  {
-    label: 'Modules',
-    key: 'modules',
-    icon: () => h(NIcon, null, { default: () => h(ModulesIcon) })
-  },
-  {
-    label: 'Languages',
-    key: 'languages',
-    icon: () => h(NIcon, null, { default: () => h(LanguagesIcon) })
-  },
-  {
-    label: 'Labels',
-    key: 'labels',
-    icon: () => h(NIcon, null, { default: () => h(LabelsIcon) }),
+    label: 'Mixpla',
+    key: 'mixpla',
+    icon: () => h(NIcon, null, { default: () => h(MixplaIcon) }),
     children: [
       {
-        label: 'Sound Fragment',
-        key: 'labels/sound-fragment'
+        label: 'Users',
+        key: 'users',
+        icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
       },
       {
-        label: 'Script',
-        key: 'labels/script'
+        label: 'Billings',
+        key: 'billings',
+        icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
       },
       {
-        label: 'AI Agent',
-        key: 'labels/ai-agent'
+        label: 'Subscriptions',
+        key: 'subscriptions',
+        icon: () => h(NIcon, null, { default: () => h(ModulesIcon) })
+      },
+      {
+        label: 'Subscription Products',
+        key: 'subscription-products',
+        icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
+      },
+      {
+        label: 'Roles',
+        key: 'roles',
+        icon: () => h(NIcon, null, { default: () => h(RolesIcon) })
+      },
+      {
+        label: 'Modules',
+        key: 'modules',
+        icon: () => h(NIcon, null, { default: () => h(ModulesIcon) })
+      },
+      {
+        label: 'Languages',
+        key: 'languages',
+        icon: () => h(NIcon, null, { default: () => h(LanguagesIcon) })
+      },
+      {
+        label: 'Labels',
+        key: 'labels',
+        icon: () => h(NIcon, null, { default: () => h(LabelsIcon) }),
+        children: [
+          {
+            label: 'Sound Fragment',
+            key: 'labels/sound-fragment'
+          },
+          {
+            label: 'Script',
+            key: 'labels/script'
+          },
+          {
+            label: 'AI Agent',
+            key: 'labels/ai-agent'
+          }
+        ]
+      },
+      {
+        label: 'Genres',
+        key: 'genres',
+        icon: () => h(NIcon, null, { default: () => h(GenresIcon) })
+      },
+      {
+        label: 'Agreements',
+        key: 'agreements',
+        icon: () => h(NIcon, null, { default: () => h(AgreementsIcon) })
+      },
+      {
+        label: 'Consents',
+        key: 'consents',
+        icon: () => h(NIcon, null, { default: () => h(ConsentsIcon) })
       }
     ]
   },
   {
-    label: 'Genres',
-    key: 'genres',
-    icon: () => h(NIcon, null, { default: () => h(GenresIcon) })
-  },
-  {
-    label: 'Agreements',
-    key: 'agreements',
-    icon: () => h(NIcon, null, { default: () => h(AgreementsIcon) })
-  },
-  {
-    label: 'Consents',
-    key: 'consents',
-    icon: () => h(NIcon, null, { default: () => h(ConsentsIcon) })
+    label: 'Raquel',
+    key: 'raquel',
+    icon: () => h(NIcon, null, { default: () => h(RaquelIcon) }),
+    children: [
+      {
+        label: 'Users',
+        key: 'raquel-users',
+        icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
+      }
+    ]
   },
   {
     key: 'divider-logout',
