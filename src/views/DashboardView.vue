@@ -31,7 +31,8 @@ import {
   SunnyOutline as LightIcon,
   MoonOutline as DarkIcon,
   AppsOutline as MixplaIcon,
-  AppsOutline as RaquelIcon
+  AppsOutline as RaquelIcon,
+  DocumentTextOutline as DraftsIcon
 } from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
@@ -122,6 +123,11 @@ const menuOptions: MenuOption[] = [
         label: 'Consents',
         key: 'consents',
         icon: () => h(NIcon, null, { default: () => h(ConsentsIcon) })
+      },
+      {
+        label: 'Drafts',
+        key: 'drafts',
+        icon: () => h(NIcon, null, { default: () => h(DraftsIcon) })
       }
     ]
   },
