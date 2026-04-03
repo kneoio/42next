@@ -261,6 +261,24 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'drafts',
+          name: 'drafts',
+          component: () => import('../views/DraftsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'drafts/new',
+          name: 'draft-new',
+          component: () => import('../components/forms/DraftForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'drafts/:id',
+          name: 'draft-edit',
+          component: () => import('../components/forms/DraftForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('../views/ProfileView.vue'),

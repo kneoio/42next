@@ -473,6 +473,25 @@ class ApiService {
       method: 'DELETE',
     })
   }
+
+  async post<T>(endpoint: string, body: unknown): Promise<T> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+  }
+
+  async getText(endpoint: string, body: unknown): Promise<string> {
+    const authHeaders = authService.getAuthHeader()
+    const url = `${this.baseUrl}${endpoint}`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders },
+      body: JSON.stringify(body),
+    })
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    return response.text()
+  }
 }
 
 export const apiService = new ApiService()
