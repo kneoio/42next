@@ -40,7 +40,7 @@ const columns: DataTableColumns<User> = [
   {
     title: 'Name',
     key: 'name',
-    width: 250,
+    width: 200,
     ellipsis: {
       tooltip: true
     }
@@ -48,7 +48,7 @@ const columns: DataTableColumns<User> = [
   {
     title: 'Email',
     key: 'email',
-    width: 250,
+    width: 200,
     ellipsis: {
       tooltip: true
     }
