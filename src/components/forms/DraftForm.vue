@@ -15,7 +15,7 @@
       <NTabPane name="properties" tab="Main properties">
         <NForm label-placement="left" label-width="120" :disabled="loading">
           <NFormItem label="Title">
-            <NInput v-model:value="formData.title" style="width: 100%; max-width: 600px;" />
+            <NInput v-model:value="formData.title" style="width: 100%" />
           </NFormItem>
 
           <NFormItem label="Description">
@@ -23,7 +23,7 @@
               v-model:value="formData.description"
               type="textarea"
               :autosize="{ minRows: 3, maxRows: 6 }"
-              style="width: 100%; max-width: 600px;"
+              style="width: 100%"
             />
           </NFormItem>
 
@@ -45,7 +45,7 @@
               @update:model-value="(val) => (formData.content = typeof val === 'string' ? val : '')"
               basic
               :disabled="formData.locked"
-              :style="{ width: '100%', maxWidth: '1200px', height: '600px', border: '1px solid #d9d9d9', borderRadius: '3px', overflow: 'auto' }"
+              :style="{ width: '100%', height: '600px', border: '1px solid #d9d9d9', borderRadius: '3px', overflow: 'auto' }"
               :extensions="editorExtensions"
             />
           </NFormItem>
@@ -60,7 +60,7 @@
     :closable="false"
     :mask-closable="false"
     :close-on-esc="true"
-    style="width: 900px"
+    style="width: min(900px, 90vw)"
   >
     <template #header>
       <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -72,16 +72,16 @@
     <NSpace vertical>
       <NForm label-placement="left" label-width="80">
         <NFormItem label="Song">
-          <NSelect v-model:value="testSongId" :options="songOptions" filterable style="width: 100%; max-width: 480px;" />
+          <NSelect v-model:value="testSongId" :options="songOptions" filterable style="width: 100%" />
         </NFormItem>
         <NFormItem label="Agent">
-          <NSelect v-model:value="testAgentId" :options="agentOptions" filterable style="width: 100%; max-width: 480px;" />
+          <NSelect v-model:value="testAgentId" :options="agentOptions" filterable style="width: 100%" />
         </NFormItem>
         <NFormItem label="Station">
-          <NSelect v-model:value="testStationId" :options="stationOptions" filterable style="width: 100%; max-width: 480px;" />
+          <NSelect v-model:value="testStationId" :options="stationOptions" filterable style="width: 100%" />
         </NFormItem>
         <NFormItem v-for="variable in extractedVariables" :key="variable.name" :label="variable.name">
-          <NInput v-model:value="userVariables[variable.name]" style="width: 100%; max-width: 480px;" />
+          <NInput v-model:value="userVariables[variable.name]" style="width: 100%" />
         </NFormItem>
       </NForm>
 

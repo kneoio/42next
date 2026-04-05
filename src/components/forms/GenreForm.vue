@@ -77,7 +77,7 @@
             placeholder="Select parent genre (optional)"
             clearable
             filterable
-            style="width: 300px"
+            style="width: 100%"
           />
           <NButton 
             @click="formData.parent = ''"
