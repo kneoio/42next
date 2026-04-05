@@ -9,7 +9,7 @@ import {
 } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
-import type { User } from '@/services/api'
+import type { User } from '@/services/coreApi'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 

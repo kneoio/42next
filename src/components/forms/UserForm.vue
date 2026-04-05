@@ -68,7 +68,7 @@ import {
   useMessage
 } from 'naive-ui'
 import FormWrapper from '@/components/FormWrapper.vue'
-import type { User } from '@/services/api'
+import type { User } from '@/services/coreApi'
 import { useUserStore } from '@/stores/user'
 import { useRoute, useRouter } from 'vue-router'
 

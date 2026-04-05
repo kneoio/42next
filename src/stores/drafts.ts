@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import apiService from '@/services/api'
+import mixplaApiService from '@/services/mixplaApi'
 
 export interface Draft {
   id: string
@@ -30,7 +30,7 @@ export const useDraftsStore = defineStore('drafts', () => {
   async function loadDrafts(page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
-      const result = await apiService.getPagedDictionary<Draft>('/drafts', page, size)
+      const result = await mixplaApiService.getPagedDictionary<Draft>('/drafts', page, size)
       drafts.value = result.entries
       totalCount.value = result.count
       pageNum.value = result.pageNum
@@ -42,20 +42,20 @@ export const useDraftsStore = defineStore('drafts', () => {
   }
 
   async function fetchDraft(id: string) {
-    return apiService.getDocument<Draft>('/drafts', id)
+    return mixplaApiService.getDocument<Draft>('/drafts', id)
   }
 
   async function saveDraft(id: string | null, data: Partial<Draft>) {
     const { id: _id, author: _a, regDate: _r, lastModifier: _lm, lastModifiedDate: _lmd, ...payload } = data as Draft
     if (id) {
-      return apiService.updateDictionaryItem<Draft>('/drafts', id, payload)
+      return mixplaApiService.updateDictionaryItem<Draft>('/drafts', id, payload)
     } else {
-      return apiService.createDictionaryItem<Draft>('/drafts', payload)
+      return mixplaApiService.createDictionaryItem<Draft>('/drafts', payload)
     }
   }
 
   async function deleteDraft(id: string) {
-    return apiService.deleteDictionaryItem('/drafts', id)
+    return mixplaApiService.deleteDictionaryItem('/drafts', id)
   }
 
   return {

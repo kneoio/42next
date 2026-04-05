@@ -85,7 +85,7 @@ import {
   useMessage
 } from 'naive-ui'
 import FormWrapper from '@/components/FormWrapper.vue'
-import apiService, { type UserSubscriptionDTO } from '@/services/api'
+import officeframeApiService, { type UserSubscriptionDTO } from '@/services/officeframeApi'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -112,7 +112,7 @@ async function loadSubscription() {
   if (isEditing.value && subscriptionId.value) {
     try {
       loading.value = true
-      const dto = await apiService.getSubscriptionDocument(subscriptionId.value)
+      const dto = await officeframeApiService.getSubscriptionDocument(subscriptionId.value)
       formData.value = {
         userId: dto.userId,
         stripeSubscriptionId: dto.stripeSubscriptionId,
@@ -152,10 +152,10 @@ async function handleSave() {
     }
 
     if (isEditing.value && subscriptionId.value) {
-      await apiService.updateSubscription(subscriptionId.value, payload)
+      await officeframeApiService.updateSubscription(subscriptionId.value, payload)
       message.success('Subscription updated successfully')
     } else {
-      await apiService.createSubscription(payload)
+      await officeframeApiService.createSubscription(payload)
       message.success('Subscription created successfully')
     }
     router.push('/dashboard/subscriptions')

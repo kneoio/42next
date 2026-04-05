@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import apiService from '@/services/api'
+import officeframeApiService from '@/services/officeframeApi'
 
 export interface Genre {
   id: string
@@ -38,7 +38,7 @@ export const useGenresStore = defineStore('genres', () => {
   async function loadAllGenres() {
     try {
       // Load all genres without pagination for dropdowns
-      const result = await apiService.getPagedDictionary<Genre>('/genres', 1, 10000)
+      const result = await officeframeApiService.getPagedDictionary<Genre>('/genres', 1, 10000)
       allGenres.value = result.entries
       return result.entries
     } catch (error) {
@@ -54,7 +54,7 @@ export const useGenresStore = defineStore('genres', () => {
       if (filterIdentifier.value) {
         params.search = filterIdentifier.value
       }
-      const result = await apiService.getPagedDictionary<Genre>('/genres', page, size, params)
+      const result = await officeframeApiService.getPagedDictionary<Genre>('/genres', page, size, params)
       genres.value = result.entries
       totalCount.value = result.count
       pageNum.value = result.pageNum
@@ -70,7 +70,7 @@ export const useGenresStore = defineStore('genres', () => {
 
   async function fetchGenre(id: string) {
     try {
-      return await apiService.getDocument<Genre>('/genres', id)
+      return await officeframeApiService.getDocument<Genre>('/genres', id)
     } catch (error) {
       console.error('Failed to fetch genre:', error)
       throw error
@@ -90,7 +90,7 @@ export const useGenresStore = defineStore('genres', () => {
         ...payload
       } = genreData as Partial<Genre>
 
-      const newGenre = await apiService.createDictionaryItem<Genre>('/genres', payload)
+      const newGenre = await officeframeApiService.createDictionaryItem<Genre>('/genres', payload)
       genres.value.push(newGenre)
       return newGenre
     } catch (error) {
@@ -112,7 +112,7 @@ export const useGenresStore = defineStore('genres', () => {
         ...payload
       } = genreData as Partial<Genre>
 
-      const updatedGenre = await apiService.updateDictionaryItem<Genre>('/genres', id, payload)
+      const updatedGenre = await officeframeApiService.updateDictionaryItem<Genre>('/genres', id, payload)
       const index = genres.value.findIndex(genre => genre.id === id)
       if (index !== -1) {
         genres.value[index] = updatedGenre
@@ -129,7 +129,7 @@ export const useGenresStore = defineStore('genres', () => {
       const genre = genres.value.find(genre => genre.identifier === identifier)
       const idToDelete = genre ? genre.id : identifier
 
-      await apiService.deleteDictionaryItem('/genres', idToDelete)
+      await officeframeApiService.deleteDictionaryItem('/genres', idToDelete)
       genres.value = genres.value.filter(genre => genre.identifier !== identifier)
     } catch (error) {
       console.error('Failed to delete genre:', error)
@@ -144,7 +144,7 @@ export const useGenresStore = defineStore('genres', () => {
         return genre ? genre.id : identifier
       })
 
-      await apiService.archiveDictionaryItems('/genres', idsToArchive)
+      await officeframeApiService.archiveDictionaryItems('/genres', idsToArchive)
       // Remove archived genres from the list (by identifier, UI-facing key)
       genres.value = genres.value.filter(genre => !identifiers.includes(genre.identifier))
     } catch (error) {

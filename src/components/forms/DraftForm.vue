@@ -117,7 +117,7 @@ import CodeMirror from 'vue-codemirror6'
 import FormWrapper from '@/components/FormWrapper.vue'
 import { useDraftsStore } from '@/stores/drafts'
 import { useRoute, useRouter } from 'vue-router'
-import apiService from '@/services/api'
+import mixplaApiService from '@/services/mixplaApi'
 
 const route = useRoute()
 const router = useRouter()
@@ -168,9 +168,9 @@ async function openTestDialog() {
 
   try {
     const [songs, agents, stations] = await Promise.allSettled([
-      apiService.getPagedDictionary<any>('/sound-fragments', 1, 100),
-      apiService.getPagedDictionary<any>('/ai-agents', 1, 100),
-      apiService.getPagedDictionary<any>('/radio-stations', 1, 100),
+      mixplaApiService.getPagedDictionary<any>('/sound-fragments', 1, 100),
+      mixplaApiService.getPagedDictionary<any>('/ai-agents', 1, 100),
+      mixplaApiService.getPagedDictionary<any>('/radio-stations', 1, 100),
     ])
 
     if (songs.status === 'fulfilled') {
@@ -188,7 +188,7 @@ async function openTestDialog() {
 
     if (formData.value.content) {
       try {
-        const vars = await apiService.post<Array<{ name: string; description: string | null; type: string }>>(
+        const vars = await mixplaApiService.post<Array<{ name: string; description: string | null; type: string }>>(
           '/drafts/extract-variables',
           { code: formData.value.content }
         )
@@ -202,7 +202,7 @@ async function openTestDialog() {
 async function runDraftTest() {
   try {
     testLoading.value = true
-    const raw = await apiService.getText('/drafts/test', {
+    const raw = await mixplaApiService.getText('/drafts/test', {
       languageTag: formData.value.languageTag,
       songId: testSongId.value,
       agentId: testAgentId.value,

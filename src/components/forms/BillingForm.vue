@@ -57,7 +57,7 @@ import {
   useMessage
 } from 'naive-ui'
 import FormWrapper from '@/components/FormWrapper.vue'
-import apiService, { type UserBillingDTO } from '@/services/api'
+import officeframeApiService, { type UserBillingDTO } from '@/services/officeframeApi'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -86,7 +86,7 @@ async function loadBilling() {
   if (isEditing.value && billingId.value) {
     try {
       loading.value = true
-      const fullDoc = await apiService.getBillingDocument(billingId.value)
+      const fullDoc = await officeframeApiService.getBillingDocument(billingId.value)
       formData.value = {
         userId: fullDoc.userId,
         stripeCustomerId: fullDoc.stripeCustomerId,
@@ -122,10 +122,10 @@ async function handleSave() {
     }
 
     if (isEditing.value && billingId.value) {
-      await apiService.updateBilling(billingId.value, payload)
+      await officeframeApiService.updateBilling(billingId.value, payload)
       message.success('Billing updated successfully')
     } else {
-      await apiService.createBilling(payload)
+      await officeframeApiService.createBilling(payload)
       message.success('Billing created successfully')
     }
     router.push('/dashboard/billings')
