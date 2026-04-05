@@ -38,12 +38,12 @@ const columns: DataTableColumns<Agreement> = [
   {
     title: 'Version',
     key: 'agreementVersion',
-    width: 140
+    minWidth: 100
   },
   {
     title: 'User Agent',
     key: 'userAgent',
-    width: 220,
+    minWidth: 150,
     ellipsis: {
       tooltip: true
     }
@@ -51,7 +51,7 @@ const columns: DataTableColumns<Agreement> = [
   {
     title: 'Author',
     key: 'author',
-    width: 140
+    minWidth: 100
   },
   {
     title: 'Last Modified',

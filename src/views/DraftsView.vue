@@ -30,7 +30,7 @@ const columns: DataTableColumns<Draft> = [
   { title: 'Language', key: 'languageTag', width: 120 },
   { title: 'Enabled', key: 'enabled', width: 100, render: (row) => row.enabled ? 'Yes' : 'No' },
   { title: 'Locked', key: 'locked', width: 100, render: (row) => row.locked ? 'Yes' : 'No' },
-  { title: 'Author', key: 'author', width: 140 },
+  { title: 'Author', key: 'author', minWidth: 100 },
   { title: 'Last Modified', key: 'lastModifiedDate', width: 160, render: (row) => row.lastModifiedDate || '-' },
 ]
 

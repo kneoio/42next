@@ -38,7 +38,7 @@ const columns: DataTableColumns<Role> = [
   {
     title: 'Name',
     key: 'localizedName',
-    width: 200,
+    minWidth: 150,
     ellipsis: {
       tooltip: true
     },
@@ -47,7 +47,7 @@ const columns: DataTableColumns<Role> = [
   {
     title: 'Author',
     key: 'author',
-    width: 120,
+    minWidth: 100,
     ellipsis: {
       tooltip: true
     }

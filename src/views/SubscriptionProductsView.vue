@@ -41,7 +41,7 @@ const columns: DataTableColumns<SubscriptionProductDTO> = [
   {
     title: 'Identifier',
     key: 'identifier',
-    width: 200,
+    minWidth: 120,
     ellipsis: {
       tooltip: true
     }
@@ -49,7 +49,7 @@ const columns: DataTableColumns<SubscriptionProductDTO> = [
   {
     title: 'Name (en)',
     key: 'localizedName',
-    width: 220,
+    minWidth: 150,
     ellipsis: {
       tooltip: true
     },

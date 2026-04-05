@@ -25,7 +25,7 @@ const columns: DataTableColumns<Module> = [
   {
     title: 'Identifier',
     key: 'identifier',
-    width: 150,
+    minWidth: 120,
     ellipsis: {
       tooltip: true
     }
@@ -33,7 +33,7 @@ const columns: DataTableColumns<Module> = [
   {
     title: 'Description',
     key: 'localizedDescription',
-    width: 250,
+    minWidth: 150,
     ellipsis: {
       tooltip: true
     },
@@ -42,7 +42,7 @@ const columns: DataTableColumns<Module> = [
   {
     title: 'Author',
     key: 'author',
-    width: 120
+    minWidth: 100
   },
   {
     title: 'Registration Date',
@@ -52,7 +52,7 @@ const columns: DataTableColumns<Module> = [
   {
     title: 'Status',
     key: 'on',
-    width: 100,
+    width: 80,
     render: (row) => row.on ? 'On' : 'Off'
   }
 ]

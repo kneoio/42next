@@ -33,7 +33,7 @@ const columns: DataTableColumns<UserConsent> = [
   {
     title: 'User ID',
     key: 'userId',
-    width: 180
+    minWidth: 120
   },
   {
     title: 'Essential',
@@ -75,7 +75,7 @@ const columns: DataTableColumns<UserConsent> = [
   {
     title: 'User Agent',
     key: 'userAgent',
-    width: 220,
+    minWidth: 150,
     ellipsis: {
       tooltip: true
     }

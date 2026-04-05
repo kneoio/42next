@@ -32,7 +32,7 @@ const columns: DataTableColumns<User> = [
   {
     title: 'Login',
     key: 'login',
-    width: 200,
+    minWidth: 120,
     ellipsis: {
       tooltip: true
     }
@@ -40,7 +40,7 @@ const columns: DataTableColumns<User> = [
   {
     title: 'Name',
     key: 'name',
-    width: 200,
+    minWidth: 120,
     ellipsis: {
       tooltip: true
     }
@@ -48,7 +48,7 @@ const columns: DataTableColumns<User> = [
   {
     title: 'Email',
     key: 'email',
-    width: 200,
+    minWidth: 150,
     ellipsis: {
       tooltip: true
     }
@@ -68,13 +68,13 @@ const columns: DataTableColumns<User> = [
   {
     title: 'Roles',
     key: 'roles',
-    width: 120,
+    width: 80,
     render: (row) => row.roles.length.toString()
   },
   {
     title: 'Modules',
     key: 'modules',
-    width: 120,
+    width: 80,
     render: (row) => row.modules.length.toString()
   }
 ]

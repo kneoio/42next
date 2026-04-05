@@ -124,7 +124,7 @@ const columns: DataTableColumns<Label> = [
   {
     title: 'Name',
     key: 'localizedName',
-    width: 200,
+    minWidth: 130,
     ellipsis: {
       tooltip: true
     },
@@ -151,7 +151,7 @@ const columns: DataTableColumns<Label> = [
   {
     title: 'Category',
     key: 'category',
-    width: 120
+    minWidth: 100
   },
   {
     title: 'Hidden',
@@ -164,7 +164,7 @@ const columns: DataTableColumns<Label> = [
   {
     title: 'Author',
     key: 'author',
-    width: 120,
+    minWidth: 100,
     render(row) {
       return row.author === 'undefined' ? '-' : row.author
     }

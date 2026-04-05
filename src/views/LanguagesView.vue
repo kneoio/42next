@@ -37,7 +37,7 @@ const columns: DataTableColumns<Language> = [
   {
     title: 'Name',
     key: 'localizedName',
-    width: 200,
+    minWidth: 120,
     ellipsis: {
       tooltip: true
     },
@@ -46,17 +46,17 @@ const columns: DataTableColumns<Language> = [
   {
     title: 'Code',
     key: 'code',
-    width: 120
+    width: 80
   },
   {
     title: 'Position',
     key: 'position',
-    width: 120
+    width: 80
   },
   {
     title: 'Author',
     key: 'author',
-    width: 120,
+    minWidth: 100,
     ellipsis: {
       tooltip: true
     }

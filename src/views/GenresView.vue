@@ -42,7 +42,7 @@ const columns: DataTableColumns<Genre> = [
   {
     title: 'Identifier',
     key: 'identifier',
-    width: 150,
+    minWidth: 120,
     render(row) {
       return h('span', { style: { fontWeight: 'bold' } }, row.identifier)
     }
@@ -50,7 +50,7 @@ const columns: DataTableColumns<Genre> = [
   {
     title: 'Name',
     key: 'localizedName',
-    width: 200,
+    minWidth: 120,
     ellipsis: {
       tooltip: true
     },
@@ -83,7 +83,7 @@ const columns: DataTableColumns<Genre> = [
   {
     title: 'Author',
     key: 'author',
-    width: 120
+    minWidth: 100
   },
   {
     title: 'Last Modified',

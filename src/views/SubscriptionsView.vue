@@ -36,12 +36,12 @@ const columns: DataTableColumns<UserSubscriptionDTO> = [
   {
     title: 'User ID',
     key: 'userId',
-    width: 100
+    minWidth: 80
   },
   {
     title: 'Subscription Type',
     key: 'subscriptionType',
-    width: 180,
+    minWidth: 130,
     ellipsis: {
       tooltip: true
     }
@@ -49,7 +49,7 @@ const columns: DataTableColumns<UserSubscriptionDTO> = [
   {
     title: 'Status',
     key: 'subscriptionStatus',
-    width: 140
+    minWidth: 100
   },
   {
     title: 'Active',

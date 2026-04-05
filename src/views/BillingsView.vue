@@ -37,12 +37,12 @@ const columns: DataTableColumns<UserBillingDTO> = [
   {
     title: 'User ID',
     key: 'userId',
-    width: 100
+    minWidth: 80
   },
   {
     title: 'Stripe Customer ID',
     key: 'stripeCustomerId',
-    width: 220,
+    minWidth: 150,
     ellipsis: {
       tooltip: true
     }
