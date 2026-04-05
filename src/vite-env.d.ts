@@ -2,7 +2,6 @@
 
 interface ImportMetaEnv {
   readonly VITE_MIXPLA_SERVER?: string
-  readonly VITE_RAQUEL_SERVER?: string
   readonly VITE_KEYCLOAK_URL?: string
   readonly VITE_KEYCLOAK_REALM?: string
   readonly VITE_KEYCLOAK_CLIENT_ID?: string
