@@ -2,6 +2,7 @@
   <FormWrapper
     :title="isEditing ? 'Edit Draft' : 'Create Draft'"
     :subtitle="isEditing ? 'Update existing draft' : 'Create a new draft'"
+    full-width
   >
     <template #actions>
       <NSpace>

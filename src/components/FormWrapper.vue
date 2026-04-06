@@ -10,7 +10,7 @@
       <slot name="actions" />
     </ActionBar>
 
-    <div class="form-content">
+    <div :class="['form-content', { 'form-content--full': fullWidth }]">
       <slot />
     </div>
   </div>
@@ -23,6 +23,7 @@ import ActionBar from './ActionBar.vue'
 interface Props {
   title: string
   subtitle?: string
+  fullWidth?: boolean
 }
 
 const props = defineProps<Props>()
@@ -35,5 +36,9 @@ const props = defineProps<Props>()
 
 .form-content {
   max-width: 600px;
+}
+
+.form-content--full {
+  max-width: none;
 }
 </style>
