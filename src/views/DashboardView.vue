@@ -33,7 +33,8 @@ import {
   AppsOutline as MixplaIcon,
   AppsOutline as RaquelIcon,
   DocumentTextOutline as DraftsIcon,
-  ChatbubblesOutline as PromptsIcon
+  ChatbubblesOutline as PromptsIcon,
+  ReaderOutline as ScriptsIcon
 } from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
@@ -134,6 +135,11 @@ const menuOptions: MenuOption[] = [
         label: 'Prompts',
         key: 'prompts',
         icon: () => h(NIcon, null, { default: () => h(PromptsIcon) })
+      },
+      {
+        label: 'Scripts',
+        key: 'scripts',
+        icon: () => h(NIcon, null, { default: () => h(ScriptsIcon) })
       }
     ]
   },

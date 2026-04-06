@@ -297,6 +297,24 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'scripts',
+          name: 'scripts',
+          component: () => import('../views/ScriptsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'scripts/new',
+          name: 'script-new',
+          component: () => import('../components/forms/ScriptForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'scripts/:id',
+          name: 'script-edit',
+          component: () => import('../components/forms/ScriptForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('../views/ProfileView.vue'),

@@ -145,6 +145,16 @@ export class ApiClient {
     })
   }
 
+  async fetchBlob(endpoint: string): Promise<Blob> {
+    const authHeaders = authService.getAuthHeader()
+    const url = `${this.baseUrl}${endpoint}`
+    const response = await fetch(url, {
+      headers: { ...authHeaders },
+    })
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+    return response.blob()
+  }
+
   async getText(endpoint: string, body: unknown): Promise<string> {
     const authHeaders = authService.getAuthHeader()
     const url = `${this.baseUrl}${endpoint}`
