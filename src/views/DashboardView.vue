@@ -38,7 +38,13 @@ import {
   FilmOutline as ScenesIcon,
   ServerOutline as CoreIcon,
   LayersOutline as OfficeFrameIcon,
-  SparklesOutline as DatanestIcon
+  SparklesOutline as DatanestIcon,
+  HardwareChipOutline as AiAgentsIcon,
+  CalendarOutline as EventsIcon,
+  EarthOutline as EnvProfilesIcon,
+  VolumeHighOutline as SoundFragmentsIcon,
+  HeadsetOutline as ListenersIcon,
+  RadioOutline as BrandsIcon
 } from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
@@ -159,6 +165,36 @@ const menuOptions: MenuOption[] = [
             label: 'Scenes',
             key: 'scenes',
             icon: () => h(NIcon, null, { default: () => h(ScenesIcon) })
+          },
+          {
+            label: 'Sound Fragments',
+            key: 'sound-fragments',
+            icon: () => h(NIcon, null, { default: () => h(SoundFragmentsIcon) })
+          },
+          {
+            label: 'AI Agents',
+            key: 'ai-agents',
+            icon: () => h(NIcon, null, { default: () => h(AiAgentsIcon) })
+          },
+          {
+            label: 'Brands',
+            key: 'brands',
+            icon: () => h(NIcon, null, { default: () => h(BrandsIcon) })
+          },
+          {
+            label: 'Events',
+            key: 'events',
+            icon: () => h(NIcon, null, { default: () => h(EventsIcon) })
+          },
+          {
+            label: 'Env Profiles',
+            key: 'environment-profiles',
+            icon: () => h(NIcon, null, { default: () => h(EnvProfilesIcon) })
+          },
+          {
+            label: 'Listeners',
+            key: 'listeners',
+            icon: () => h(NIcon, null, { default: () => h(ListenersIcon) })
           },
         ]
       },

@@ -321,6 +321,114 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'ai-agents',
+          name: 'ai-agents',
+          component: () => import('../views/AiAgentsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'ai-agents/new',
+          name: 'ai-agent-new',
+          component: () => import('../components/forms/AiAgentForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'ai-agents/:id',
+          name: 'ai-agent-edit',
+          component: () => import('../components/forms/AiAgentForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'events',
+          name: 'events',
+          component: () => import('../views/EventsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'events/new',
+          name: 'event-new',
+          component: () => import('../components/forms/EventForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'events/:id',
+          name: 'event-edit',
+          component: () => import('../components/forms/EventForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'environment-profiles',
+          name: 'environment-profiles',
+          component: () => import('../views/EnvironmentProfilesView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'environment-profiles/new',
+          name: 'environment-profile-new',
+          component: () => import('../components/forms/EnvironmentProfileForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'environment-profiles/:id',
+          name: 'environment-profile-edit',
+          component: () => import('../components/forms/EnvironmentProfileForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'sound-fragments',
+          name: 'sound-fragments',
+          component: () => import('../views/SoundFragmentsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'sound-fragments/new',
+          name: 'sound-fragment-new',
+          component: () => import('../components/forms/SoundFragmentForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'sound-fragments/:id',
+          name: 'sound-fragment-edit',
+          component: () => import('../components/forms/SoundFragmentForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'listeners',
+          name: 'listeners',
+          component: () => import('../views/ListenersView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'listeners/new',
+          name: 'listener-new',
+          component: () => import('../components/forms/ListenerForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'listeners/:id',
+          name: 'listener-edit',
+          component: () => import('../components/forms/ListenerForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'brands',
+          name: 'brands',
+          component: () => import('../views/BrandsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'brands/new',
+          name: 'brand-new',
+          component: () => import('../components/forms/BrandForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'brands/:id',
+          name: 'brand-edit',
+          component: () => import('../components/forms/BrandForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('../views/ProfileView.vue'),
