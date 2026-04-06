@@ -10,7 +10,7 @@ import {
 } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
-import officeframeApiService, { type SubscriptionProductDTO } from '@/services/officeframeApi'
+import coreApiService, { type SubscriptionProductDTO } from '@/services/coreApi'
 
 const router = useRouter()
 const products = ref<SubscriptionProductDTO[]>([])
@@ -66,7 +66,7 @@ const columns: DataTableColumns<SubscriptionProductDTO> = [
 async function loadProducts(pageNum: number, pageSize: number) {
   loading.value = true
   try {
-    const result = await officeframeApiService.getSubscriptionProducts(pageNum, pageSize)
+    const result = await coreApiService.getSubscriptionProducts(pageNum, pageSize)
     products.value = result.entries
     totalCount.value = result.count
     page.value = pageNum
@@ -88,7 +88,7 @@ async function handleEdit(row: SubscriptionProductDTO) {
 
 async function handleDelete(id: string) {
   try {
-    await officeframeApiService.deleteSubscriptionProduct(id)
+    await coreApiService.deleteSubscriptionProduct(id)
     await loadProducts(page.value, size.value)
   } catch (error) {
     console.error('Failed to delete product:', error)
@@ -102,7 +102,7 @@ async function handleBulkDelete() {
   
   try {
     for (const id of selectedProductIds.value) {
-      await officeframeApiService.deleteSubscriptionProduct(id)
+      await coreApiService.deleteSubscriptionProduct(id)
     }
     selectedProductIds.value = []
     await loadProducts(page.value, size.value)

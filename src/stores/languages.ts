@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import officeframeApiService from '@/services/officeframeApi'
+import coreApiService from '@/services/coreApi'
 
 export interface Language {
   id: string
@@ -25,7 +25,7 @@ export const useLanguagesStore = defineStore('languages', () => {
   async function loadLanguages() {
     loading.value = true
     try {
-      languages.value = await officeframeApiService.getDictionary<Language>('/languages')
+      languages.value = await coreApiService.getDictionary<Language>('/languages')
     } catch (error) {
       console.error('Failed to load languages:', error)
       throw error
@@ -45,7 +45,7 @@ export const useLanguagesStore = defineStore('languages', () => {
         ...payload
       } = languageData as Partial<Language>
 
-      const newLanguage = await officeframeApiService.createDictionaryItem<Language>('/languages', payload)
+      const newLanguage = await coreApiService.createDictionaryItem<Language>('/languages', payload)
       languages.value.push(newLanguage)
       return newLanguage
     } catch (error) {
@@ -65,7 +65,7 @@ export const useLanguagesStore = defineStore('languages', () => {
         ...payload
       } = languageData as Partial<Language>
 
-      const updatedLanguage = await officeframeApiService.updateDictionaryItem<Language>('/languages', id, payload)
+      const updatedLanguage = await coreApiService.updateDictionaryItem<Language>('/languages', id, payload)
       
       const index = languages.value.findIndex(language => language.id === id)
       if (index !== -1) {
@@ -80,7 +80,7 @@ export const useLanguagesStore = defineStore('languages', () => {
 
   async function deleteLanguage(id: string) {
     try {
-      await officeframeApiService.deleteDictionaryItem('/languages', id)
+      await coreApiService.deleteDictionaryItem('/languages', id)
       
       languages.value = languages.value.filter(language => language.id !== id)
       selectedLanguageIds.value = selectedLanguageIds.value.filter(languageId => languageId !== id)
@@ -92,7 +92,7 @@ export const useLanguagesStore = defineStore('languages', () => {
 
   async function archiveLanguages(ids: string[]) {
     try {
-      await officeframeApiService.archiveDictionaryItems('/languages', ids)
+      await coreApiService.archiveDictionaryItems('/languages', ids)
       
       // Refresh languages after archiving
       await loadLanguages()

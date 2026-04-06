@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import officeframeApiService from '@/services/officeframeApi'
+import coreApiService from '@/services/coreApi'
 
 export interface Role {
   identifier: string
@@ -28,7 +28,7 @@ export const useRolesStore = defineStore('roles', () => {
   async function loadRoles() {
     loading.value = true
     try {
-      roles.value = await officeframeApiService.getDictionary<Role>('/roles')
+      roles.value = await coreApiService.getDictionary<Role>('/roles')
     } catch (error) {
       console.error('Failed to load roles:', error)
       throw error
@@ -47,7 +47,7 @@ export const useRolesStore = defineStore('roles', () => {
         ...payload
       } = roleData as Partial<Role>
 
-      const newRole = await officeframeApiService.createDictionaryItem<Role>('/roles', payload)
+      const newRole = await coreApiService.createDictionaryItem<Role>('/roles', payload)
       roles.value.push(newRole)
       return newRole
     } catch (error) {
@@ -66,7 +66,7 @@ export const useRolesStore = defineStore('roles', () => {
         ...payload
       } = roleData as Partial<Role>
 
-      const updatedRole = await officeframeApiService.updateDictionaryItem<Role>('/roles', identifier, payload)
+      const updatedRole = await coreApiService.updateDictionaryItem<Role>('/roles', identifier, payload)
       
       const index = roles.value.findIndex(role => role.identifier === identifier)
       if (index !== -1) {
@@ -81,7 +81,7 @@ export const useRolesStore = defineStore('roles', () => {
 
   async function deleteRole(identifier: string) {
     try {
-      await officeframeApiService.deleteDictionaryItem('/roles', identifier)
+      await coreApiService.deleteDictionaryItem('/roles', identifier)
       
       roles.value = roles.value.filter(role => role.identifier !== identifier)
       selectedRoleIds.value = selectedRoleIds.value.filter(roleId => roleId !== identifier)
@@ -93,7 +93,7 @@ export const useRolesStore = defineStore('roles', () => {
 
   async function archiveRoles(identifiers: string[]) {
     try {
-      await officeframeApiService.archiveDictionaryItems('/roles', identifiers)
+      await coreApiService.archiveDictionaryItems('/roles', identifiers)
       
       // Refresh roles after archiving
       await loadRoles()

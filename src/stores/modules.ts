@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import officeframeApiService from '@/services/officeframeApi'
+import coreApiService from '@/services/coreApi'
 
 export interface Module {
   id: string
@@ -39,7 +39,7 @@ export const useModulesStore = defineStore('modules', () => {
   async function loadModules() {
     loading.value = true
     try {
-      modules.value = await officeframeApiService.getDictionary<Module>('/modules')
+      modules.value = await coreApiService.getDictionary<Module>('/modules')
     } catch (error) {
       console.error('Failed to load modules:', error)
       throw error
@@ -59,7 +59,7 @@ export const useModulesStore = defineStore('modules', () => {
         ...payload
       } = moduleData as Partial<Module>
 
-      const newModule = await officeframeApiService.createDictionaryItem<Module>('/modules', payload)
+      const newModule = await coreApiService.createDictionaryItem<Module>('/modules', payload)
       modules.value.push(newModule)
       return newModule
     } catch (error) {
@@ -79,7 +79,7 @@ export const useModulesStore = defineStore('modules', () => {
         ...payload
       } = moduleData as Partial<Module>
 
-      const updatedModule = await officeframeApiService.updateDictionaryItem<Module>('/modules', id, payload)
+      const updatedModule = await coreApiService.updateDictionaryItem<Module>('/modules', id, payload)
       
       const index = modules.value.findIndex(module => module.id === id)
       if (index !== -1) {
@@ -94,7 +94,7 @@ export const useModulesStore = defineStore('modules', () => {
 
   async function deleteModule(id: string) {
     try {
-      await officeframeApiService.deleteDictionaryItem('/modules', id)
+      await coreApiService.deleteDictionaryItem('/modules', id)
       
       modules.value = modules.value.filter(module => module.id !== id)
       selectedModuleIds.value = selectedModuleIds.value.filter(moduleId => moduleId !== id)
@@ -106,7 +106,7 @@ export const useModulesStore = defineStore('modules', () => {
 
   async function archiveModules(ids: string[]) {
     try {
-      await officeframeApiService.archiveDictionaryItems('/modules', ids)
+      await coreApiService.archiveDictionaryItems('/modules', ids)
       
       // Refresh modules after archiving
       await loadModules()

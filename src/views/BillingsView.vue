@@ -9,7 +9,7 @@ import {
 } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
-import officeframeApiService, { type UserBillingDTO } from '@/services/officeframeApi'
+import coreApiService, { type UserBillingDTO } from '@/services/coreApi'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -65,7 +65,7 @@ const columns: DataTableColumns<UserBillingDTO> = [
 async function loadBillings(pageNum: number, pageSize: number) {
   loading.value = true
   try {
-    const result = await officeframeApiService.getBillings(pageNum, pageSize)
+    const result = await coreApiService.getBillings(pageNum, pageSize)
     billings.value = result.entries
     totalCount.value = result.count
     page.value = result.page
@@ -110,7 +110,7 @@ async function handleBulkDelete() {
     const toDelete = [...selectedBillingIds.value]
     const deletedCount = toDelete.length
     for (const id of toDelete) {
-      await officeframeApiService.deleteBilling(id)
+      await coreApiService.deleteBilling(id)
     }
 
     const currentTotal = totalCount.value

@@ -10,7 +10,7 @@ import {
 } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
-import officeframeApiService, { type UserSubscriptionDTO } from '@/services/officeframeApi'
+import coreApiService, { type UserSubscriptionDTO } from '@/services/coreApi'
 
 const router = useRouter()
 const subscriptions = ref<UserSubscriptionDTO[]>([])
@@ -62,7 +62,7 @@ const columns: DataTableColumns<UserSubscriptionDTO> = [
 async function loadSubscriptions(pageNum: number, pageSize: number) {
   loading.value = true
   try {
-    const result = await officeframeApiService.getSubscriptions(pageNum, pageSize)
+    const result = await coreApiService.getSubscriptions(pageNum, pageSize)
     subscriptions.value = result.entries
     totalCount.value = result.count
     page.value = pageNum
@@ -84,7 +84,7 @@ async function handleEdit(row: UserSubscriptionDTO) {
 
 async function handleDelete(id: string) {
   try {
-    await officeframeApiService.deleteSubscription(id)
+    await coreApiService.deleteSubscription(id)
     await loadSubscriptions(page.value, size.value)
   } catch (error) {
     console.error('Failed to delete subscription:', error)
@@ -98,7 +98,7 @@ async function handleBulkDelete() {
   
   try {
     for (const id of selectedSubscriptionIds.value) {
-      await officeframeApiService.deleteSubscription(id)
+      await coreApiService.deleteSubscription(id)
     }
     selectedSubscriptionIds.value = []
     await loadSubscriptions(page.value, size.value)

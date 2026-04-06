@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import officeframeApiService from '@/services/officeframeApi'
+import coreApiService from '@/services/coreApi'
 
 export interface UserConsent {
   id: string
@@ -33,7 +33,7 @@ export const useConsentsStore = defineStore('consents', () => {
   async function loadConsents(page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
-      const result = await officeframeApiService.getPagedDictionary<UserConsent>('/consents', page, size)
+      const result = await coreApiService.getPagedDictionary<UserConsent>('/consents', page, size)
       consents.value = result.entries
       totalCount.value = result.count
       pageNum.value = result.pageNum
@@ -49,7 +49,7 @@ export const useConsentsStore = defineStore('consents', () => {
 
   async function fetchConsent(id: string) {
     try {
-      return await officeframeApiService.getDocument<UserConsent>('/consents', id)
+      return await coreApiService.getDocument<UserConsent>('/consents', id)
     } catch (error) {
       console.error('Failed to fetch consent:', error)
       throw error
@@ -68,7 +68,7 @@ export const useConsentsStore = defineStore('consents', () => {
         ...payload
       } = data as Partial<UserConsent>
 
-      const newConsent = await officeframeApiService.createDictionaryItem<UserConsent>('/consents', payload)
+      const newConsent = await coreApiService.createDictionaryItem<UserConsent>('/consents', payload)
       consents.value.push(newConsent)
       return newConsent
     } catch (error) {
@@ -89,7 +89,7 @@ export const useConsentsStore = defineStore('consents', () => {
         ...payload
       } = data as Partial<UserConsent>
 
-      const updatedConsent = await officeframeApiService.updateDictionaryItem<UserConsent>('/consents', id, payload)
+      const updatedConsent = await coreApiService.updateDictionaryItem<UserConsent>('/consents', id, payload)
       const index = consents.value.findIndex(consent => consent.id === id)
       if (index !== -1) {
         consents.value[index] = updatedConsent
@@ -103,7 +103,7 @@ export const useConsentsStore = defineStore('consents', () => {
 
   async function deleteConsent(id: string) {
     try {
-      await officeframeApiService.deleteDictionaryItem('/consents', id)
+      await coreApiService.deleteDictionaryItem('/consents', id)
       consents.value = consents.value.filter(consent => consent.id !== id)
       selectedConsentIds.value = selectedConsentIds.value.filter(selId => selId !== id)
     } catch (error) {

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import officeframeApiService from '@/services/officeframeApi'
+import coreApiService from '@/services/coreApi'
 
 export interface Agreement {
   id: string
@@ -30,7 +30,7 @@ export const useAgreementsStore = defineStore('agreements', () => {
   async function loadAgreements(page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
-      const result = await officeframeApiService.getPagedDictionary<Agreement>('/agreements', page, size)
+      const result = await coreApiService.getPagedDictionary<Agreement>('/agreements', page, size)
       agreements.value = result.entries
       totalCount.value = result.count
       pageNum.value = result.pageNum
@@ -46,7 +46,7 @@ export const useAgreementsStore = defineStore('agreements', () => {
 
   async function fetchAgreement(id: string) {
     try {
-      return await officeframeApiService.getDocument<Agreement>('/agreements', id)
+      return await coreApiService.getDocument<Agreement>('/agreements', id)
     } catch (error) {
       console.error('Failed to fetch agreement:', error)
       throw error
@@ -65,7 +65,7 @@ export const useAgreementsStore = defineStore('agreements', () => {
         ...payload
       } = data as Partial<Agreement>
 
-      const newAgreement = await officeframeApiService.createDictionaryItem<Agreement>('/agreements', payload)
+      const newAgreement = await coreApiService.createDictionaryItem<Agreement>('/agreements', payload)
       agreements.value.push(newAgreement)
       return newAgreement
     } catch (error) {
@@ -85,7 +85,7 @@ export const useAgreementsStore = defineStore('agreements', () => {
         ...payload
       } = data as Partial<Agreement>
 
-      const updatedAgreement = await officeframeApiService.updateDictionaryItem<Agreement>('/agreements', id, payload)
+      const updatedAgreement = await coreApiService.updateDictionaryItem<Agreement>('/agreements', id, payload)
       const index = agreements.value.findIndex(agreement => agreement.id === id)
       if (index !== -1) {
         agreements.value[index] = updatedAgreement
@@ -99,7 +99,7 @@ export const useAgreementsStore = defineStore('agreements', () => {
 
   async function deleteAgreement(id: string) {
     try {
-      await officeframeApiService.deleteDictionaryItem('/agreements', id)
+      await coreApiService.deleteDictionaryItem('/agreements', id)
       agreements.value = agreements.value.filter(agreement => agreement.id !== id)
       selectedAgreementIds.value = selectedAgreementIds.value.filter(selId => selId !== id)
     } catch (error) {

@@ -116,7 +116,7 @@ import {
   useMessage
 } from 'naive-ui'
 import FormWrapper from '@/components/FormWrapper.vue'
-import officeframeApiService, { type SubscriptionProductDTO } from '@/services/officeframeApi'
+import coreApiService, { type SubscriptionProductDTO } from '@/services/coreApi'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -143,7 +143,7 @@ async function loadProduct() {
   if (isEditing.value && productId.value) {
     try {
       loading.value = true
-      const dto = await officeframeApiService.getSubscriptionProductDocument(productId.value)
+      const dto = await coreApiService.getSubscriptionProductDocument(productId.value)
       formData.value = {
         identifier: dto.identifier,
         stripePriceId: dto.stripePriceId,
@@ -190,10 +190,10 @@ async function handleSave() {
     }
 
     if (isEditing.value && productId.value) {
-      await officeframeApiService.updateSubscriptionProduct(productId.value, payload)
+      await coreApiService.updateSubscriptionProduct(productId.value, payload)
       message.success('Product updated successfully')
     } else {
-      await officeframeApiService.createSubscriptionProduct(payload)
+      await coreApiService.createSubscriptionProduct(payload)
       message.success('Product created successfully')
     }
     router.push('/dashboard/subscription-products')
