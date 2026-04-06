@@ -32,7 +32,8 @@ import {
   MoonOutline as DarkIcon,
   AppsOutline as MixplaIcon,
   AppsOutline as RaquelIcon,
-  DocumentTextOutline as DraftsIcon
+  DocumentTextOutline as DraftsIcon,
+  ChatbubblesOutline as PromptsIcon
 } from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
@@ -128,6 +129,11 @@ const menuOptions: MenuOption[] = [
         label: 'Drafts',
         key: 'drafts',
         icon: () => h(NIcon, null, { default: () => h(DraftsIcon) })
+      },
+      {
+        label: 'Prompts',
+        key: 'prompts',
+        icon: () => h(NIcon, null, { default: () => h(PromptsIcon) })
       }
     ]
   },
