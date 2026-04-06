@@ -279,6 +279,24 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'prompts',
+          name: 'prompts',
+          component: () => import('../views/PromptsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'prompts/new',
+          name: 'prompt-new',
+          component: () => import('../components/forms/PromptForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'prompts/:id',
+          name: 'prompt-edit',
+          component: () => import('../components/forms/PromptForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'profile',
           name: 'profile',
           component: () => import('../views/ProfileView.vue'),
