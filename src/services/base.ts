@@ -75,8 +75,9 @@ export class ApiClient {
   }
 
   async getDictionary<T>(endpoint: string): Promise<T[]> {
-    const response = await this.request<ApiResponse<T>>(endpoint)
-    return response.payload.viewData.entries
+    const response = await this.request<any>(endpoint)
+    const viewData = response?.payload?.viewData ?? response?.viewData
+    return viewData?.entries ?? []
   }
 
   async getPagedDictionary<T>(
@@ -97,20 +98,21 @@ export class ApiClient {
       }
     }
 
-    const response = await this.request<ApiResponse<T>>(`${endpoint}?${params.toString()}`)
-    const viewData = response.payload.viewData
+    const response = await this.request<any>(`${endpoint}?${params.toString()}`)
+    const viewData = response?.payload?.viewData ?? response?.viewData
+    if (!viewData) throw new Error('Unexpected paged response format')
     return {
-      entries: viewData.entries,
-      count: viewData.count,
-      pageNum: viewData.pageNum,
-      maxPage: viewData.maxPage,
-      pageSize: viewData.pageSize,
+      entries: viewData.entries ?? [],
+      count: viewData.count ?? 0,
+      pageNum: viewData.pageNum ?? pageNum,
+      maxPage: viewData.maxPage ?? 1,
+      pageSize: viewData.pageSize ?? pageSize,
     }
   }
 
   async getDocument<T>(endpoint: string, id: string | number): Promise<T> {
-    const response = await this.request<ApiDocResponse<T>>(`${endpoint}/${id}`)
-    return response.payload.docData
+    const response = await this.request<any>(`${endpoint}/${id}`)
+    return response?.payload?.docData ?? response?.docData ?? response
   }
 
   async createDictionaryItem<T>(endpoint: string, item: Partial<T>): Promise<T> {
