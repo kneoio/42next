@@ -42,6 +42,9 @@ export const usePromptsStore = defineStore('prompts', () => {
       pageNum.value = result.pageNum
       pageSize.value = result.pageSize
       maxPage.value = result.maxPage
+    } catch (error) {
+      console.error('Failed to load prompts:', error)
+      throw error
     } finally {
       loading.value = false
     }

@@ -15,6 +15,7 @@
     "@codemirror/legacy-modes": "^6.5.2",
     "@codemirror/view": "^6.41.0",
     "@vicons/ionicons5": "^0.13.0",
+    "@xiechao/codemirror-lang-handlebars": "^1.0.4",
     "keycloak-js": "^26.2.0",
     "naive-ui": "^2.42.0",
     "pinia": "^3.0.3",

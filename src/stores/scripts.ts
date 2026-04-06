@@ -77,6 +77,9 @@ export const useScriptsStore = defineStore('scripts', () => {
       scenesTotalCount.value = result.count
       scenesPageNum.value = result.pageNum
       scenesPageSize.value = result.pageSize
+    } catch (error) {
+      console.error('Failed to load scenes:', error)
+      throw error
     } finally {
       loading.value = false
     }
