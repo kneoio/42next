@@ -49,6 +49,12 @@ export const useScriptsStore = defineStore('scripts', () => {
   const pageSize = ref(10)
   const maxPage = ref(1)
 
+  // Scenes flat list
+  const scenes = ref<ScriptScene[]>([])
+  const scenesTotalCount = ref(0)
+  const scenesPageNum = ref(1)
+  const scenesPageSize = ref(10)
+
   async function loadScripts(page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
@@ -58,6 +64,19 @@ export const useScriptsStore = defineStore('scripts', () => {
       pageNum.value = result.pageNum
       pageSize.value = result.pageSize
       maxPage.value = result.maxPage
+    } finally {
+      loading.value = false
+    }
+  }
+
+  async function loadScenes(page = scenesPageNum.value, size = scenesPageSize.value) {
+    loading.value = true
+    try {
+      const result = await mixplaApiService.getPagedDictionary<ScriptScene>('/scenes', page, size)
+      scenes.value = result.entries
+      scenesTotalCount.value = result.count
+      scenesPageNum.value = result.pageNum
+      scenesPageSize.value = result.pageSize
     } finally {
       loading.value = false
     }
@@ -111,6 +130,11 @@ export const useScriptsStore = defineStore('scripts', () => {
     pageSize,
     maxPage,
     loadScripts,
+    scenes,
+    scenesTotalCount,
+    scenesPageNum,
+    scenesPageSize,
+    loadScenes,
     fetchScript,
     saveScript,
     deleteScript,

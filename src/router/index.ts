@@ -303,6 +303,12 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'scenes',
+          name: 'scenes',
+          component: () => import('../views/ScenesView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'scripts/new',
           name: 'script-new',
           component: () => import('../components/forms/ScriptForm.vue'),

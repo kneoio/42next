@@ -34,7 +34,11 @@ import {
   AppsOutline as RaquelIcon,
   DocumentTextOutline as DraftsIcon,
   ChatbubblesOutline as PromptsIcon,
-  ReaderOutline as ScriptsIcon
+  ReaderOutline as ScriptsIcon,
+  FilmOutline as ScenesIcon,
+  ServerOutline as CoreIcon,
+  LayersOutline as OfficeFrameIcon,
+  SparklesOutline as DatanestIcon
 } from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
@@ -58,89 +62,106 @@ const menuOptions: MenuOption[] = [
     icon: () => h(NIcon, null, { default: () => h(MixplaIcon) }),
     children: [
       {
-        label: 'Users',
-        key: 'users',
-        icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
-      },
-      {
-        label: 'Billings',
-        key: 'billings',
-        icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
-      },
-      {
-        label: 'Subscriptions',
-        key: 'subscriptions',
-        icon: () => h(NIcon, null, { default: () => h(ModulesIcon) })
-      },
-      {
-        label: 'Subscription Products',
-        key: 'subscription-products',
-        icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
-      },
-      {
-        label: 'Roles',
-        key: 'roles',
-        icon: () => h(NIcon, null, { default: () => h(RolesIcon) })
-      },
-      {
-        label: 'Modules',
-        key: 'modules',
-        icon: () => h(NIcon, null, { default: () => h(ModulesIcon) })
-      },
-      {
-        label: 'Languages',
-        key: 'languages',
-        icon: () => h(NIcon, null, { default: () => h(LanguagesIcon) })
-      },
-      {
-        label: 'Labels',
-        key: 'labels',
-        icon: () => h(NIcon, null, { default: () => h(LabelsIcon) }),
+        label: 'Core',
+        key: 'group:core',
+        icon: () => h(NIcon, null, { default: () => h(CoreIcon) }),
         children: [
           {
-            label: 'Sound Fragment',
-            key: 'labels/sound-fragment'
+            label: 'Users',
+            key: 'users',
+            icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
           },
           {
-            label: 'Script',
-            key: 'labels/script'
+            label: 'Billings',
+            key: 'billings',
+            icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
           },
           {
-            label: 'AI Agent',
-            key: 'labels/ai-agent'
-          }
+            label: 'Subscriptions',
+            key: 'subscriptions',
+            icon: () => h(NIcon, null, { default: () => h(ModulesIcon) })
+          },
+          {
+            label: 'Subscription Products',
+            key: 'subscription-products',
+            icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
+          },
+          {
+            label: 'Roles',
+            key: 'roles',
+            icon: () => h(NIcon, null, { default: () => h(RolesIcon) })
+          },
+          {
+            label: 'Modules',
+            key: 'modules',
+            icon: () => h(NIcon, null, { default: () => h(ModulesIcon) })
+          },
+          {
+            label: 'Languages',
+            key: 'languages',
+            icon: () => h(NIcon, null, { default: () => h(LanguagesIcon) })
+          },
+          {
+            label: 'Agreements',
+            key: 'agreements',
+            icon: () => h(NIcon, null, { default: () => h(AgreementsIcon) })
+          },
+          {
+            label: 'Consents',
+            key: 'consents',
+            icon: () => h(NIcon, null, { default: () => h(ConsentsIcon) })
+          },
         ]
       },
       {
-        label: 'Genres',
-        key: 'genres',
-        icon: () => h(NIcon, null, { default: () => h(GenresIcon) })
+        label: 'OfficeFrame',
+        key: 'group:officeframe',
+        icon: () => h(NIcon, null, { default: () => h(OfficeFrameIcon) }),
+        children: [
+          {
+            label: 'Labels',
+            key: 'labels',
+            icon: () => h(NIcon, null, { default: () => h(LabelsIcon) }),
+            children: [
+              { label: 'Sound Fragment', key: 'labels/sound-fragment' },
+              { label: 'Script', key: 'labels/script' },
+              { label: 'AI Agent', key: 'labels/ai-agent' }
+            ]
+          },
+          {
+            label: 'Genres',
+            key: 'genres',
+            icon: () => h(NIcon, null, { default: () => h(GenresIcon) })
+          },
+        ]
       },
       {
-        label: 'Agreements',
-        key: 'agreements',
-        icon: () => h(NIcon, null, { default: () => h(AgreementsIcon) })
+        label: 'Mixpla',
+        key: 'group:datanest',
+        icon: () => h(NIcon, null, { default: () => h(DatanestIcon) }),
+        children: [
+          {
+            label: 'Drafts',
+            key: 'drafts',
+            icon: () => h(NIcon, null, { default: () => h(DraftsIcon) })
+          },
+          {
+            label: 'Prompts',
+            key: 'prompts',
+            icon: () => h(NIcon, null, { default: () => h(PromptsIcon) })
+          },
+          {
+            label: 'Scripts',
+            key: 'scripts',
+            icon: () => h(NIcon, null, { default: () => h(ScriptsIcon) })
+          },
+          {
+            label: 'Scenes',
+            key: 'scenes',
+            icon: () => h(NIcon, null, { default: () => h(ScenesIcon) })
+          },
+        ]
       },
-      {
-        label: 'Consents',
-        key: 'consents',
-        icon: () => h(NIcon, null, { default: () => h(ConsentsIcon) })
-      },
-      {
-        label: 'Drafts',
-        key: 'drafts',
-        icon: () => h(NIcon, null, { default: () => h(DraftsIcon) })
-      },
-      {
-        label: 'Prompts',
-        key: 'prompts',
-        icon: () => h(NIcon, null, { default: () => h(PromptsIcon) })
-      },
-      {
-        label: 'Scripts',
-        key: 'scripts',
-        icon: () => h(NIcon, null, { default: () => h(ScriptsIcon) })
-      }
     ]
   },
   {
@@ -185,6 +206,8 @@ const handleMenuSelect = async (key: string) => {
     return
   }
 
+  if (key.startsWith('group:')) return
+
   activeKey.value = key
   router.push(`/dashboard/${key}`)
 }
@@ -222,6 +245,7 @@ const handleUserMenuSelect = async (key: string) => {
           :collapsed-icon-size="22"
           :options="menuOptions"
           :value="activeKey"
+          :default-expanded-keys="['mixpla', 'group:datanest']"
           @update:value="handleMenuSelect"
         />
       </NSpace>
