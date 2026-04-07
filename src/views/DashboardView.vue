@@ -263,7 +263,7 @@ const handleUserMenuSelect = async (key: string) => {
       bordered
       collapse-mode="width"
       :collapsed-width="64"
-      :width="240"
+      :width="280"
       :collapsed="collapsed"
       show-trigger
       @collapse="collapsed = true"

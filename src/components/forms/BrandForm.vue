@@ -2,7 +2,8 @@
 import { ref, computed, onMounted } from 'vue'
 import {
   NButton, NSpace, NForm, NFormItem, NInput, NSelect, NSwitch,
-  NTabs, NTabPane, NDynamicInput, NSlider, NRadioGroup, NRadioButton, useMessage
+  NTabs, NTabPane, NDynamicInput, NSlider, NRadioGroup, NRadioButton,
+  NColorPicker, NInputNumber, useMessage
 } from 'naive-ui'
 import FormWrapper from '@/components/FormWrapper.vue'
 import {
@@ -10,25 +11,25 @@ import {
   MANAGED_BY_OPTIONS, AI_AGENT_MODE_OPTIONS, SUBMISSION_POLICY_OPTIONS,
   type ManagedBy, type AiAgentMode, type SubmissionPolicy
 } from '@/stores/brands'
+import { useScriptsStore } from '@/stores/scripts'
 import { useRoute, useRouter } from 'vue-router'
 import mixplaApiService from '@/services/mixplaApi'
 
 const route = useRoute()
 const router = useRouter()
 const store = useBrandsStore()
+const scriptsStore = useScriptsStore()
 const message = useMessage()
 
 const isEditing = computed(() => !!route.params.id && route.params.id !== 'new')
 const loading = ref(false)
 const activeTab = ref('properties')
 
-// localizedName as {lang, name}[] for dynamic input
 const localizedNames = ref<{ lang: string; name: string }[]>([{ lang: 'en', name: '' }])
 
 const formData = ref({
   country: null as string | null,
   description: '',
-  color: '#000000',
   slugName: '',
   timeZone: null as string | null,
   publicBrand: 0,
@@ -41,10 +42,39 @@ const formData = ref({
   submissionPolicy: 'NOT_ALLOWED' as SubmissionPolicy,
   messagingPolicy: 'NOT_ALLOWED' as SubmissionPolicy,
   aiOverriding: { prompt: '', talkativity: 0.5 },
+  scriptId: null as string | null,
+  profileOverriding: { name: '', description: '' },
+  color: '#000000',
+  titleFont: null as string | null,
+  owner: { name: '', email: '' },
 })
+
+const userVariables = ref<Record<string, any>>({})
 
 const agentOptions = ref<{ label: string; value: string }[]>([])
 const profileOptions = ref<{ label: string; value: string }[]>([])
+const scriptOptions = ref<{ label: string; value: string }[]>([])
+
+const selectedScript = computed(() =>
+  formData.value.scriptId
+    ? scriptsStore.scripts.find(s => s.id === formData.value.scriptId)
+    : null
+)
+
+const selectedProfile = computed(() =>
+  profileOptions.value.find(p => p.value === formData.value.profileId) ?? null
+)
+
+const stationFonts = [
+  'Goldman', 'Digital Play Italic St', 'Airborne', 'AncientGod', 'Apollo',
+  'Cubic', 'DigitalPlay', 'Drexs', 'Elias', 'FutureSallow', 'Goodtime',
+  'GameOfSquids', 'Glypic', 'Icklips', 'Moto', 'MontereyPopsicle',
+  'PolenticalNeon', 'Venta', 'Conthrax', 'Kaylon', 'Nsecthin', 'Yonder',
+]
+const stationFontOptions = [
+  { label: '— Default —', value: null },
+  ...stationFonts.map(f => ({ label: f, value: f })),
+]
 
 const COUNTRIES = [
   { label: 'United States', value: 'US' }, { label: 'United Kingdom', value: 'GB' },
@@ -86,6 +116,10 @@ function buildLocalizedName(): Record<string, string> {
   return result
 }
 
+function formatVariableName(name: string) {
+  return name.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())
+}
+
 async function handleSave() {
   try {
     loading.value = true
@@ -98,6 +132,15 @@ async function handleSave() {
       aiAgentId: formData.value.aiAgentId || undefined,
       profileId: formData.value.profileId || undefined,
       aiOverriding: formData.value.aiOverriding.prompt ? formData.value.aiOverriding : undefined,
+      scripts: formData.value.scriptId
+        ? [{ scriptId: formData.value.scriptId, userVariables: userVariables.value }]
+        : undefined,
+      scriptId: formData.value.scriptId || undefined,
+      titleFont: formData.value.titleFont || undefined,
+      profileOverriding: (formData.value.profileOverriding.name || formData.value.profileOverriding.description)
+        ? formData.value.profileOverriding
+        : undefined,
+      owner: (formData.value.owner.name || formData.value.owner.email) ? formData.value.owner : undefined,
     } as any)
     message.success('Brand saved successfully')
     router.push('/dashboard/brands')
@@ -111,9 +154,10 @@ async function handleSave() {
 onMounted(async () => {
   try {
     loading.value = true
-    const [agents, profiles] = await Promise.allSettled([
+    const [agents, profiles, scripts] = await Promise.allSettled([
       mixplaApiService.getPagedDictionary<any>('/aiagents', 1, 100),
       mixplaApiService.getPagedDictionary<any>('/profiles', 1, 100),
+      scriptsStore.loadScripts(1, 200),
     ])
     if (agents.status === 'fulfilled') {
       agentOptions.value = agents.value.entries.map((a: any) => ({
@@ -125,15 +169,18 @@ onMounted(async () => {
         label: p.name || p.id, value: p.id
       }))
     }
+    scriptOptions.value = scriptsStore.scripts.map(s => ({ label: s.name || s.id, value: s.id }))
+
     if (isEditing.value) {
       const brand = await store.fetchBrand(route.params.id as string)
       const ln = brand.localizedName || {}
       localizedNames.value = Object.entries(ln).map(([lang, name]) => ({ lang, name }))
       if (!localizedNames.value.length) localizedNames.value = [{ lang: 'en', name: '' }]
+
+      const firstScript = brand.scripts?.[0] ?? (brand.scriptId ? { scriptId: brand.scriptId } : null)
       formData.value = {
         country: brand.country || null,
         description: brand.description || '',
-        color: brand.color || '#000000',
         slugName: brand.slugName || '',
         timeZone: brand.timeZone || null,
         publicBrand: brand.publicBrand ?? 0,
@@ -149,7 +196,13 @@ onMounted(async () => {
           prompt: brand.aiOverriding?.prompt || '',
           talkativity: brand.aiOverriding?.talkativity ?? 0.5,
         },
+        scriptId: firstScript?.scriptId || null,
+        profileOverriding: { name: brand.profileOverriding?.name || '', description: brand.profileOverriding?.description || '' },
+        color: brand.color || '#000000',
+        titleFont: brand.titleFont || null,
+        owner: { name: brand.owner?.name || '', email: brand.owner?.email || '' },
       }
+      if (firstScript?.userVariables) userVariables.value = { ...firstScript.userVariables }
     }
   } catch (error: any) {
     message.error(error?.message || 'Failed to load')
@@ -212,14 +265,6 @@ onMounted(async () => {
             <span style="margin-left:12px">{{ formData.bitRate }}k</span>
           </NFormItem>
 
-          <NFormItem label="Color">
-            <NInput v-model:value="formData.color" style="width:140px">
-              <template #suffix>
-                <span :style="{ display:'inline-block', width:'16px', height:'16px', borderRadius:'2px', background: formData.color }" />
-              </template>
-            </NInput>
-          </NFormItem>
-
           <NFormItem label="Public">
             <NSwitch :value="formData.publicBrand === 1" @update:value="(v) => formData.publicBrand = v ? 1 : 0" />
           </NFormItem>
@@ -247,11 +292,6 @@ onMounted(async () => {
               filterable clearable style="width: 100%" />
           </NFormItem>
 
-          <NFormItem label="Profile">
-            <NSelect v-model:value="formData.profileId" :options="profileOptions"
-              filterable clearable style="width: 100%" />
-          </NFormItem>
-
           <NFormItem label="AI Override Prompt">
             <NInput v-model:value="formData.aiOverriding.prompt" type="textarea"
               :autosize="{ minRows: 3, maxRows: 6 }" style="width: 100%" />
@@ -265,16 +305,106 @@ onMounted(async () => {
         </NForm>
       </NTabPane>
 
-      <NTabPane name="policies" tab="Policies">
-        <NForm label-placement="left" label-width="180" :disabled="loading">
-          <NFormItem label="Submission Policy">
-            <NSelect v-model:value="formData.submissionPolicy" :options="SUBMISSION_POLICY_OPTIONS" style="width: 220px" />
+      <NTabPane name="script" tab="Script">
+        <NForm label-placement="left" label-width="140" :disabled="loading">
+          <NFormItem label="Script">
+            <NSelect v-model:value="formData.scriptId" :options="scriptOptions"
+              filterable clearable style="width: 100%; max-width: 500px" />
           </NFormItem>
-          <NFormItem label="One-Time Stream Policy">
+
+          <NFormItem v-if="selectedScript?.description" label="Description">
+            <span style="color: #888; font-size: 13px;">{{ selectedScript.description }}</span>
+          </NFormItem>
+
+          <template v-if="selectedScript?.requiredVariables?.length">
+            <NFormItem label="Variables">
+              <div style="width: 100%; max-width: 500px">
+                <div v-for="variable in selectedScript.requiredVariables" :key="variable.name"
+                  style="margin-bottom: 12px">
+                  <div style="margin-bottom: 4px; font-size: 13px">
+                    <strong>{{ formatVariableName(variable.name) }}</strong>
+                    <span v-if="variable.required" style="color: #e74c3c">*</span>
+                    <span style="color: #888; font-size: 12px; margin-left: 8px">{{ variable.description }}</span>
+                  </div>
+                  <NSwitch v-if="variable.type === 'boolean'" v-model:value="userVariables[variable.name]" />
+                  <NInputNumber v-else-if="variable.type === 'number'"
+                    v-model:value="userVariables[variable.name]" style="width: 100%" />
+                  <NInput v-else v-model:value="userVariables[variable.name]" style="width: 100%" />
+                </div>
+              </div>
+            </NFormItem>
+          </template>
+        </NForm>
+      </NTabPane>
+
+      <NTabPane name="audience" tab="Audience">
+        <NForm label-placement="left" label-width="160" :disabled="loading">
+          <NFormItem label="Audience Type">
+            <NSelect v-model:value="formData.profileId" :options="profileOptions"
+              filterable clearable style="width: 100%; max-width: 500px" />
+          </NFormItem>
+
+          <NFormItem v-if="formData.profileId" label="Local Name">
+            <NInput v-model:value="formData.profileOverriding.name"
+              placeholder="Optional override" style="width: 100%; max-width: 500px" />
+          </NFormItem>
+
+          <NFormItem v-if="formData.profileId" label="Additional Info">
+            <NInput v-model:value="formData.profileOverriding.description"
+              type="textarea" :autosize="{ minRows: 3, maxRows: 5 }"
+              placeholder="Optional override" style="width: 100%; max-width: 500px" />
+          </NFormItem>
+        </NForm>
+      </NTabPane>
+
+      <NTabPane name="contribution" tab="Contribution">
+        <NForm label-placement="left" label-width="180" :disabled="loading">
+          <NFormItem label="Messaging">
+            <NSelect v-model:value="formData.messagingPolicy" :options="SUBMISSION_POLICY_OPTIONS" style="width: 220px" />
+          </NFormItem>
+          <NFormItem label="One-Time Stream">
             <NSelect v-model:value="formData.oneTimeStreamPolicy" :options="SUBMISSION_POLICY_OPTIONS" style="width: 220px" />
           </NFormItem>
-          <NFormItem label="Messaging Policy">
-            <NSelect v-model:value="formData.messagingPolicy" :options="SUBMISSION_POLICY_OPTIONS" style="width: 220px" />
+          <NFormItem label="Song Submission">
+            <NSelect v-model:value="formData.submissionPolicy" :options="SUBMISSION_POLICY_OPTIONS" style="width: 220px" />
+          </NFormItem>
+        </NForm>
+      </NTabPane>
+
+      <NTabPane name="playerUi" tab="Player UI">
+        <NForm label-placement="left" label-width="120" :disabled="loading">
+          <NFormItem v-if="localizedNames[0]?.name" label="Preview">
+            <div :style="{
+              fontFamily: formData.titleFont || undefined,
+              fontSize: '34px',
+              lineHeight: '1.1',
+              color: formData.color,
+              padding: '8px 0',
+            }">
+              {{ localizedNames[0].name }}
+            </div>
+          </NFormItem>
+
+          <NFormItem label="Title Font">
+            <NSelect v-model:value="formData.titleFont" :options="stationFontOptions"
+              filterable clearable style="width: 280px" />
+          </NFormItem>
+
+          <NFormItem label="Color">
+            <NColorPicker v-model:value="formData.color" style="width: 200px" />
+          </NFormItem>
+        </NForm>
+      </NTabPane>
+
+      <NTabPane name="owner" tab="Owner">
+        <NForm label-placement="left" label-width="120" :disabled="loading">
+          <NFormItem label="Owner Name">
+            <NInput v-model:value="formData.owner.name"
+              placeholder="Owner name" style="width: 100%; max-width: 400px" />
+          </NFormItem>
+          <NFormItem label="Owner Email">
+            <NInput v-model:value="formData.owner.email"
+              placeholder="owner@example.com" style="width: 100%; max-width: 400px" />
           </NFormItem>
         </NForm>
       </NTabPane>

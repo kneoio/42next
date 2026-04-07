@@ -30,6 +30,10 @@ export interface Brand {
   messagingPolicy?: SubmissionPolicy
   aiOverriding?: { prompt?: string; talkativity?: number }
   scriptId?: string
+  scripts?: Array<{ scriptId: string; userVariables?: Record<string, any> }>
+  profileOverriding?: { name?: string; description?: string }
+  titleFont?: string
+  owner?: { name?: string; email?: string }
   publicBrand?: number
   bitRate?: number
 }
