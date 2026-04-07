@@ -15,24 +15,17 @@ const pagination = computed(() => ({
   pageSizes: [10, 20, 50], showSizePicker: true, itemCount: store.totalCount,
 }))
 
-function getListenerName(row: ListenerEntry): string {
-  const ln = row.listener?.localizedName ?? row.localizedName ?? {}
-  return ln['en'] || Object.values(ln)[0] || row.id
-}
-
-function getListenerField(row: ListenerEntry, field: 'telegramName' | 'country' | 'slugName'): string {
-  return (row.listener?.[field] ?? (row as any)[field]) || '-'
-}
-
 const columns: DataTableColumns<ListenerEntry> = [
   { type: 'selection', multiple: true },
-  { title: 'Name', key: 'name', minWidth: 150, render: (row) => getListenerName(row) },
-  { title: 'Country', key: 'country', width: 100, render: (row) => getListenerField(row, 'country') },
-  { title: 'Telegram', key: 'telegramName', minWidth: 130, render: (row) => getListenerField(row, 'telegramName') },
-  { title: 'Slug', key: 'slugName', minWidth: 120, render: (row) => getListenerField(row, 'slugName') },
-  { title: 'Last Modified', key: 'lastModifiedDate', width: 160,
-    render: (row) => row.listener?.lastModifiedDate || (row as any).lastModifiedDate || '-'
+  { title: 'Name', key: 'localizedName', minWidth: 150,
+    render: (row) => {
+      const ln = row.localizedName || {}
+      return ln['en'] || Object.values(ln)[0] || row.slugName || row.id
+    }
   },
+  { title: 'Email', key: 'email', minWidth: 150, render: (row) => row.email || '-' },
+  { title: 'Slug', key: 'slugName', minWidth: 120, render: (row) => row.slugName || '-' },
+  { title: 'Last Modified', key: 'lastModifiedDate', width: 160, render: (row) => row.lastModifiedDate || '-' },
 ]
 
 async function handleBulkDelete() {

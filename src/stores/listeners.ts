@@ -10,26 +10,17 @@ export interface Listener {
   lastModifiedDate?: string
   localizedName: Record<string, string>
   userId?: number
-  telegramName?: string
-  country?: string
-  nickName?: Record<string, string[]>
+  email?: string
   slugName?: string
-  archived?: number
-  listenerType?: string
-  listenerOf?: string[]
+  nickName?: Record<string, string[]>
   userData?: Record<string, string>
+  archived?: number
+  listenerOf?: string[]
+  labels?: string[]
 }
 
-// The API returns entries as { id, listener: {...} } or flat — handle both
-export interface ListenerEntry {
-  id: string
-  listener?: Listener
-  // flat fields for when API returns without nesting
-  localizedName?: Record<string, string>
-  telegramName?: string
-  country?: string
-  slugName?: string
-}
+// API returns flat listener object (no nesting)
+export type ListenerEntry = Listener
 
 export const useListenersStore = defineStore('listeners', () => {
   const listeners = ref<ListenerEntry[]>([])
