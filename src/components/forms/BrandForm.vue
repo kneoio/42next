@@ -163,7 +163,7 @@ onMounted(async () => {
       mixplaApiService.getPagedDictionary<any>('/aiagents', 1, 100),
       mixplaApiService.getPagedDictionary<any>('/profiles', 1, 100),
       scriptsStore.loadScripts(1, 200),
-      officeframeApiService.getPagedDictionary<any>('/labels/only/category/BRAND', 1, 200),
+      officeframeApiService.getPagedDictionary<any>('/labels/only/category/brand', 1, 200),
     ])
     if (agents.status === 'fulfilled') {
       agentOptions.value = agents.value.entries.map((a: any) => ({
