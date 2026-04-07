@@ -225,11 +225,12 @@ onMounted(async () => {
   <FormWrapper
     :title="isEditing ? 'Edit Script' : 'Create Script'"
     :subtitle="isEditing ? 'Update existing script' : 'Create a new script'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">Save</NButton>
+        <NButton type="primary" @click="handleSave">Save</NButton>
       </NSpace>
     </template>
 

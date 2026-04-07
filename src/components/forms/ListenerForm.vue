@@ -131,11 +131,12 @@ onMounted(async () => {
   <FormWrapper
     :title="isEditing ? 'Edit Listener' : 'Create Listener'"
     :subtitle="isEditing ? 'Update listener' : 'Create a new listener'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="router.push('/dashboard/listeners')">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">Save</NButton>
+        <NButton type="primary" @click="handleSave">Save</NButton>
       </NSpace>
     </template>
 

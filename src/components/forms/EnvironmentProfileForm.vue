@@ -71,11 +71,12 @@ onMounted(async () => {
   <FormWrapper
     :title="isEditing ? 'Edit Environment Profile' : 'Create Environment Profile'"
     :subtitle="isEditing ? 'Update profile' : 'Create a new profile'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="router.push('/dashboard/environment-profiles')">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">Save</NButton>
+        <NButton type="primary" @click="handleSave">Save</NButton>
       </NSpace>
     </template>
 

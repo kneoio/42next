@@ -113,11 +113,12 @@ onMounted(async () => {
   <FormWrapper
     :title="isEditing ? 'Edit Event' : 'Create Event'"
     :subtitle="isEditing ? 'Update event' : 'Create a new broadcast event'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="router.push('/dashboard/events')">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">Save</NButton>
+        <NButton type="primary" @click="handleSave">Save</NButton>
       </NSpace>
     </template>
 

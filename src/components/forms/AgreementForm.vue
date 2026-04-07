@@ -2,11 +2,12 @@
   <FormWrapper
     :title="isEditing ? 'Edit Agreement' : 'Create Agreement'"
     :subtitle="isEditing ? 'Update existing agreement' : 'Create a new agreement'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">
+        <NButton type="primary" @click="handleSave">
           Save
         </NButton>
       </NSpace>

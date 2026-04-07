@@ -97,11 +97,12 @@ onMounted(async () => {
   <FormWrapper
     :title="isEditing ? 'Edit Sound Fragment' : 'Create Sound Fragment'"
     :subtitle="isEditing ? 'Update sound fragment' : 'Create a new sound fragment'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="router.push('/dashboard/sound-fragments')">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">Save</NButton>
+        <NButton type="primary" @click="handleSave">Save</NButton>
       </NSpace>
     </template>
 

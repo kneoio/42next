@@ -3,12 +3,13 @@
     :title="isEditing ? 'Edit Draft' : 'Create Draft'"
     :subtitle="isEditing ? 'Update existing draft' : 'Create a new draft'"
     full-width
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
         <NButton @click="openTestDialog">Test</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">Save</NButton>
+        <NButton type="primary" @click="handleSave">Save</NButton>
       </NSpace>
     </template>
 

@@ -190,11 +190,12 @@ onMounted(async () => {
   <FormWrapper
     :title="isEditing ? 'Edit AI Agent' : 'Create AI Agent'"
     :subtitle="isEditing ? 'Update AI agent' : 'Create a new AI agent'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="router.push('/dashboard/ai-agents')">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">Save</NButton>
+        <NButton type="primary" @click="handleSave">Save</NButton>
       </NSpace>
     </template>
 

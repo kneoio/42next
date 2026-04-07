@@ -2,11 +2,12 @@
   <FormWrapper
     :title="isEditing ? 'Edit Role' : 'Create Role'"
     :subtitle="isEditing ? 'Update existing role' : 'Create a new role'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">
+        <NButton type="primary" @click="handleSave">
           Save
         </NButton>
       </NSpace>

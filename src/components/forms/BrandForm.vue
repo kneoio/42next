@@ -219,11 +219,12 @@ onMounted(async () => {
   <FormWrapper
     :title="isEditing ? 'Edit Brand' : 'Create Brand'"
     :subtitle="isEditing ? 'Update brand / radio station' : 'Create a new brand'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="router.push('/dashboard/brands')">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">Save</NButton>
+        <NButton type="primary" @click="handleSave">Save</NButton>
       </NSpace>
     </template>
 

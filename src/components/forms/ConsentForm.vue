@@ -2,11 +2,12 @@
   <FormWrapper
     :title="isEditing ? 'Edit Consent' : 'Create Consent'"
     :subtitle="isEditing ? 'Update existing consent' : 'Create a new consent'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">
+        <NButton type="primary" @click="handleSave">
           Save
         </NButton>
       </NSpace>

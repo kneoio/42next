@@ -2,11 +2,12 @@
   <FormWrapper
     :title="isEditing ? 'Edit Genre' : 'Create Genre'"
     :subtitle="isEditing ? 'Update existing genre' : 'Create a new genre'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">
+        <NButton type="primary" @click="handleSave">
           Save
         </NButton>
       </NSpace>

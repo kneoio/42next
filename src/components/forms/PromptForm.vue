@@ -254,12 +254,13 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown))
     :title="isEditing ? 'Edit Prompt' : 'Create Prompt'"
     :subtitle="isEditing ? 'Update existing prompt' : 'Create a new prompt'"
     full-width
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
         <NButton @click="openTestDialog">Test</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">Save</NButton>
+        <NButton type="primary" @click="handleSave">Save</NButton>
       </NSpace>
     </template>
 

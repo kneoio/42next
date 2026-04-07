@@ -1,15 +1,17 @@
 
 <template>
   <NConfigProvider :theme="naiveTheme" :theme-overrides="themeOverrides">
-    <NMessageProvider>
-      <NGlobalStyle />
-      <RouterView />
-    </NMessageProvider>
+    <NLoadingBarProvider>
+      <NMessageProvider>
+        <NGlobalStyle />
+        <RouterView />
+      </NMessageProvider>
+    </NLoadingBarProvider>
   </NConfigProvider>
 </template>
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { NMessageProvider, NGlobalStyle, NConfigProvider } from 'naive-ui'
+import { NMessageProvider, NLoadingBarProvider, NGlobalStyle, NConfigProvider } from 'naive-ui'
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
 import { useThemeStore } from '@/stores/theme'
 import { onMounted, computed } from 'vue'

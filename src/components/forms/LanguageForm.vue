@@ -2,11 +2,12 @@
   <FormWrapper
     :title="isEditing ? 'Edit Language' : 'Create Language'"
     :subtitle="isEditing ? 'Update existing language' : 'Create a new language'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">
+        <NButton type="primary" @click="handleSave">
           Save
         </NButton>
       </NSpace>

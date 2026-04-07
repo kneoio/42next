@@ -2,11 +2,12 @@
   <FormWrapper
     :title="isEditing ? 'Edit Billing' : 'Create Billing'"
     :subtitle="isEditing ? 'Update existing billing record' : 'Create a new billing record'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">
+        <NButton type="primary" @click="handleSave">
           Save
         </NButton>
       </NSpace>

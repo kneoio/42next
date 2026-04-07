@@ -2,11 +2,12 @@
   <FormWrapper
     :title="isEditing ? 'Edit Subscription Product' : 'Create Subscription Product'"
     :subtitle="isEditing ? 'Update existing product' : 'Create a new product'"
+    :loading="loading"
   >
     <template #actions>
       <NSpace>
         <NButton @click="handleCancel">Close</NButton>
-        <NButton type="primary" @click="handleSave" :loading="loading">
+        <NButton type="primary" @click="handleSave">
           Save
         </NButton>
       </NSpace>
