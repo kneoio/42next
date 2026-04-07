@@ -76,6 +76,8 @@ const stationFontOptions = [
   ...stationFonts.map(f => ({ label: f, value: f })),
 ]
 
+const BIT_RATE_OPTIONS = [64, 96, 128, 160, 192, 256, 320].map(v => ({ label: `${v} kbps`, value: v }))
+
 const COUNTRIES = [
   { label: 'United States', value: 'US' }, { label: 'United Kingdom', value: 'GB' },
   { label: 'Germany', value: 'DE' }, { label: 'France', value: 'FR' },
@@ -260,9 +262,7 @@ onMounted(async () => {
           </NFormItem>
 
           <NFormItem label="Bit Rate">
-            <NSlider v-model:value="formData.bitRate" :min="64" :max="320" :step="32"
-              :tooltip="false" style="flex:1; max-width:300px" />
-            <span style="margin-left:12px">{{ formData.bitRate }}k</span>
+            <NSelect v-model:value="formData.bitRate" :options="BIT_RATE_OPTIONS" style="width: 160px" />
           </NFormItem>
 
           <NFormItem label="Public">
