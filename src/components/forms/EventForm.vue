@@ -74,7 +74,7 @@ onMounted(async () => {
   try {
     loading.value = true
     const [brands, prompts] = await Promise.allSettled([
-      mixplaApiService.getPagedDictionary<any>('/radio-stations', 1, 200),
+      mixplaApiService.getPagedDictionary<any>('/brands', 1, 200),
       mixplaApiService.getPagedDictionary<any>('/prompts', 1, 200),
     ])
     if (brands.status === 'fulfilled') {

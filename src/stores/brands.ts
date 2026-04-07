@@ -62,7 +62,7 @@ export const useBrandsStore = defineStore('brands', () => {
   async function loadBrands(page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
-      const result = await mixplaApiService.getPagedDictionary<Brand>('/radio-stations', page, size)
+      const result = await mixplaApiService.getPagedDictionary<Brand>('/brands', page, size)
       brands.value = result.entries
       totalCount.value = result.count
       pageNum.value = result.pageNum
@@ -74,17 +74,17 @@ export const useBrandsStore = defineStore('brands', () => {
   }
 
   async function fetchBrand(id: string) {
-    return mixplaApiService.getDocument<Brand>('/radio-stations', id)
+    return mixplaApiService.getDocument<Brand>('/brands', id)
   }
 
   async function saveBrand(id: string | null, data: Partial<Brand>) {
     const { id: _id, author: _a, regDate: _r, lastModifier: _lm, lastModifiedDate: _lmd, status: _s, ...payload } = data as Brand
-    if (id) return mixplaApiService.updateDictionaryItem<Brand>('/radio-stations', id, payload)
-    return mixplaApiService.createDictionaryItem<Brand>('/radio-stations', payload)
+    if (id) return mixplaApiService.updateDictionaryItem<Brand>('/brands', id, payload)
+    return mixplaApiService.createDictionaryItem<Brand>('/brands', payload)
   }
 
   async function deleteBrand(id: string) {
-    return mixplaApiService.deleteDictionaryItem('/radio-stations', id)
+    return mixplaApiService.deleteDictionaryItem('/brands', id)
   }
 
   return { brands, loading, totalCount, pageNum, pageSize, maxPage, loadBrands, fetchBrand, saveBrand, deleteBrand }

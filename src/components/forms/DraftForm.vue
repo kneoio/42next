@@ -171,7 +171,7 @@ async function openTestDialog() {
     const [songs, agents, stations] = await Promise.allSettled([
       mixplaApiService.getPagedDictionary<any>('/sound-fragments', 1, 100),
       mixplaApiService.getPagedDictionary<any>('/ai-agents', 1, 100),
-      mixplaApiService.getPagedDictionary<any>('/radio-stations', 1, 100),
+      mixplaApiService.getPagedDictionary<any>('/brands', 1, 100),
     ])
 
     if (songs.status === 'fulfilled') {

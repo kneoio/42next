@@ -88,7 +88,7 @@ onMounted(async () => {
     loading.value = true
     const [langs, brands, lbls] = await Promise.allSettled([
       coreApiService.getDictionary<any>('/languages'),
-      mixplaApiService.getPagedDictionary<any>('/radio-stations', 1, 200),
+      mixplaApiService.getPagedDictionary<any>('/brands', 1, 200),
       officeframeApiService.getPagedDictionary<any>('/labels/only/category/LISTENER', 1, 200),
     ])
     if (langs.status === 'fulfilled') {

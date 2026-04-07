@@ -52,7 +52,7 @@ onMounted(async () => {
     const [genres, labels, brands] = await Promise.allSettled([
       officeframeApiService.getPagedDictionary<any>('/genres', 1, 200),
       officeframeApiService.getPagedDictionary<any>('/labels/only/category/SOUND_FRAGMENT', 1, 200),
-      mixplaApiService.getPagedDictionary<any>('/radio-stations', 1, 200),
+      mixplaApiService.getPagedDictionary<any>('/brands', 1, 200),
     ])
     if (genres.status === 'fulfilled') {
       genreOptions.value = genres.value.entries.map((g: any) => ({
