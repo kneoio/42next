@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import {
-  NButton, NSpace, NForm, NFormItem, NInput, NSelect, useMessage
+  NButton, NSpace, NForm, NFormItem, NInput, NSelect,
+  NTabs, NTabPane, useMessage
 } from 'naive-ui'
 import FormWrapper from '@/components/FormWrapper.vue'
 import { useSoundFragmentsStore, FRAGMENT_TYPES } from '@/stores/soundFragments'
@@ -16,6 +17,7 @@ const message = useMessage()
 
 const isEditing = computed(() => !!route.params.id && route.params.id !== 'new')
 const loading = ref(false)
+const activeTab = ref('properties')
 
 const formData = ref({
   type: 'SONG' as string,
@@ -103,42 +105,50 @@ onMounted(async () => {
       </NSpace>
     </template>
 
-    <NForm label-placement="left" label-width="120" :disabled="loading">
-      <NFormItem label="Type">
-        <NSelect v-model:value="formData.type" :options="FRAGMENT_TYPES" style="width: 200px" />
-      </NFormItem>
+    <NTabs v-model:value="activeTab">
+      <NTabPane name="properties" tab="Main properties">
+        <NForm label-placement="left" label-width="120" :disabled="loading">
+          <NFormItem label="Type">
+            <NSelect v-model:value="formData.type" :options="FRAGMENT_TYPES" style="width: 200px" />
+          </NFormItem>
 
-      <NFormItem label="Title">
-        <NInput v-model:value="formData.title" style="width: 100%" />
-      </NFormItem>
+          <NFormItem label="Title">
+            <NInput v-model:value="formData.title" style="width: 100%" />
+          </NFormItem>
 
-      <NFormItem label="Artist">
-        <NInput v-model:value="formData.artist" style="width: 100%" />
-      </NFormItem>
+          <NFormItem label="Artist">
+            <NInput v-model:value="formData.artist" style="width: 100%" />
+          </NFormItem>
 
-      <NFormItem label="Album">
-        <NInput v-model:value="formData.album" style="width: 100%" />
-      </NFormItem>
+          <NFormItem label="Album">
+            <NInput v-model:value="formData.album" style="width: 100%" />
+          </NFormItem>
 
-      <NFormItem label="Description">
-        <NInput v-model:value="formData.description" type="textarea"
-          :autosize="{ minRows: 3, maxRows: 8 }" style="width: 100%" />
-      </NFormItem>
+          <NFormItem label="Genres">
+            <NSelect v-model:value="formData.genres" :options="genreOptions"
+              multiple filterable style="width: 100%" />
+          </NFormItem>
 
-      <NFormItem label="Genres">
-        <NSelect v-model:value="formData.genres" :options="genreOptions"
-          multiple filterable style="width: 100%" />
-      </NFormItem>
+          <NFormItem label="Labels">
+            <NSelect v-model:value="formData.labels" :options="labelOptions"
+              multiple filterable style="width: 100%" />
+          </NFormItem>
 
-      <NFormItem label="Labels">
-        <NSelect v-model:value="formData.labels" :options="labelOptions"
-          multiple filterable style="width: 100%" />
-      </NFormItem>
+          <NFormItem label="Assign To">
+            <NSelect v-model:value="formData.representedInBrands" :options="brandOptions"
+              multiple filterable style="width: 100%" />
+          </NFormItem>
+        </NForm>
+      </NTabPane>
 
-      <NFormItem label="Brands">
-        <NSelect v-model:value="formData.representedInBrands" :options="brandOptions"
-          multiple filterable style="width: 100%" />
-      </NFormItem>
-    </NForm>
+      <NTabPane name="description" tab="Description">
+        <NForm label-placement="left" label-width="120" :disabled="loading">
+          <NFormItem label="Description">
+            <NInput v-model:value="formData.description" type="textarea"
+              :autosize="{ minRows: 8, maxRows: 20 }" style="width: 100%" />
+          </NFormItem>
+        </NForm>
+      </NTabPane>
+    </NTabs>
   </FormWrapper>
 </template>
