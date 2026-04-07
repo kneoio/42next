@@ -131,7 +131,8 @@ const menuOptions: MenuOption[] = [
             children: [
               { label: 'Sound Fragment', key: 'labels/sound-fragment' },
               { label: 'Script', key: 'labels/script' },
-              { label: 'AI Agent', key: 'labels/ai-agent' }
+              { label: 'AI Agent', key: 'labels/ai-agent' },
+              { label: 'Brand', key: 'labels/brand' }
             ]
           },
           {

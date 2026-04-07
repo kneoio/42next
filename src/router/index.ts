@@ -129,6 +129,24 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
+          path: 'labels/brand',
+          name: 'labels-brand',
+          component: () => import('../views/labels/BrandLabelsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/brand/new',
+          name: 'label-brand-new',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'labels/brand/:id',
+          name: 'label-brand-edit',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
           path: 'roles/new',
           name: 'role-new',
           component: () => import('../components/forms/RoleForm.vue'),

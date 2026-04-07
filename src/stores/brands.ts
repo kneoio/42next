@@ -36,6 +36,7 @@ export interface Brand {
   owner?: { name?: string; email?: string }
   publicBrand?: number
   bitRate?: number
+  labels?: string[]
 }
 
 export const MANAGED_BY_OPTIONS: { label: string; value: ManagedBy }[] = [

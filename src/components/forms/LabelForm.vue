@@ -110,6 +110,7 @@ const categoryFromRoute = computed(() => {
   if (path.includes('/sound-fragment')) return 'sound_fragment'
   if (path.includes('/script')) return 'script'
   if (path.includes('/ai-agent')) return 'ai_agent'
+  if (path.includes('/brand')) return 'brand'
   return 'sound_fragment'
 })
 
@@ -119,6 +120,7 @@ const returnPath = computed(() => {
   if (path.includes('/sound-fragment')) return '/dashboard/labels/sound-fragment'
   if (path.includes('/script')) return '/dashboard/labels/script'
   if (path.includes('/ai-agent')) return '/dashboard/labels/ai-agent'
+  if (path.includes('/brand')) return '/dashboard/labels/brand'
   return '/dashboard/labels/sound-fragment'
 })
 
@@ -150,8 +152,9 @@ const formData = ref<LabelFormData>({
 const categoryOptions = [
   { label: 'Sound Fragment', value: 'sound_fragment' },
   { label: 'Script', value: 'script' },
-  { label: 'Ai Agent', value: 'ai_agent' },
-  { label: 'Listener', value: 'listener' }
+  { label: 'AI Agent', value: 'ai_agent' },
+  { label: 'Listener', value: 'listener' },
+  { label: 'Brand', value: 'brand' },
 ]
 
 const loading = ref(false)

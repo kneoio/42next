@@ -14,6 +14,7 @@ import {
 import { useScriptsStore } from '@/stores/scripts'
 import { useRoute, useRouter } from 'vue-router'
 import mixplaApiService from '@/services/mixplaApi'
+import officeframeApiService from '@/services/officeframeApi'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,6 +48,7 @@ const formData = ref({
   color: '#000000',
   titleFont: null as string | null,
   owner: { name: '', email: '' },
+  labels: [] as string[],
 })
 
 const userVariables = ref<Record<string, any>>({})
@@ -54,6 +56,7 @@ const userVariables = ref<Record<string, any>>({})
 const agentOptions = ref<{ label: string; value: string }[]>([])
 const profileOptions = ref<{ label: string; value: string }[]>([])
 const scriptOptions = ref<{ label: string; value: string }[]>([])
+const labelOptions = ref<{ label: string; value: string }[]>([])
 
 const selectedScript = computed(() =>
   formData.value.scriptId
@@ -156,10 +159,11 @@ async function handleSave() {
 onMounted(async () => {
   try {
     loading.value = true
-    const [agents, profiles, scripts] = await Promise.allSettled([
+    const [agents, profiles, scripts, lbls] = await Promise.allSettled([
       mixplaApiService.getPagedDictionary<any>('/aiagents', 1, 100),
       mixplaApiService.getPagedDictionary<any>('/profiles', 1, 100),
       scriptsStore.loadScripts(1, 200),
+      officeframeApiService.getPagedDictionary<any>('/labels/only/category/BRAND', 1, 200),
     ])
     if (agents.status === 'fulfilled') {
       agentOptions.value = agents.value.entries.map((a: any) => ({
@@ -169,6 +173,11 @@ onMounted(async () => {
     if (profiles.status === 'fulfilled') {
       profileOptions.value = profiles.value.entries.map((p: any) => ({
         label: p.name || p.id, value: p.id
+      }))
+    }
+    if (lbls.status === 'fulfilled') {
+      labelOptions.value = lbls.value.entries.map((l: any) => ({
+        label: l.identifier || l.title || l.id, value: l.id
       }))
     }
     scriptOptions.value = scriptsStore.scripts.map(s => ({ label: s.name || s.id, value: s.id }))
@@ -203,6 +212,7 @@ onMounted(async () => {
         color: brand.color || '#000000',
         titleFont: brand.titleFont || null,
         owner: { name: brand.owner?.name || '', email: brand.owner?.email || '' },
+        labels: (brand as any).labels || [],
       }
       if (firstScript?.userVariables) userVariables.value = { ...firstScript.userVariables }
     }
@@ -268,6 +278,11 @@ onMounted(async () => {
 
           <NFormItem label="Public">
             <NSwitch :value="formData.publicBrand === 1" @update:value="(v) => formData.publicBrand = v ? 1 : 0" />
+          </NFormItem>
+
+          <NFormItem label="Labels">
+            <NSelect v-model:value="formData.labels" :options="labelOptions"
+              multiple filterable style="width: 100%" />
           </NFormItem>
         </NForm>
       </NTabPane>
