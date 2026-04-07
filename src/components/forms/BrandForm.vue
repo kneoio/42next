@@ -228,7 +228,7 @@ onMounted(async () => {
     </template>
 
     <NTabs v-model:value="activeTab">
-      <NTabPane name="properties" tab="Main properties">
+      <NTabPane name="properties" tab="Properties">
         <NForm label-placement="left" label-width="140" :disabled="loading">
           <NFormItem label="Localized Names">
             <NDynamicInput v-model:value="localizedNames" :on-create="createLocalizedName" style="width:100%">
@@ -271,7 +271,7 @@ onMounted(async () => {
         </NForm>
       </NTabPane>
 
-      <NTabPane name="dj" tab="DJ Settings">
+      <NTabPane name="dj" tab="DJ">
         <NForm label-placement="left" label-width="160" :disabled="loading">
           <NFormItem label="Managed By">
             <NRadioGroup v-model:value="formData.managedBy" name="managed-by">
