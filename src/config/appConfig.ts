@@ -6,6 +6,7 @@ type KeycloakConfig = {
 
 type AppConfig = {
   mixplaServer: string
+  raquelServer: string
   keycloak: KeycloakConfig
 }
 
@@ -31,6 +32,7 @@ function readRequiredEnvString(key: keyof ImportMetaEnv): string {
 
 export const appConfig: AppConfig = {
   mixplaServer: normalizeUrl(readRequiredEnvString('VITE_MIXPLA_SERVER')),
+  raquelServer: normalizeUrl(readEnvString('VITE_RAQUEL_SERVER', '')),
   keycloak: {
     url: normalizeUrl(readEnvString('VITE_KEYCLOAK_URL', 'https://auth.semantyca.com')),
     realm: readEnvString('VITE_KEYCLOAK_REALM', 'master'),

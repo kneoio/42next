@@ -208,8 +208,28 @@ const menuOptions: MenuOption[] = [
     children: [
       {
         label: 'Users',
-        key: 'raquel-users',
+        key: 'raquel/users',
         icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
+      },
+      {
+        label: 'Labels',
+        key: 'raquel/labels/sound-fragment',
+        icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
+      },
+      {
+        label: 'Languages',
+        key: 'raquel/languages',
+        icon: () => h(NIcon, null, { default: () => h(LanguagesIcon) })
+      },
+      {
+        label: 'Drafts',
+        key: 'raquel/drafts',
+        icon: () => h(NIcon, null, { default: () => h(DraftsIcon) })
+      },
+      {
+        label: 'Prompts',
+        key: 'raquel/prompts',
+        icon: () => h(NIcon, null, { default: () => h(PromptsIcon) })
       }
     ]
   },

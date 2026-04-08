@@ -451,6 +451,156 @@ const router = createRouter({
           name: 'profile',
           component: () => import('../views/ProfileView.vue'),
           meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/users',
+          name: 'raquel-users',
+          component: () => import('../views/UsersView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/users/new',
+          name: 'raquel-user-new',
+          component: () => import('../components/forms/UserForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/users/:id',
+          name: 'raquel-user-edit',
+          component: () => import('../components/forms/UserForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels',
+          name: 'raquel-labels',
+          redirect: '/dashboard/raquel/labels/sound-fragment',
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/sound-fragment',
+          name: 'raquel-labels-sound-fragment',
+          component: () => import('../views/labels/SoundFragmentLabelsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/sound-fragment/new',
+          name: 'raquel-label-sound-fragment-new',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/sound-fragment/:id',
+          name: 'raquel-label-sound-fragment-edit',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/script',
+          name: 'raquel-labels-script',
+          component: () => import('../views/labels/ScriptLabelsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/script/new',
+          name: 'raquel-label-script-new',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/script/:id',
+          name: 'raquel-label-script-edit',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/ai-agent',
+          name: 'raquel-labels-ai-agent',
+          component: () => import('../views/labels/AiAgentLabelsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/ai-agent/new',
+          name: 'raquel-label-ai-agent-new',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/ai-agent/:id',
+          name: 'raquel-label-ai-agent-edit',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/brand',
+          name: 'raquel-labels-brand',
+          component: () => import('../views/labels/BrandLabelsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/brand/new',
+          name: 'raquel-label-brand-new',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/labels/brand/:id',
+          name: 'raquel-label-brand-edit',
+          component: () => import('../components/forms/LabelForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/languages',
+          name: 'raquel-languages',
+          component: () => import('../views/LanguagesView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/languages/new',
+          name: 'raquel-language-new',
+          component: () => import('../components/forms/LanguageForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/languages/:id',
+          name: 'raquel-language-edit',
+          component: () => import('../components/forms/LanguageForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/drafts',
+          name: 'raquel-drafts',
+          component: () => import('../views/raquel/DraftsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/drafts/new',
+          name: 'raquel-draft-new',
+          component: () => import('../components/forms/raquel/DraftForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/drafts/:id',
+          name: 'raquel-draft-edit',
+          component: () => import('../components/forms/raquel/DraftForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/prompts',
+          name: 'raquel-prompts',
+          component: () => import('../views/raquel/PromptsView.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/prompts/new',
+          name: 'raquel-prompt-new',
+          component: () => import('../components/forms/raquel/PromptForm.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'raquel/prompts/:id',
+          name: 'raquel-prompt-edit',
+          component: () => import('../components/forms/raquel/PromptForm.vue'),
+          meta: { requiresAuth: true }
         }
       ]
     }
