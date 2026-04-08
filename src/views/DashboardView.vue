@@ -207,29 +207,43 @@ const menuOptions: MenuOption[] = [
     icon: () => h(NIcon, null, { default: () => h(RaquelIcon) }),
     children: [
       {
-        label: 'Users',
-        key: 'raquel/users',
-        icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
+        label: 'Core',
+        key: 'group:raquel-core',
+        icon: () => h(NIcon, null, { default: () => h(CoreIcon) }),
+        children: [
+          {
+            label: 'Users',
+            key: 'raquel/users',
+            icon: () => h(NIcon, null, { default: () => h(UsersIcon) })
+          },
+          {
+            label: 'Labels',
+            key: 'raquel/labels/sound-fragment',
+            icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
+          },
+          {
+            label: 'Languages',
+            key: 'raquel/languages',
+            icon: () => h(NIcon, null, { default: () => h(LanguagesIcon) })
+          },
+        ]
       },
       {
-        label: 'Labels',
-        key: 'raquel/labels/sound-fragment',
-        icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
-      },
-      {
-        label: 'Languages',
-        key: 'raquel/languages',
-        icon: () => h(NIcon, null, { default: () => h(LanguagesIcon) })
-      },
-      {
-        label: 'Drafts',
-        key: 'raquel/drafts',
-        icon: () => h(NIcon, null, { default: () => h(DraftsIcon) })
-      },
-      {
-        label: 'Prompts',
-        key: 'raquel/prompts',
-        icon: () => h(NIcon, null, { default: () => h(PromptsIcon) })
+        label: 'Raquel',
+        key: 'group:raquel-content',
+        icon: () => h(NIcon, null, { default: () => h(DatanestIcon) }),
+        children: [
+          {
+            label: 'Drafts',
+            key: 'raquel/drafts',
+            icon: () => h(NIcon, null, { default: () => h(DraftsIcon) })
+          },
+          {
+            label: 'Prompts',
+            key: 'raquel/prompts',
+            icon: () => h(NIcon, null, { default: () => h(PromptsIcon) })
+          }
+        ]
       }
     ]
   },
@@ -263,7 +277,7 @@ const handleMenuSelect = async (key: string) => {
     return
   }
 
-  if (key.startsWith('group:')) return
+  if (key.startsWith('group:') || key === 'mixpla' || key === 'raquel') return
 
   activeKey.value = key
   router.push(`/dashboard/${key}`)
@@ -302,7 +316,7 @@ const handleUserMenuSelect = async (key: string) => {
           :collapsed-icon-size="22"
           :options="menuOptions"
           :value="activeKey"
-          :default-expanded-keys="['mixpla', 'group:datanest']"
+          :default-expanded-keys="[]"
           @update:value="handleMenuSelect"
         />
       </NSpace>
