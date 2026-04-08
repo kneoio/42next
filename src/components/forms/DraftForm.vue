@@ -44,7 +44,7 @@
             </template>
             <CodeMirror
               :model-value="formData.content"
-              @update:model-value="(val) => (formData.content = typeof val === 'string' ? val : '')"
+              @update:model-value="(val: string | unknown) => (formData.content = typeof val === 'string' ? val : '')"
               basic
               :disabled="formData.locked"
               :style="{ width: '100%', height: '600px', border: '1px solid #d9d9d9', borderRadius: '3px', overflow: 'auto' }"

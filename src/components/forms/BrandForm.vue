@@ -75,7 +75,7 @@ const stationFonts = [
   'PolenticalNeon', 'Venta', 'Conthrax', 'Kaylon', 'Nsecthin', 'Yonder',
 ]
 const stationFontOptions = [
-  { label: '— Default —', value: null },
+  { label: '— Default —', value: '', type: 'ignored' as const },
   ...stationFonts.map(f => ({ label: f, value: f })),
 ]
 

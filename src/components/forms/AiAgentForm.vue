@@ -43,13 +43,13 @@ const voicesByEngine = ref<Record<string, any[]>>({})
 const langFilters = ref<Record<TtsRole, string[]>>({ dj: [], newsReporter: [], weatherReporter: [] })
 
 const llmTypeOptions = [
-  { label: 'Default', value: null },
+  { label: 'Default', value: '', type: 'ignored' as const },
   { label: 'OpenAI', value: 'OPENAI' },
   { label: 'Anthropic', value: 'ANTHROPIC' },
 ]
 
 const engineOptions = [
-  { label: '—', value: null },
+  { label: '—', value: '', type: 'ignored' as const },
   { label: 'ElevenLabs', value: 'ELEVENLABS' },
   { label: 'ModelsLab', value: 'MODELSLAB' },
   { label: 'Google', value: 'GOOGLE' },

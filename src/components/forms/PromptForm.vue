@@ -46,7 +46,7 @@ const masterPromptOptions = ref<{ label: string; value: string }[]>([])
 const promptTypeOptions = PROMPT_TYPES.map(t => ({ label: t, value: t }))
 
 const llmTypeOptions = [
-  { label: 'Default', value: null },
+  { label: 'Default', value: '' },
   { label: 'OpenAI', value: 'OPENAI' },
   { label: 'Anthropic', value: 'ANTHROPIC' },
 ]
@@ -330,7 +330,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeyDown))
             </template>
             <CodeMirror
               :model-value="formData.prompt"
-              @update:model-value="(val) => (formData.prompt = typeof val === 'string' ? val : '')"
+              @update:model-value="(val: string | unknown) => (formData.prompt = typeof val === 'string' ? val : '')"
               basic
               :disabled="formData.locked"
               :style="{ width: '100%', height: '600px', border: '1px solid #d9d9d9', borderRadius: '3px', overflow: 'auto' }"

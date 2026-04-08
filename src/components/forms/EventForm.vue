@@ -22,7 +22,7 @@ const formData = ref({
   description: '',
   priority: 'MEDIUM',
   brandId: null as string | null,
-  timeZone: null as string | null,
+  timeZone: undefined as string | undefined,
   actions: [] as EventAction[],
 })
 
@@ -96,7 +96,7 @@ onMounted(async () => {
         description: event.description || '',
         priority: event.priority || 'MEDIUM',
         brandId: event.brandId || null,
-        timeZone: event.timeZone || null,
+        timeZone: event.timeZone || undefined,
         actions: event.actions || [],
       }
     }

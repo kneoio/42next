@@ -67,7 +67,7 @@ async function handleSave() {
     await store.saveListener(id, {
       email: email.value,
       slugName: slugName.value || undefined,
-      userId: userId.value || undefined,
+      userId: userId.value ? Number(userId.value) : undefined,
       localizedName: buildRecord(localizedNameArray.value, 'name'),
       nickName: buildRecord(nickNameArray.value, 'names'),
       userData: buildUserData(),

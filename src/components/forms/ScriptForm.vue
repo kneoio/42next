@@ -306,7 +306,7 @@ onMounted(async () => {
           :row-props="(row: ScriptScene) => ({
             style: 'cursor: pointer;',
             onClick: () => {
-              const idx = (formData.value.scenes || []).indexOf(row)
+              const idx = (formData.scenes || []).indexOf(row)
               openSceneDialog(idx >= 0 ? idx : undefined)
             }
           })"
