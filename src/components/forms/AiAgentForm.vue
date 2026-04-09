@@ -29,7 +29,7 @@ const formData = ref({
   podcastMode: 0,
   preferredLang: [] as LanguagePreference[],
   labels: [] as string[],
-  ttsSetting: {} as Record<TtsRole, { id?: string; name?: string; engineType?: string | null }>,
+  ttsSetting: {} as Record<TtsRole, { id?: string; name?: string; engineType?: string | null; gain?: number }>,
   copilotId: null as string | null,
 })
 
@@ -46,6 +46,16 @@ const llmTypeOptions = [
   { label: 'Default', value: '', type: 'ignored' as const },
   { label: 'OpenAI', value: 'OPENAI' },
   { label: 'Anthropic', value: 'ANTHROPIC' },
+]
+
+const voiceGainOptions = [
+  { label: '-12 dB', value: 0.25 },
+  { label: '-6 dB', value: 0.5 },
+  { label: '-2.5 dB', value: 0.75 },
+  { label: '0 dB (default)', value: 1.0 },
+  { label: '+2 dB', value: 1.25 },
+  { label: '+3.5 dB', value: 1.5 },
+  { label: '+6 dB', value: 2.0 },
 ]
 
 const engineOptions = [
@@ -89,7 +99,7 @@ async function loadVoicesForEngine(engine: string, role: TtsRole) {
 
 async function onEngineChange(role: TtsRole, engine: string | null) {
   const ts = { ...formData.value.ttsSetting }
-  ts[role] = { engineType: engine }
+  ts[role] = { engineType: engine, gain: ts[role]?.gain ?? 1.0 }
   formData.value.ttsSetting = ts
   if (engine) await loadVoicesForEngine(engine, role)
 }
@@ -108,7 +118,17 @@ function onVoiceChange(role: TtsRole, voiceId: string | null) {
   } else {
     const engine = ts[role]?.engineType?.toLowerCase()
     const opt = (voicesByEngine.value[engine || ''] || []).find(v => v.id === voiceId)
-    ts[role] = { id: voiceId, name: opt?.name || '', engineType: ts[role]?.engineType }
+    ts[role] = { id: voiceId, name: opt?.name || '', engineType: ts[role]?.engineType, gain: ts[role]?.gain ?? 1.0 }
+  }
+  formData.value.ttsSetting = ts
+}
+
+function onGainChange(role: TtsRole, gain: number) {
+  const ts = { ...formData.value.ttsSetting }
+  if (!ts[role]) {
+    ts[role] = { gain }
+  } else {
+    ts[role] = { ...ts[role], gain }
   }
   formData.value.ttsSetting = ts
 }
@@ -266,6 +286,12 @@ onMounted(async () => {
                     :render-label="renderVoiceLabel"
                     filterable clearable style="width:320px"
                     @update:value="(v) => onVoiceChange(role.key, v)"
+                  />
+                  <NSelect
+                    :value="formData.ttsSetting[role.key]?.gain ?? 1.0"
+                    :options="voiceGainOptions"
+                    style="width:140px"
+                    @update:value="(v) => onGainChange(role.key, v as number)"
                   />
                 </NSpace>
               </NSpace>
