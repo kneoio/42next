@@ -1,23 +1,31 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, computed } from 'vue'
-import { 
-  NDataTable, 
-  NButton, 
-  NSpace, 
+import { onMounted, onBeforeUnmount, computed, ref } from 'vue'
+import {
+  NDataTable,
+  NButton,
+  NSpace,
   NPopconfirm,
   type DataTableColumns
 } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 import { useLanguagesStore, type Language } from '@/stores/languages'
 import { useRouter } from 'vue-router'
 
 const languagesStore = useLanguagesStore()
 const router = useRouter()
 
+const currentPage = ref(1)
+const currentPageSize = ref(20)
+
+const currentPageData = computed(() =>
+  languagesStore.languages.slice((currentPage.value - 1) * currentPageSize.value, currentPage.value * currentPageSize.value)
+)
+
 const pagination = computed(() => ({
-  page: 1,
-  pageSize: 20,
+  page: currentPage.value,
+  pageSize: currentPageSize.value,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
   itemCount: languagesStore.languages.length
@@ -158,13 +166,14 @@ onBeforeUnmount(() => {
           </template>
           Are you sure you want to delete {{ languagesStore.selectedLanguageIds.length }} selected language(s)?
         </NPopconfirm>
-        <NButton 
+        <NButton
           type="warning"
           :disabled="languagesStore.selectedLanguageIds.length === 0"
           @click="handleBulkArchive"
         >
           Archive
         </NButton>
+        <CopyJsonButton :data="currentPageData" />
       </NSpace>
     </ActionBar>
 
@@ -175,6 +184,8 @@ onBeforeUnmount(() => {
       :row-key="(row: Language) => row.id"
       v-model:checked-row-keys="languagesStore.selectedLanguageIds"
       :pagination="pagination"
+      @update:page="(p) => currentPage = p"
+      @update:page-size="(s) => { currentPageSize = s; currentPage = 1 }"
       :row-props="(row: Language) => ({ 
         style: 'cursor: pointer;', 
         onClick: (e: MouseEvent) => {

@@ -1,17 +1,25 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, computed } from 'vue'
+import { onMounted, onBeforeUnmount, computed, ref } from 'vue'
 import { NButton, NDataTable, NSpace, NPopconfirm, type DataTableColumns } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 import { useModulesStore, type Module } from '@/stores/modules'
 import { useRouter } from 'vue-router'
 
 const moduleStore = useModulesStore()
 const router = useRouter()
 
+const currentPage = ref(1)
+const currentPageSize = ref(20)
+
+const currentPageData = computed(() =>
+  moduleStore.modules.slice((currentPage.value - 1) * currentPageSize.value, currentPage.value * currentPageSize.value)
+)
+
 const pagination = computed(() => ({
-  page: 1,
-  pageSize: 20,
+  page: currentPage.value,
+  pageSize: currentPageSize.value,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
   itemCount: moduleStore.modules.length
@@ -140,13 +148,14 @@ onBeforeUnmount(() => {
           </template>
           Are you sure you want to delete {{ moduleStore.selectedModuleIds.length }} selected module(s)?
         </NPopconfirm>
-        <NButton 
+        <NButton
           type="warning"
           :disabled="moduleStore.selectedModuleIds.length === 0"
           @click="handleBulkArchive"
         >
           Archive
         </NButton>
+        <CopyJsonButton :data="currentPageData" />
       </NSpace>
     </ActionBar>
 
@@ -157,6 +166,8 @@ onBeforeUnmount(() => {
       :row-key="(row: Module) => row.id"
       v-model:checked-row-keys="moduleStore.selectedModuleIds"
       :pagination="pagination"
+      @update:page="(p) => currentPage = p"
+      @update:page-size="(s) => { currentPageSize = s; currentPage = 1 }"
       :row-props="(row: Module) => ({ 
         style: 'cursor: pointer;', 
         onClick: (e: MouseEvent) => {

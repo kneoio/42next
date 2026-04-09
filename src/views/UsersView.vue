@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, h, computed } from 'vue'
-import { 
-  NDataTable, 
-  NButton, 
-  NSpace, 
+import { onMounted, onBeforeUnmount, h, computed, ref } from 'vue'
+import {
+  NDataTable,
+  NButton,
+  NSpace,
   NPopconfirm,
   type DataTableColumns
 } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 import type { User } from '@/services/coreApi'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
@@ -16,9 +17,16 @@ import { useRouter } from 'vue-router'
 const userStore = useUserStore()
 const router = useRouter()
 
+const currentPage = ref(1)
+const currentPageSize = ref(20)
+
+const currentPageData = computed(() =>
+  userStore.users.slice((currentPage.value - 1) * currentPageSize.value, currentPage.value * currentPageSize.value)
+)
+
 const pagination = computed(() => ({
-  page: 1,
-  pageSize: 20,
+  page: currentPage.value,
+  pageSize: currentPageSize.value,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
   itemCount: userStore.users.length
@@ -163,13 +171,14 @@ onBeforeUnmount(() => {
           </template>
           Are you sure you want to delete {{ userStore.selectedUserIds.length }} selected user(s)?
         </NPopconfirm>
-        <NButton 
+        <NButton
           type="warning"
           :disabled="userStore.selectedUserIds.length === 0"
           @click="handleBulkArchive"
         >
           Archive
         </NButton>
+        <CopyJsonButton :data="currentPageData" />
       </NSpace>
     </ActionBar>
 
@@ -180,6 +189,8 @@ onBeforeUnmount(() => {
       :row-key="(row: User) => row.login"
       v-model:checked-row-keys="userStore.selectedUserIds"
       :pagination="pagination"
+      @update:page="(p) => currentPage = p"
+      @update:page-size="(s) => { currentPageSize = s; currentPage = 1 }"
       :row-props="(row: User) => ({ 
         style: 'cursor: pointer;', 
         onClick: (e: MouseEvent) => {

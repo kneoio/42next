@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useBrandsStore, type Brand } from '@/stores/brands'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const store = useBrandsStore()
 const router = useRouter()
@@ -57,6 +58,7 @@ onMounted(() => store.loadBrands())
           <template #trigger><NButton type="error" :disabled="selectedIds.length === 0">Delete</NButton></template>
           Delete {{ selectedIds.length }} brand(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="store.brands" />
       </NSpace>
     </ActionBar>
     <NDataTable

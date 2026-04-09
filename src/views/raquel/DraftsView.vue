@@ -11,6 +11,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useRaquelDraftsStore, type RaquelDraft } from '@/stores/raquelDrafts'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const draftsStore = useRaquelDraftsStore()
 const router = useRouter()
@@ -58,6 +59,7 @@ onMounted(() => draftsStore.loadDrafts())
           </template>
           Are you sure you want to delete {{ selectedIds.length }} draft(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="draftsStore.drafts" />
       </NSpace>
     </ActionBar>
 

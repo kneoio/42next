@@ -4,9 +4,12 @@ import {
   NDataTable,
   NTag,
   NSpace,
+  NButton,
   type DataTableColumns
 } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
+import ActionBar from '@/components/ActionBar.vue'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 import { useScriptsStore, type ScriptScene } from '@/stores/scripts'
 import { useRouter } from 'vue-router'
 
@@ -64,6 +67,12 @@ onMounted(() => scriptsStore.loadScenes())
 <template>
   <div>
     <PageHeader title="Scenes" subtitle="All scenes across scripts" :count="scriptsStore.scenesTotalCount" />
+
+    <ActionBar>
+      <NSpace>
+        <CopyJsonButton :data="scriptsStore.scenes" />
+      </NSpace>
+    </ActionBar>
 
     <NDataTable
       :columns="columns"

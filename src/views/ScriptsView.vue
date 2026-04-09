@@ -12,6 +12,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useScriptsStore, type Script } from '@/stores/scripts'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const scriptsStore = useScriptsStore()
 const router = useRouter()
@@ -111,6 +112,7 @@ onMounted(() => scriptsStore.loadScripts())
           </template>
           Are you sure you want to delete {{ selectedIds.length }} script(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="scriptsStore.scripts" />
       </NSpace>
     </ActionBar>
 

@@ -11,6 +11,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import coreApiService, { type UserBillingDTO } from '@/services/coreApi'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const router = useRouter()
 const billings = ref<UserBillingDTO[]>([])
@@ -148,7 +149,7 @@ async function handleBulkDelete() {
           :disabled="selectedBillingIds.length === 0"
         >
           <template #trigger>
-            <NButton 
+            <NButton
               type="error"
               :disabled="selectedBillingIds.length === 0"
             >
@@ -157,6 +158,7 @@ async function handleBulkDelete() {
           </template>
           Are you sure you want to delete {{ selectedBillingIds.length }} selected billing(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="billings" />
       </NSpace>
     </ActionBar>
 

@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { onMounted, onBeforeUnmount, h, computed } from 'vue'
-import { 
-  NDataTable, 
-  NButton, 
-  NSpace, 
+import { onMounted, onBeforeUnmount, h, computed, ref } from 'vue'
+import {
+  NDataTable,
+  NButton,
+  NSpace,
   NPopconfirm,
   type DataTableColumns
 } from 'naive-ui'
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 import { useRolesStore, type Role } from '@/stores/roles'
 import { useRouter } from 'vue-router'
 
@@ -22,9 +23,16 @@ const getLocalizedText = (localizedObj: { [key: string]: string } | undefined, f
   return localizedObj[currentLanguage] || localizedObj['en'] || Object.values(localizedObj)[0] || fallback
 }
 
+const currentPage = ref(1)
+const currentPageSize = ref(20)
+
+const currentPageData = computed(() =>
+  rolesStore.roles.slice((currentPage.value - 1) * currentPageSize.value, currentPage.value * currentPageSize.value)
+)
+
 const pagination = computed(() => ({
-  page: 1,
-  pageSize: 20,
+  page: currentPage.value,
+  pageSize: currentPageSize.value,
   showSizePicker: true,
   pageSizes: [10, 20, 50, 100],
   itemCount: rolesStore.roles.length
@@ -150,13 +158,14 @@ onBeforeUnmount(() => {
           </template>
           Are you sure you want to delete {{ rolesStore.selectedRoleIds.length }} selected role(s)?
         </NPopconfirm>
-        <NButton 
+        <NButton
           type="warning"
           :disabled="rolesStore.selectedRoleIds.length === 0"
           @click="handleBulkArchive"
         >
           Archive
         </NButton>
+        <CopyJsonButton :data="currentPageData" />
       </NSpace>
     </ActionBar>
 
@@ -167,6 +176,8 @@ onBeforeUnmount(() => {
       :row-key="(row: Role) => row.identifier"
       v-model:checked-row-keys="rolesStore.selectedRoleIds"
       :pagination="pagination"
+      @update:page="(p) => currentPage = p"
+      @update:page-size="(s) => { currentPageSize = s; currentPage = 1 }"
       :row-props="(row: Role) => ({ 
         style: 'cursor: pointer;', 
         onClick: (e: MouseEvent) => {

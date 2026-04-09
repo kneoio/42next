@@ -11,6 +11,7 @@ import {
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import coreApiService, { type UserSubscriptionDTO } from '@/services/coreApi'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const router = useRouter()
 const subscriptions = ref<UserSubscriptionDTO[]>([])
@@ -142,7 +143,7 @@ onMounted(() => {
           :disabled="selectedSubscriptionIds.length === 0"
         >
           <template #trigger>
-            <NButton 
+            <NButton
               type="error"
               :disabled="selectedSubscriptionIds.length === 0"
             >
@@ -151,6 +152,7 @@ onMounted(() => {
           </template>
           Are you sure you want to delete {{ selectedSubscriptionIds.length }} selected subscription(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="subscriptions" />
       </NSpace>
     </ActionBar>
 

@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useSoundFragmentsStore, type SoundFragment } from '@/stores/soundFragments'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const store = useSoundFragmentsStore()
 const router = useRouter()
@@ -48,6 +49,7 @@ onMounted(() => store.loadFragments())
           <template #trigger><NButton type="error" :disabled="selectedIds.length === 0">Delete</NButton></template>
           Delete {{ selectedIds.length }} fragment(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="store.fragments" />
       </NSpace>
     </ActionBar>
     <NDataTable

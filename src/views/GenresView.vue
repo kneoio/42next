@@ -12,6 +12,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useGenresStore, type Genre } from '@/stores/genres'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const genresStore = useGenresStore()
 const router = useRouter()
@@ -256,6 +257,7 @@ watch(() => genresStore.filterIdentifier, (newValue) => {
           clearable
           placeholder="Filter by identifier"
         />
+        <CopyJsonButton :data="treeData" />
       </NSpace>
     </ActionBar>
 

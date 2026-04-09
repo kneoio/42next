@@ -11,6 +11,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useAgreementsStore, type Agreement } from '@/stores/agreements'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const agreementsStore = useAgreementsStore()
 const router = useRouter()
@@ -140,7 +141,7 @@ async function handlePageSizeChange(pageSize: number) {
           :disabled="agreementsStore.selectedAgreementIds.length === 0"
         >
           <template #trigger>
-            <NButton 
+            <NButton
               type="error"
               :disabled="agreementsStore.selectedAgreementIds.length === 0"
             >
@@ -149,6 +150,7 @@ async function handlePageSizeChange(pageSize: number) {
           </template>
           Are you sure you want to delete {{ agreementsStore.selectedAgreementIds.length }} selected agreement(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="agreementsStore.agreements" />
       </NSpace>
     </ActionBar>
 

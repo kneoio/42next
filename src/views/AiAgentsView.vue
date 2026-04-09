@@ -5,6 +5,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useAiAgentsStore, type AiAgent } from '@/stores/aiAgents'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const store = useAiAgentsStore()
 const router = useRouter()
@@ -48,6 +49,7 @@ onMounted(() => store.loadAgents())
           </template>
           Delete {{ selectedIds.length }} agent(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="store.agents" />
       </NSpace>
     </ActionBar>
     <NDataTable

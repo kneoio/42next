@@ -11,6 +11,7 @@ import {
 import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import coreApiService, { type SubscriptionProductDTO } from '@/services/coreApi'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const router = useRouter()
 const products = ref<SubscriptionProductDTO[]>([])
@@ -145,7 +146,7 @@ onMounted(() => {
           :disabled="selectedProductIds.length === 0"
         >
           <template #trigger>
-            <NButton 
+            <NButton
               type="error"
               :disabled="selectedProductIds.length === 0"
             >
@@ -154,6 +155,7 @@ onMounted(() => {
           </template>
           Are you sure you want to delete {{ selectedProductIds.length }} selected product(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="products" />
       </NSpace>
     </ActionBar>
 

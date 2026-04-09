@@ -11,6 +11,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useConsentsStore, type UserConsent } from '@/stores/consents'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const consentsStore = useConsentsStore()
 const router = useRouter()
@@ -159,7 +160,7 @@ async function handlePageSizeChange(pageSize: number) {
           :disabled="consentsStore.selectedConsentIds.length === 0"
         >
           <template #trigger>
-            <NButton 
+            <NButton
               type="error"
               :disabled="consentsStore.selectedConsentIds.length === 0"
             >
@@ -168,6 +169,7 @@ async function handlePageSizeChange(pageSize: number) {
           </template>
           Are you sure you want to delete {{ consentsStore.selectedConsentIds.length }} selected consent(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="consentsStore.consents" />
       </NSpace>
     </ActionBar>
 

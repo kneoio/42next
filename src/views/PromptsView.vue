@@ -12,6 +12,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { usePromptsStore, type Prompt } from '@/stores/prompts'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const promptsStore = usePromptsStore()
 const router = useRouter()
@@ -79,6 +80,7 @@ onMounted(() => promptsStore.loadPrompts())
           </template>
           Are you sure you want to delete {{ selectedIds.length }} prompt(s)?
         </NPopconfirm>
+        <CopyJsonButton :data="promptsStore.prompts" />
       </NSpace>
     </ActionBar>
 

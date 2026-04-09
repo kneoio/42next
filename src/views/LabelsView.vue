@@ -50,6 +50,7 @@
           clearable
           placeholder="Filter by identifier"
         />
+        <CopyJsonButton :data="labelsStore.labels" />
       </NSpace>
     </ActionBar>
 
@@ -93,6 +94,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import ActionBar from '@/components/ActionBar.vue'
 import { useLabelsStore, type Label } from '@/stores/labels'
 import { useRouter } from 'vue-router'
+import CopyJsonButton from '@/components/CopyJsonButton.vue'
 
 const labelsStore = useLabelsStore()
 const router = useRouter()
