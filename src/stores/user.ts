@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import coreApiService, { type User } from '@/services/coreApi'
+import raquelApiService from '@/services/raquelApi'
+import type { ApiClient } from '@/services/base'
+import { useRoute } from 'vue-router'
+
+function getApi(): ApiClient {
+  const route = useRoute()
+  return route.meta.api === 'raquel' ? raquelApiService : coreApiService
+}
 
 export const useUserStore = defineStore('user', () => {
   const users = ref<User[]>([])
@@ -14,7 +22,7 @@ export const useUserStore = defineStore('user', () => {
   async function loadUsers() {
     loading.value = true
     try {
-      users.value = await coreApiService.getDictionary<User>('/users')
+      users.value = await getApi().getDictionary<User>('/users')
     } catch (error) {
       console.error('Failed to load users:', error)
       throw error
@@ -25,7 +33,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function createUser(userData: Partial<User>) {
     try {
-      const newUser = await coreApiService.createDictionaryItem<User>('/users', userData)
+      const newUser = await getApi().createDictionaryItem<User>('/users', userData)
       users.value.push(newUser)
       return newUser
     } catch (error) {
@@ -36,7 +44,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function updateUser(login: string, userData: Partial<User>) {
     try {
-      const updatedUser = await coreApiService.updateDictionaryItem<User>('/users', login, userData)
+      const updatedUser = await getApi().updateDictionaryItem<User>('/users', login, userData)
       
       const index = users.value.findIndex(user => user.login === login)
       if (index !== -1) {
@@ -51,7 +59,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function deleteUser(login: string) {
     try {
-      await coreApiService.deleteDictionaryItem('/users', login)
+      await getApi().deleteDictionaryItem('/users', login)
       
       users.value = users.value.filter(user => user.login !== login)
       selectedUserIds.value = selectedUserIds.value.filter(userId => userId !== login)
@@ -63,7 +71,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function archiveUsers(logins: string[]) {
     try {
-      await coreApiService.archiveDictionaryItems('/users', logins)
+      await getApi().archiveDictionaryItems('/users', logins)
       
       // Refresh users after archiving
       await loadUsers()

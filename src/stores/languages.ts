@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import coreApiService from '@/services/coreApi'
+import raquelApiService from '@/services/raquelApi'
+import type { ApiClient } from '@/services/base'
+import { useRoute } from 'vue-router'
+
+function getApi(): ApiClient {
+  const route = useRoute()
+  return route.meta.api === 'raquel' ? raquelApiService : coreApiService
+}
 
 export interface Language {
   id: string
@@ -25,7 +33,7 @@ export const useLanguagesStore = defineStore('languages', () => {
   async function loadLanguages() {
     loading.value = true
     try {
-      languages.value = await coreApiService.getDictionary<Language>('/languages')
+      languages.value = await getApi().getDictionary<Language>('/languages')
     } catch (error) {
       console.error('Failed to load languages:', error)
       throw error
@@ -45,7 +53,7 @@ export const useLanguagesStore = defineStore('languages', () => {
         ...payload
       } = languageData as Partial<Language>
 
-      const newLanguage = await coreApiService.createDictionaryItem<Language>('/languages', payload)
+      const newLanguage = await getApi().createDictionaryItem<Language>('/languages', payload)
       languages.value.push(newLanguage)
       return newLanguage
     } catch (error) {
@@ -65,7 +73,7 @@ export const useLanguagesStore = defineStore('languages', () => {
         ...payload
       } = languageData as Partial<Language>
 
-      const updatedLanguage = await coreApiService.updateDictionaryItem<Language>('/languages', id, payload)
+      const updatedLanguage = await getApi().updateDictionaryItem<Language>('/languages', id, payload)
       
       const index = languages.value.findIndex(language => language.id === id)
       if (index !== -1) {
@@ -80,7 +88,7 @@ export const useLanguagesStore = defineStore('languages', () => {
 
   async function deleteLanguage(id: string) {
     try {
-      await coreApiService.deleteDictionaryItem('/languages', id)
+      await getApi().deleteDictionaryItem('/languages', id)
       
       languages.value = languages.value.filter(language => language.id !== id)
       selectedLanguageIds.value = selectedLanguageIds.value.filter(languageId => languageId !== id)
@@ -92,7 +100,7 @@ export const useLanguagesStore = defineStore('languages', () => {
 
   async function archiveLanguages(ids: string[]) {
     try {
-      await coreApiService.archiveDictionaryItems('/languages', ids)
+      await getApi().archiveDictionaryItems('/languages', ids)
       
       // Refresh languages after archiving
       await loadLanguages()

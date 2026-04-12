@@ -1,6 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import officeframeApiService from '@/services/officeframeApi'
+import raquelApiService from '@/services/raquelApi'
+import type { ApiClient } from '@/services/base'
+import { useRoute } from 'vue-router'
+
+function getApi(): ApiClient {
+  const route = useRoute()
+  return route.meta.api === 'raquel' ? raquelApiService : officeframeApiService
+}
 
 export interface Label {
   id: string
@@ -37,7 +45,7 @@ export const useLabelsStore = defineStore('labels', () => {
   async function loadLabelsByCategory(category: string, page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
-      const result = await officeframeApiService.getPagedDictionary<Label>(`/labels/only/category/${category}`, page, size, {
+      const result = await getApi().getPagedDictionary<Label>(`/labels/only/category/${category}`, page, size, {
         search: filterIdentifier.value || undefined
       })
       labels.value = result.entries
@@ -56,7 +64,7 @@ export const useLabelsStore = defineStore('labels', () => {
   async function loadLabels(page = pageNum.value, size = pageSize.value) {
     loading.value = true
     try {
-      const result = await officeframeApiService.getPagedDictionary<Label>('/labels', page, size, {
+      const result = await getApi().getPagedDictionary<Label>('/labels', page, size, {
         category: filterCategory.value || undefined,
         search: filterIdentifier.value || undefined
       })
@@ -75,7 +83,7 @@ export const useLabelsStore = defineStore('labels', () => {
 
   async function fetchLabel(id: string) {
     try {
-      return await officeframeApiService.getDocument<Label>('/labels', id)
+      return await getApi().getDocument<Label>('/labels', id)
     } catch (error) {
       console.error('Failed to fetch label:', error)
       throw error
@@ -95,7 +103,7 @@ export const useLabelsStore = defineStore('labels', () => {
         ...payload
       } = labelData as Partial<Label>
 
-      const newLabel = await officeframeApiService.createDictionaryItem<Label>('/labels', payload)
+      const newLabel = await getApi().createDictionaryItem<Label>('/labels', payload)
       labels.value.push(newLabel)
       return newLabel
     } catch (error) {
@@ -117,7 +125,7 @@ export const useLabelsStore = defineStore('labels', () => {
         ...payload
       } = labelData as Partial<Label>
 
-      const updatedLabel = await officeframeApiService.updateDictionaryItem<Label>('/labels', id, payload)
+      const updatedLabel = await getApi().updateDictionaryItem<Label>('/labels', id, payload)
       const index = labels.value.findIndex(label => label.id === id)
       if (index !== -1) {
         labels.value[index] = updatedLabel
@@ -134,7 +142,7 @@ export const useLabelsStore = defineStore('labels', () => {
       const label = labels.value.find(label => label.identifier === identifier)
       const idToDelete = label ? label.id : identifier
 
-      await officeframeApiService.deleteDictionaryItem('/labels', idToDelete)
+      await getApi().deleteDictionaryItem('/labels', idToDelete)
       labels.value = labels.value.filter(label => label.identifier !== identifier)
     } catch (error) {
       console.error('Failed to delete label:', error)
@@ -149,7 +157,7 @@ export const useLabelsStore = defineStore('labels', () => {
         return label ? label.id : identifier
       })
 
-      await officeframeApiService.archiveDictionaryItems('/labels', idsToArchive)
+      await getApi().archiveDictionaryItems('/labels', idsToArchive)
       // Remove archived labels from the list (by identifier, UI-facing key)
       labels.value = labels.value.filter(label => !identifiers.includes(label.identifier))
     } catch (error) {
