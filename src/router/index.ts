@@ -51,24 +51,6 @@ const router = createRouter({
           meta: { requiresAuth: true }
         },
         {
-          path: 'languages',
-          name: 'languages',
-          component: () => import('../views/LanguagesView.vue'),
-          meta: { requiresAuth: true }
-        },
-        {
-          path: 'languages/new',
-          name: 'language-new',
-          component: () => import('../components/forms/LanguageForm.vue'),
-          meta: { requiresAuth: true }
-        },
-        {
-          path: 'languages/:id',
-          name: 'language-edit',
-          component: () => import('../components/forms/LanguageForm.vue'),
-          meta: { requiresAuth: true }
-        },
-        {
           path: 'labels',
           name: 'labels',
           redirect: '/dashboard/labels/sound-fragment',
@@ -473,97 +455,19 @@ const router = createRouter({
         {
           path: 'raquel/labels',
           name: 'raquel-labels',
-          redirect: '/dashboard/raquel/labels/sound-fragment',
+          component: () => import('../views/raquel/LabelsView.vue'),
           meta: { requiresAuth: true, api: 'raquel' }
         },
         {
-          path: 'raquel/labels/sound-fragment',
-          name: 'raquel-labels-sound-fragment',
-          component: () => import('../views/labels/SoundFragmentLabelsView.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/sound-fragment/new',
-          name: 'raquel-label-sound-fragment-new',
+          path: 'raquel/labels/new',
+          name: 'raquel-label-new',
           component: () => import('../components/forms/LabelForm.vue'),
           meta: { requiresAuth: true, api: 'raquel' }
         },
         {
-          path: 'raquel/labels/sound-fragment/:id',
-          name: 'raquel-label-sound-fragment-edit',
+          path: 'raquel/labels/:id',
+          name: 'raquel-label-edit',
           component: () => import('../components/forms/LabelForm.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/script',
-          name: 'raquel-labels-script',
-          component: () => import('../views/labels/ScriptLabelsView.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/script/new',
-          name: 'raquel-label-script-new',
-          component: () => import('../components/forms/LabelForm.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/script/:id',
-          name: 'raquel-label-script-edit',
-          component: () => import('../components/forms/LabelForm.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/ai-agent',
-          name: 'raquel-labels-ai-agent',
-          component: () => import('../views/labels/AiAgentLabelsView.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/ai-agent/new',
-          name: 'raquel-label-ai-agent-new',
-          component: () => import('../components/forms/LabelForm.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/ai-agent/:id',
-          name: 'raquel-label-ai-agent-edit',
-          component: () => import('../components/forms/LabelForm.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/brand',
-          name: 'raquel-labels-brand',
-          component: () => import('../views/labels/BrandLabelsView.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/brand/new',
-          name: 'raquel-label-brand-new',
-          component: () => import('../components/forms/LabelForm.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/labels/brand/:id',
-          name: 'raquel-label-brand-edit',
-          component: () => import('../components/forms/LabelForm.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/languages',
-          name: 'raquel-languages',
-          component: () => import('../views/LanguagesView.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/languages/new',
-          name: 'raquel-language-new',
-          component: () => import('../components/forms/LanguageForm.vue'),
-          meta: { requiresAuth: true, api: 'raquel' }
-        },
-        {
-          path: 'raquel/languages/:id',
-          name: 'raquel-language-edit',
-          component: () => import('../components/forms/LanguageForm.vue'),
           meta: { requiresAuth: true, api: 'raquel' }
         },
         {

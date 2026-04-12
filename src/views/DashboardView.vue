@@ -218,13 +218,8 @@ const menuOptions: MenuOption[] = [
           },
           {
             label: 'Labels',
-            key: 'raquel/labels/sound-fragment',
+            key: 'raquel/labels',
             icon: () => h(NIcon, null, { default: () => h(LabelsIcon) })
-          },
-          {
-            label: 'Languages',
-            key: 'raquel/languages',
-            icon: () => h(NIcon, null, { default: () => h(LanguagesIcon) })
           },
         ]
       },
