@@ -3,7 +3,7 @@ import { appConfig } from '@/config/appConfig'
 
 class RaquelApiService extends ApiClient {
   constructor() {
-    super(`${appConfig.raquelServer}`)
+    super(`${appConfig.raquelServer}/raquel`)
   }
 }
 
